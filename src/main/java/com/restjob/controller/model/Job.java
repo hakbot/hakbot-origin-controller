@@ -42,8 +42,8 @@ import java.util.UUID;
                 query="SELECT j FROM Job j order by j.created asc"),
         @NamedQuery(name="Job.getJobByUuid",
                 query="SELECT j FROM Job j where j.uuid=:uuid"),
-        @NamedQuery(name="Job.getWaitingJobs",
-                query="SELECT j FROM Job j where j.state='Created' order by j.created asc")
+        @NamedQuery(name="Job.getJobsByState",
+                query="SELECT j FROM Job j where j.state=:state order by j.created asc")
 })
 public class Job implements Serializable {
 
