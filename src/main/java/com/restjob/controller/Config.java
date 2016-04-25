@@ -76,4 +76,8 @@ public final class Config {
         return Integer.parseInt(getProperty(item));
     }
 
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+
 }
