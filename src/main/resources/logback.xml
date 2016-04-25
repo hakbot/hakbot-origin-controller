@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <!--<file>${catalina.base}/logs/restjob-controller.log</file>-->
+        <file>${user.home}/.restjob-controller/restjob-controller.log</file>
+        <encoder>
+            <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.restjob" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <root level="DEBUG">
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
