@@ -42,7 +42,7 @@ a custom provider is straight-forward and simply involves extending the BaseProv
 Providers included with RESTjob Controller:
 
 * Shell Provider - Executes any shell command or script
-* AppSpider Pro Provider - Performs AppSpider (formally NTOSpider) dynamic analysis
+* AppSpider Provider - Performs AppSpider Pro (formally NTOSpider) dynamic analysis
 
 Compiling
 -------------------
