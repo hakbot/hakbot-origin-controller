@@ -16,6 +16,7 @@
  */
 package com.restjob.controller.providers.AppSpider;
 
+import com.restjob.controller.Config;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.controller.providers.BaseProvider;
@@ -23,37 +24,53 @@ import com.restjob.controller.providers.AppSpider.ws.NTOService;
 import com.restjob.controller.providers.AppSpider.ws.NTOServiceSoap;
 import com.restjob.controller.providers.AppSpider.ws.Result;
 import com.restjob.controller.providers.AppSpider.ws.SYSTEMINFO;
-import com.restjob.controller.providers.shell.ShellProvider;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AppSpiderProvider extends BaseProvider {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(ShellProvider.class);
+    private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
-    private static final String username = "AppSpider";
-    private static final String password = "Se!e2956ebb6a0c";
+    private static Map<String, ScanEngine> scanEngineMap = new HashMap<>();
+    static {
+        String[] scanners = Config.getInstance().getProperty("provider.appspider.scanners").split(",");
+        for (String s: scanners) {
+            s = s.trim();
+            ScanEngine engine = new ScanEngine();
+            engine.setAlias(Config.getInstance().getProperty("provider.appspider." + s + ".alias").trim());
+            engine.setUsername(Config.getInstance().getProperty("provider.appspider." + s + ".username").trim());
+            engine.setPassword(Config.getInstance().getProperty("provider.appspider." + s + ".password").trim());
+            try {
+                engine.setWsdlLocation(new URL(Config.getInstance().getProperty("provider.appspider." + s + ".url").trim()));
+            } catch (MalformedURLException e) {
+                logger.error("The URL specified for the scanner engine is not valid. " + e.getMessage());
+            }
+            scanEngineMap.putIfAbsent(engine.getAlias(), engine);
+        }
+    }
 
     public boolean process(Job job) {
-        Holder<Result> resultHolder = new Holder<>();
-        Holder<SYSTEMINFO> dataHolder = new Holder<>();
+        //todo: change this - testing only - need to define the payload for this provider
+        String alias = job.getPayload();
 
-        URL url;
-        try {
-            url = new URL("http://appspider-east.example.com/AppSpiderEntScanEngine/default.asmx?WSDL");
-        } catch (MalformedURLException e){
-            logger.error(e.getMessage());
+        ScanEngine engine = scanEngineMap.get(alias);
+        if (engine == null) {
+            logger.error("The specified scan engine is not defined.");
             return false;
         }
 
-        NTOService service = new NTOService(url, new QName("NTOService"));
+        Holder<Result> resultHolder = new Holder<>();
+        Holder<SYSTEMINFO> dataHolder = new Holder<>();
+
+        NTOService service = new NTOService(engine.getWsdlLocation(), engine.getServiceName());
         NTOServiceSoap soap = service.getNTOServiceSoap();
 
-        soap.getSysInfo(username, password, null, resultHolder, dataHolder);
+        soap.getSysInfo(engine.getUsername(), engine.getPassword(), null, resultHolder, dataHolder);
 
         Result result = resultHolder.value;
         if (result.isSuccess()) {
@@ -70,6 +87,11 @@ public class AppSpiderProvider extends BaseProvider {
     }
 
     public boolean cancel() {
+        return true; //todo
+    }
+
+    @Override
+    public boolean isAvailable(Job job) {
         return true; //todo
     }
 
