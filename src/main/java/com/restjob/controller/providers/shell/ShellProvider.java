@@ -22,6 +22,7 @@ import com.restjob.controller.providers.BaseProvider;
 import com.restjob.controller.workers.JobException;
 import com.restjob.controller.workers.State;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +40,19 @@ public class ShellProvider extends BaseProvider {
             ProcessBuilder pb = new ProcessBuilder(job.getPayload().split(" "));
             process = pb.start();
             int exitCode = process.waitFor();
-            super.setResult(IOUtils.toByteArray(process.getInputStream()));
+            byte[] stdout = IOUtils.toByteArray(process.getInputStream());
+            byte[] stderr = IOUtils.toByteArray(process.getErrorStream());
+            if (logger.isDebugEnabled()) {
+                logger.debug("STDOUT:");
+                logger.debug(new String(stdout));
+                logger.debug("STDERR:");
+                logger.debug(new String(stderr));
+            }
+            super.setResult(stdout);
             if (exitCode != 0) {
+                if (StringUtils.isEmpty(super.getResult())) {
+                    super.setResult(stderr);
+                }
                 throw new JobException(exitCode);
             }
         } catch (IOException | InterruptedException e) {
