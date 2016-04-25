@@ -54,41 +54,50 @@ public class JobExecutor implements Runnable {
         if (job.getUuid() == null || job.getPayload() == null) {
             return;
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Job: " + job.getUuid() + " is being executed.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Job: " + job.getUuid() + " is being executed.");
         }
 
-        em.getTransaction().begin();
-        job.setStarted(new Date());
-        em.getTransaction().commit();
-
+        boolean isAvailable = false;
         boolean success = false;
         String result = null;
         try {
             Class clazz = Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
-            //if (clazz.isAssignableFrom(Controllable.class)) { /
-            // /todo - ensure only classes that extend BaseProvider or implement Controllable are allowed
-                Constructor<?> constructor = clazz.getConstructor();
-                this.provider = (BaseProvider) constructor.newInstance();
+            // /todo - whitelist allowable classes
+            Constructor<?> constructor = clazz.getConstructor();
+            this.provider = (BaseProvider) constructor.newInstance();
+            isAvailable = provider.isAvailable(job);
+            if (isAvailable) {
+                em.getTransaction().begin();
+                job.setState(State.IN_PROGRESS);
+                job.setStarted(new Date());
+                em.getTransaction().commit();
+
                 provider.process(job);
                 success = job.getSuccess();
                 result = provider.getResult();
-            //}
+            } else {
+                em.getTransaction().begin();
+                job.setState(State.UNAVAILABLE);
+                em.getTransaction().commit();
+            }
         } catch (ClassNotFoundException | NoSuchMethodException |
                 IllegalAccessException | InstantiationException | InvocationTargetException e) {
             logger.error(e.getMessage());
         } finally {
-            em.getTransaction().begin();
-            job.setResult(result);
-            job.setState(State.COMPLETED);
-            job.setCompleted(new Date());
-            job.setSuccess(success);
-            em.getTransaction().commit();
+            if (isAvailable) {
+                em.getTransaction().begin();
+                job.setResult(result);
+                job.setState(State.COMPLETED);
+                job.setCompleted(new Date());
+                job.setSuccess(success);
+                em.getTransaction().commit();
+            }
             isExecuting = false;
-            if (logger.isDebugEnabled()) {
-                logger.debug(job.getUuid() + " - Provider: " + job.getProvider());
-                logger.debug(job.getUuid() + " - State: " + job.getState());
-                logger.debug(job.getUuid() + " - Success: " + job.getSuccess());
+            if (logger.isInfoEnabled()) {
+                logger.info(job.getUuid() + " - Provider: " + job.getProvider());
+                logger.info(job.getUuid() + " - State: " + job.getState());
+                logger.info(job.getUuid() + " - Success: " + job.getSuccess());
             }
         }
     }

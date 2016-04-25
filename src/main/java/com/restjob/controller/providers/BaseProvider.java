@@ -16,12 +16,31 @@
  */
 package com.restjob.controller.providers;
 
+import com.restjob.controller.model.Job;
+
 import java.util.Base64;
 
 public abstract class BaseProvider implements Controllable {
 
     private String result;
 
+
+    /**
+     * Determines if the provider is available to process jobs. Some providers
+     * will be available at all times regardless of the properties of the job,
+     * other providers may restrict how many instances of certain jobs may be
+     * executed at one time.
+     *
+     * By default, all jobs are available to be processed. This method can be
+     * overwritten if additional checks in a provider are required.
+     */
+    public boolean isAvailable(Job job) {
+        return true;
+    }
+
+    /**
+     * Sets the result from the job (if any). Results are Base64 encoded.
+     */
     public void setResult(byte[] result) {
         if (result.length == 0) {
             return;
@@ -29,6 +48,9 @@ public abstract class BaseProvider implements Controllable {
         this.result = Base64.getEncoder().encodeToString(result);
     }
 
+    /**
+     * Sets the result from the job (if any). Results are Base64 encoded.
+     */
     public void setResult(Object result) {
         if (result == null) {
             return;
@@ -36,6 +58,9 @@ public abstract class BaseProvider implements Controllable {
         this.result = Base64.getEncoder().encodeToString(result.toString().getBytes());
     }
 
+    /**
+     * Returns the Base64 encoded results.
+     */
     public String getResult() {
         return result;
     }

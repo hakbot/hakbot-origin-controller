@@ -20,14 +20,41 @@ import com.restjob.controller.model.Job;
 
 public interface Controllable {
 
+    /**
+     * Determines if the provider is available to process jobs. Some providers
+     * will be available at all times regardless of the properties of the job,
+     * other providers may restrict how many instances of certain jobs may be
+     * executed at one time.
+     */
+    boolean isAvailable(Job job);
+
+    /**
+     * Process the job. Returns true if the job was successful, false if not.
+     */
     boolean process(Job job);
 
+    /**
+     * Cancels the job. Returns true if the job was canceled successfully, false
+     * if not canceled successfully.
+     */
     boolean cancel();
 
+    /**
+     * Get the results of a provider. Results may be the result from STDOUT, a
+     * report, or a binary. Results should always be Base64 encoded.
+     */
     Object getResult();
 
+    /**
+     * Sets the result from the job (if any). Results should always be Base64
+     * encoded.
+     */
     void setResult(byte[] result);
 
+    /**
+     * Sets the result from the job (if any). Results should always be Base64
+     * encoded.
+     */
     void setResult(Object result);
 
 }

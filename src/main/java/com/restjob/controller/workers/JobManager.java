@@ -77,6 +77,13 @@ public class JobManager {
         int queueCheckInterval = Config.getInstance().getPropertyAsInt(ConfigItem.QUEUE_CHECK_INTERVAL) * 1000;
         int jobCleanupInterval = Config.getInstance().getPropertyAsInt(ConfigItem.JOB_CLEANUP_INTERVAL) * 1000;
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Max Job Size: " + maxJobSize);
+            logger.debug("Max Queue Size: " + maxQueueSize);
+            logger.debug("Queue Check Interval: " + queueCheckInterval);
+            logger.debug("Job Cleanup Interval: " + jobCleanupInterval);
+        }
+
         executors = new ArrayBlockingQueue<>(maxJobSize);
         workQueue = new LinkedList<>();
 
@@ -104,6 +111,9 @@ public class JobManager {
      * @param job the Job object to add to queue
      */
     private synchronized void add(Job job) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding job to queue: " + job.getUuid());
+        }
         if (workQueue.size() < maxQueueSize) {
             em.getTransaction().begin();
             job.setState(State.IN_QUEUE);
@@ -119,6 +129,9 @@ public class JobManager {
      * @param job the Job object to remove from the queue or from current running processes
      */
     public synchronized void cancel(Job job) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Canceling job: " + job.getUuid());
+        }
         // First, check the queue, if job exists in queue, remove it
         for (Job checkJob: workQueue) {
             if (checkJob.getUuid().equals(job.getUuid())) {
@@ -225,7 +238,9 @@ public class JobManager {
      */
     class JobSchedulerTask extends TimerTask {
         public synchronized void run() {
-            logger.debug("Polling for new jobs");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Polling for new jobs");
+            }
 
             for (Job job: getWaitingJobs()) {
                 add(job);
@@ -234,10 +249,6 @@ public class JobManager {
             if (executors.size() < maxJobSize && workQueue.size() > 0) {
                 // There is an opening for new work to be performed. Get the job from the queue.
                 Job job = workQueue.remove();
-
-                em.getTransaction().begin();
-                job.setState(State.IN_PROGRESS);
-                em.getTransaction().commit();
 
                 // Create and start new JobExecutor
                 JobExecutor executor = new JobExecutor(em, job);
@@ -250,8 +261,16 @@ public class JobManager {
         }
 
         private List<Job> getWaitingJobs() {
-            TypedQuery<Job> query = em.createNamedQuery("Job.getWaitingJobs", Job.class);
-            List<Job> jobs = query.getResultList();
+            List<Job> jobs = new ArrayList<>();
+
+            TypedQuery<Job> query = em.createNamedQuery("Job.getJobsByState", Job.class);
+            query.setParameter("state", State.UNAVAILABLE.getValue());
+            jobs.addAll(query.getResultList());
+
+            query = em.createNamedQuery("Job.getJobsByState", Job.class);
+            query.setParameter("state", State.CREATED.getValue());
+            jobs.addAll(query.getResultList());
+
             return jobs;
         }
     }

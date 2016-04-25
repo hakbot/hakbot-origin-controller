@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  * <li>Completed - The job has executed (not necessarily successfully) and is archived in the database as a PersistableJob.</li>
  * <li>Canceled - The thread executing a job was requested to abort resulting in an canceled job.</li>
  * <li>Paused - The thread executing a job was requested to pause execution. Paused jobs still take up available job slots because the threads executing them are still active.</li>
+ * <li>Unavailable - A job in the queue was scheduled to be executed (in progress) but the provider was not available to process the job.</li>
  */
 @XmlType
 @XmlEnum(String.class)
@@ -36,7 +37,8 @@ public enum	State {
     @XmlEnumValue("In Queue") IN_QUEUE("In Queue"),
     @XmlEnumValue("In Progress") IN_PROGRESS("In Progress"),
     @XmlEnumValue("Completed") COMPLETED("Completed"),
-    @XmlEnumValue("Canceled") CANCELED("Canceled");
+    @XmlEnumValue("Canceled") CANCELED("Canceled"),
+    @XmlEnumValue("Unavailable") UNAVAILABLE("Unavailable");
 
     String stateName;
     State(String state) {
