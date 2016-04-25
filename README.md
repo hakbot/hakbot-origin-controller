@@ -33,6 +33,16 @@ Features
 * Embedded database engine (H2)
 * Requires Java 8 or higher
 
+Providers
+-------------------
+
+Providers are the integration points that can be controlled through the RESTjob Controller. Writing
+a custom provider is straight-forward and simply involves extending the BaseProvider class.
+
+Providers includes with RESTjob Controller include:
+
+* Shell Provider - Executes any shell command or script
+* AppSpider Pro Provider - Performs AppSpider (formally NTOSpider) dynamic analysis
 
 Compiling
 -------------------
