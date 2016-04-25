@@ -39,7 +39,7 @@ Providers
 Providers are the integration points that can be controlled through the RESTjob Controller. Writing
 a custom provider is straight-forward and simply involves extending the BaseProvider class.
 
-Providers includes with RESTjob Controller include:
+Providers included with RESTjob Controller:
 
 * Shell Provider - Executes any shell command or script
 * AppSpider Pro Provider - Performs AppSpider (formally NTOSpider) dynamic analysis
