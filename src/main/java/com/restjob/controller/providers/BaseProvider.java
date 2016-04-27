@@ -24,6 +24,14 @@ public abstract class BaseProvider implements Controllable {
 
     private String result;
 
+    /**
+     * This method is called prior to any other method and is intended to initialize
+     * the instance of the provider. This method can be overwritten if initialization
+     * of the provider is necessary.
+     */
+    public boolean initialize(Job job) {
+        return true;
+    }
 
     /**
      * Determines if the provider is available to process jobs. Some providers
