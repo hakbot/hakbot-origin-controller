@@ -21,6 +21,12 @@ import com.restjob.controller.model.Job;
 public interface Controllable {
 
     /**
+     * This method is called prior to any other method and is intended to initialize
+     * the instance of the provider.
+     */
+    boolean initialize(Job job);
+
+    /**
      * Determines if the provider is available to process jobs. Some providers
      * will be available at all times regardless of the properties of the job,
      * other providers may restrict how many instances of certain jobs may be
