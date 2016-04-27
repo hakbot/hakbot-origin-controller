@@ -89,11 +89,11 @@ public class JobExecutor implements Runnable {
                 IllegalAccessException | InstantiationException | InvocationTargetException e) {
             logger.error(e.getMessage());
         } finally {
-            if (isAvailable) {
+            if (job.getState() != State.UNAVAILABLE) {
                 em.getTransaction().begin();
-                job.setResult(result);
                 job.setState(State.COMPLETED);
                 job.setCompleted(new Date());
+                job.setResult(result);
                 job.setSuccess(success);
                 em.getTransaction().commit();
             }
