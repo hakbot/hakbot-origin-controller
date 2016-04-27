@@ -58,6 +58,7 @@ public class JobExecutor implements Runnable {
             logger.info("Job: " + job.getUuid() + " is being executed.");
         }
 
+        boolean initialized = false;
         boolean isAvailable = false;
         boolean success = false;
         String result = null;
@@ -66,8 +67,9 @@ public class JobExecutor implements Runnable {
             // /todo - whitelist allowable classes
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (BaseProvider) constructor.newInstance();
+            initialized = provider.initialize(job);
             isAvailable = provider.isAvailable(job);
-            if (isAvailable) {
+            if (initialized && isAvailable) {
                 em.getTransaction().begin();
                 job.setState(State.IN_PROGRESS);
                 job.setStarted(new Date());
