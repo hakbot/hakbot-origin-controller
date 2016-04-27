@@ -27,13 +27,10 @@ import java.util.Properties;
 public final class Config {
 
     private static final Logger logger = Logger.getLogger(Config.class);
-    static final String propFile = "application.properties";
+    private static final String propFile = "application.properties";
     private static Config instance;
-    private Properties properties;
+    private static Properties properties;
 
-    private Config() {
-        init();
-    }
 
     /**
      * Returns an instance of the Config object
@@ -42,6 +39,9 @@ public final class Config {
     public static Config getInstance() {
         if (instance == null) {
             instance = new Config();
+        }
+        if (properties == null) {
+            instance.init();
         }
         return instance;
     }
@@ -57,7 +57,7 @@ public final class Config {
         logger.info("Initializing Configuration");
         properties = new Properties();
         try {
-            properties.load(RestJobControllerServlet.inputStream);
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("application.properties"));
         } catch (IOException e) {
             logger.error("Unable to load " + propFile);
         }

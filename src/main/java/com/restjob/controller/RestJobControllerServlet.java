@@ -18,10 +18,16 @@ package com.restjob.controller;
 
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.workers.JobManager;
+import io.swagger.jaxrs.config.SwaggerContextService;
+import io.swagger.models.Info;
+import io.swagger.models.License;
+import io.swagger.models.Swagger;
+import io.swagger.models.auth.ApiKeyAuthDefinition;
+import io.swagger.models.auth.In;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import java.io.InputStream;
 
 /**
  * The RestJobControllerServlet is the main servlet which extends
@@ -35,7 +41,6 @@ public final class RestJobControllerServlet extends ServletContainer {
 
     private static final long serialVersionUID = -133386507668410112L;
     private static final Logger logger = Logger.getLogger(RestJobControllerServlet.class);
-    static InputStream inputStream;
 
     /**
      * Overrides the servlet init method and loads sets the InputStream necessary
@@ -45,10 +50,21 @@ public final class RestJobControllerServlet extends ServletContainer {
      * @throws ServletException
      */
     @Override
-    public void init() throws ServletException {
-        logger.info("Starting RESTjob Controller");
-        super.init();
-        inputStream = getServletContext().getResourceAsStream("/WEB-INF/classes/" + Config.propFile);
+    public void init(ServletConfig config) throws ServletException {
+        logger.info("Starting " + Config.getInstance().getProperty(ConfigItem.APPLICATION_NAME));
+        super.init(config);
+
+        Info info = new Info()
+                .title(Config.getInstance().getProperty(ConfigItem.APPLICATION_NAME) + " API")
+                .version(Config.getInstance().getProperty(ConfigItem.APPLICATION_VERSION))
+                .license(new License()
+                        .name("GPL v3.0")
+                        .url("http://www.gnu.org/licenses/gpl-3.0.txt"));
+
+        Swagger swagger = new Swagger().info(info);
+        swagger.securityDefinition("api_key", new ApiKeyAuthDefinition("api_key", In.HEADER));
+        new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
+
         JobManager.getInstance(); // starts the JobManager
     }
 
@@ -57,7 +73,7 @@ public final class RestJobControllerServlet extends ServletContainer {
      */
     @Override
     public void destroy() {
-        logger.info("Stopping RESTjob Controller");
+        logger.info("Stopping " + Config.getInstance().getProperty(ConfigItem.APPLICATION_NAME));
         super.destroy();
     }
 
