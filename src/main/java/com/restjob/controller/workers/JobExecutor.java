@@ -68,7 +68,9 @@ public class JobExecutor implements Runnable {
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (BaseProvider) constructor.newInstance();
             initialized = provider.initialize(job);
-            isAvailable = provider.isAvailable(job);
+            if (initialized) {
+                isAvailable = provider.isAvailable(job);
+            }
             if (initialized && isAvailable) {
                 em.getTransaction().begin();
                 job.setState(State.IN_PROGRESS);
