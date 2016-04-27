@@ -18,6 +18,9 @@ package com.restjob.controller.resources;
 
 import com.restjob.controller.listener.LocalEntityManagerFactory;
 import com.restjob.controller.model.Job;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -34,10 +37,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Path("/job")
+@Api(value = "job", authorizations = {
+        @Authorization(value="api_key")
+})
 public class JobResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Returns all job",
+            notes = "Returns a list of all jobs ordered by the time the job was created.",
+            response = Job.class,
+            responseContainer = "List")
     public Response getAllJobs() {
         EntityManager em = LocalEntityManagerFactory.createEntityManager();
         List result = em.createNamedQuery("Job.getJobs").getResultList();
@@ -48,6 +58,9 @@ public class JobResource {
     @GET
     @Path("{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Returns a specific job",
+            notes = "Returns a specific job by it's UUID.",
+            response = Job.class)
     public Response getJobByUuid(@PathParam("uuid") String uuid) {
         EntityManager em = LocalEntityManagerFactory.createEntityManager();
         TypedQuery<Job> query = em.createNamedQuery("Job.getJobByUuid", Job.class).setParameter("uuid", uuid);
@@ -64,6 +77,9 @@ public class JobResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Creates a new job",
+            notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
+            response = Job.class)
     public Response addJob(MultivaluedMap<String, String> formParams) {
         if (formParams == null || (!(formParams.containsKey("payload") && formParams.containsKey("provider")))) {
             return Response.status(Response.Status.BAD_REQUEST).build();
