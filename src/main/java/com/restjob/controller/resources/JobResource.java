@@ -18,13 +18,16 @@ package com.restjob.controller.resources;
 
 import com.restjob.controller.listener.LocalEntityManagerFactory;
 import com.restjob.controller.model.Job;
+import com.restjob.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -97,6 +100,50 @@ public class JobResource {
             jobs.add(job);
         }
         return Response.ok(jobs).build();
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Purges all jobs from database")
+    public Response purgeAll() {
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createQuery("DELETE FROM Job");
+        query.executeUpdate();
+        em.getTransaction().commit();
+        em.close();
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/uuid/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Deletes a specific job")
+    public Response purgeByUuid(@PathParam("uuid") String uuid) {
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createQuery("DELETE FROM Job j where j.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.executeUpdate();
+        em.getTransaction().commit();
+        em.close();
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/state/{state}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Purges all jobs with a specific state from the database",
+                notes = "A supported state is required.")
+    public Response purge(@PathParam("state") State state) {
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createQuery("DELETE FROM Job j where j.state=:state");
+        query.setParameter("state", state.getValue());
+        query.executeUpdate();
+        em.getTransaction().commit();
+        em.close();
+        return Response.ok().build();
     }
 
 }
