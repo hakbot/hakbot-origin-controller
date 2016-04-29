@@ -25,7 +25,7 @@ public class ScanEngine {
     private URL wsdlLocation;
     private String username;
     private String password;
-    private QName serviceName = new QName("NTOService");
+    private QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
 
 
     public String getAlias() {
