@@ -71,7 +71,6 @@ public class ShellProvider extends BaseProvider {
             IOUtils.closeQuietly(inputStream);
             job.setCompleted(new Date());
         }
-        // If message is null, the encoding process was successful
         if (job.getMessage() == null) {
             job.setMessage("Job execution successful");
             job.setSuccess(true);
