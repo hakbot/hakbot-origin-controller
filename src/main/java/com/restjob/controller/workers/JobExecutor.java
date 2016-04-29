@@ -77,8 +77,7 @@ public class JobExecutor implements Runnable {
                 job.setStarted(new Date());
                 em.getTransaction().commit();
 
-                job.setSuccess(provider.process(job));
-                success = job.getSuccess();
+                success = provider.process(job);
                 result = provider.getResult();
             } else {
                 em.getTransaction().begin();
