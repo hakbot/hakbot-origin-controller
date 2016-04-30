@@ -32,6 +32,8 @@ public enum	ConfigItem {
     MAX_JOB_SIZE("max.job.size"),
     MAX_QUEUE_SIZE("max.queue.size"),
 
+    PROVIDERS_ENALBED("providers.enabled"),
+
     TEMP_DIR("temp.dir");
 
     String propertyName;

@@ -63,8 +63,8 @@ public class JobExecutor implements Runnable {
         boolean success = false;
         String result = null;
         try {
-            Class clazz = Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
-            // /todo - whitelist allowable classes
+            ExpectedClassResolver resolver = new ExpectedClassResolver();
+            Class clazz = resolver.resolveClass(job);
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (BaseProvider) constructor.newInstance();
             initialized = provider.initialize(job);
@@ -84,7 +84,7 @@ public class JobExecutor implements Runnable {
                 job.setState(State.UNAVAILABLE);
                 em.getTransaction().commit();
             }
-        } catch (ClassNotFoundException | NoSuchMethodException |
+        } catch (ClassNotFoundException | ExpectedClassResolverException | NoSuchMethodException |
                 IllegalAccessException | InstantiationException | InvocationTargetException e) {
             logger.error(e.getMessage());
         } finally {
