@@ -33,7 +33,11 @@ public class ExpectedClassResolver {
         }
     }
 
-
+    /**
+     * Resolves the Class for the specified Job's provider. The provider needs to be whitelisted
+     * in order to be resolved. If provider is not whitelisted, an ExpectedClassResolverException
+     * is thrown.
+     */
     public Class resolveClass(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
         if (expectedClasses.contains(job.getProvider())) {
             return Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
