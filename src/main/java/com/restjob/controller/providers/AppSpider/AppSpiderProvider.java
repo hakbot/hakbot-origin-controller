@@ -19,11 +19,8 @@ package com.restjob.controller.providers.AppSpider;
 import com.restjob.controller.Config;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
+import com.restjob.controller.providers.AppSpider.ws.*;
 import com.restjob.controller.providers.BaseProvider;
-import com.restjob.controller.providers.AppSpider.ws.NTOService;
-import com.restjob.controller.providers.AppSpider.ws.NTOServiceSoap;
-import com.restjob.controller.providers.AppSpider.ws.Result;
-import com.restjob.controller.providers.AppSpider.ws.SYSTEMINFO;
 
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
@@ -54,16 +51,21 @@ public class AppSpiderProvider extends BaseProvider {
         }
     }
 
-    public boolean process(Job job) {
+    private ScanEngine engine;
+
+    @Override
+    public boolean initialize(Job job) {
         //todo: change this - testing only - need to define the payload for this provider
         String alias = job.getPayload();
-
-        ScanEngine engine = scanEngineMap.get(alias);
+        this.engine = scanEngineMap.get(alias);
         if (engine == null) {
             logger.error("The specified scan engine is not defined.");
             return false;
         }
+        return true;
+    }
 
+    public boolean process(Job job) {
         Holder<Result> resultHolder = new Holder<>();
         Holder<SYSTEMINFO> dataHolder = new Holder<>();
 
@@ -83,6 +85,8 @@ public class AppSpiderProvider extends BaseProvider {
         SYSTEMINFO systeminfo = dataHolder.value;
         System.out.println(systeminfo.getTotalRAM());
 
+        setResult(systeminfo.getTotalRAM());
+
         return result.isSuccess();
     }
 
@@ -92,7 +96,9 @@ public class AppSpiderProvider extends BaseProvider {
 
     @Override
     public boolean isAvailable(Job job) {
-        return true; //todo
+        NTOService service = new NTOService(engine.getWsdlLocation(), engine.getServiceName());
+        NTOServiceSoap soap = service.getNTOServiceSoap();
+        return !soap.isBusy(engine.getUsername(), engine.getPassword());
     }
 
 }
