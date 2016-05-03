@@ -18,7 +18,7 @@ package com.restjob.controller.workers;
 
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
-import com.restjob.controller.providers.BaseProvider;
+import com.restjob.providers.BaseProvider;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Constructor;
