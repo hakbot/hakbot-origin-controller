@@ -19,7 +19,7 @@ package com.restjob.controller.workers;
 public class ExpectedClassResolverException extends Exception {
 
     public ExpectedClassResolverException() {
-        super("Provider class not found or not authorized to execute.");
+        super("Provider class not found or not authorized.");
     }
 
 }
