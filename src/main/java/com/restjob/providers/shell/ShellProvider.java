@@ -59,20 +59,20 @@ public class ShellProvider extends BaseProvider {
             String message = "Could not execute job.";
             logger.error(message);
             logger.error(e.getMessage());
-            job.setMessage(message);
+            job.addMessage(message);
             job.setSuccess(false);
         } catch (JobException e) {
             String message = "Job terminated abnormally. Exit code: " + e.getExitCode();
             logger.error(message);
             logger.error(e.getMessage());
-            job.setMessage(message);
+            job.addMessage(message);
             job.setSuccess(false);
         } finally {
             IOUtils.closeQuietly(inputStream);
             job.setCompleted(new Date());
         }
         if (job.getMessage() == null) {
-            job.setMessage("Job execution successful");
+            job.addMessage("Job execution successful");
             job.setSuccess(true);
         } else {
             job.setSuccess(false);
