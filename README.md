@@ -5,7 +5,7 @@ RESTjob Controller
 
 A minimalistic Java Web Application (Servlet) that provides the queuing and processing of jobs over JSON.
 
-This project is under heavy development and may be unstable. Use at your own risk.
+**This project is under heavy development and may be unstable. Use at your own risk.**
 
 Background
 -------------------
