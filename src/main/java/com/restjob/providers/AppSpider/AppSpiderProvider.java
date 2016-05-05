@@ -16,19 +16,17 @@
  */
 package com.restjob.providers.appspider;
 
-import com.restjob.controller.Config;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.providers.BaseProvider;
+import com.restjob.providers.RemoteScanEngine;
+import com.restjob.providers.RemoteScanEngineAutoConfig;
 import com.restjob.providers.appspider.ws.NTOService;
 import com.restjob.providers.appspider.ws.NTOServiceSoap;
 import com.restjob.providers.appspider.ws.Result;
 import com.restjob.providers.appspider.ws.SYSTEMINFO;
 
 import javax.xml.ws.Holder;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AppSpiderProvider extends BaseProvider {
@@ -36,31 +34,15 @@ public class AppSpiderProvider extends BaseProvider {
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
-    private static Map<String, ScanEngine> scanEngineMap = new HashMap<>();
-    static {
-        String[] scanners = Config.getInstance().getProperty("provider.appspider.scanners").split(",");
-        for (String s: scanners) {
-            s = s.trim();
-            ScanEngine engine = new ScanEngine();
-            engine.setAlias(Config.getInstance().getProperty("provider.appspider." + s + ".alias").trim());
-            engine.setUsername(Config.getInstance().getProperty("provider.appspider." + s + ".username").trim());
-            engine.setPassword(Config.getInstance().getProperty("provider.appspider." + s + ".password").trim());
-            try {
-                engine.setWsdlLocation(new URL(Config.getInstance().getProperty("provider.appspider." + s + ".url").trim()));
-            } catch (MalformedURLException e) {
-                logger.error("The URL specified for the scanner engine is not valid. " + e.getMessage());
-            }
-            scanEngineMap.putIfAbsent(engine.getAlias(), engine);
-        }
-    }
+    private static Map<String, RemoteScanEngine> scanEngineMap = new RemoteScanEngineAutoConfig().createMap("appspider");
 
-    private ScanEngine engine;
+    private AppSpiderScanEngine engine;
 
     @Override
     public boolean initialize(Job job) {
         //todo: change this - testing only - need to define the payload for this provider
         String alias = job.getPayload();
-        this.engine = scanEngineMap.get(alias);
+        this.engine = (AppSpiderScanEngine)scanEngineMap.get(alias);
         if (engine == null) {
             logger.error("The specified scan engine is not defined.");
             return false;
@@ -72,7 +54,7 @@ public class AppSpiderProvider extends BaseProvider {
         Holder<Result> resultHolder = new Holder<>();
         Holder<SYSTEMINFO> dataHolder = new Holder<>();
 
-        NTOService service = new NTOService(engine.getWsdlLocation(), engine.getServiceName());
+        NTOService service = new NTOService(engine.getURL(), engine.getServiceName());
         NTOServiceSoap soap = service.getNTOServiceSoap();
 
         soap.getSysInfo(engine.getUsername(), engine.getPassword(), null, resultHolder, dataHolder);
@@ -99,7 +81,7 @@ public class AppSpiderProvider extends BaseProvider {
 
     @Override
     public boolean isAvailable(Job job) {
-        NTOService service = new NTOService(engine.getWsdlLocation(), engine.getServiceName());
+        NTOService service = new NTOService(engine.getURL(), engine.getServiceName());
         NTOServiceSoap soap = service.getNTOServiceSoap();
         return !soap.isBusy(engine.getUsername(), engine.getPassword());
     }
