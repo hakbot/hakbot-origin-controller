@@ -19,6 +19,7 @@ package com.restjob.controller.workers;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.providers.BaseProvider;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Constructor;
@@ -88,9 +89,13 @@ public class JobExecutor implements Runnable {
                 job.setState(State.UNAVAILABLE);
                 em.getTransaction().commit();
             }
-        } catch (ClassNotFoundException | ExpectedClassResolverException | NoSuchMethodException |
-                IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        } catch (Throwable e) {
             logger.error(e.getMessage());
+            if (StringUtils.isEmpty(job.getMessage())) {
+                em.getTransaction().begin();
+                job.setMessage(e.getMessage());
+                em.getTransaction().commit();
+            }
         } finally {
             if (job.getState() != State.UNAVAILABLE) {
                 em.getTransaction().begin();
