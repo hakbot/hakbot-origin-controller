@@ -14,19 +14,23 @@
  * You should have received a copy of the GNU General Public License along with
  * RESTjob Controller. If not, see http://www.gnu.org/licenses/.
  */
-package com.restjob.providers.appspider;
+package com.restjob.providers;
 
-import javax.xml.namespace.QName;
+import com.restjob.controller.logging.Logger;
+
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public class ScanEngine {
+public class RemoteScanEngine {
+
+    // Setup logging
+    private static final Logger logger = Logger.getLogger(RemoteScanEngine.class);
 
     private String alias;
-    private URL wsdlLocation;
+    private URL url;
     private String username;
     private String password;
-    private QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
-
+    private boolean validateCertificates;
 
     public String getAlias() {
         return alias;
@@ -34,14 +38,6 @@ public class ScanEngine {
 
     public void setAlias(String alias) {
         this.alias = alias;
-    }
-
-    public URL getWsdlLocation() {
-        return wsdlLocation;
-    }
-
-    public void setWsdlLocation(URL wsdlLocation) {
-        this.wsdlLocation = wsdlLocation;
     }
 
     public String getUsername() {
@@ -60,12 +56,31 @@ public class ScanEngine {
         this.password = password;
     }
 
-    public QName getServiceName() {
-        return serviceName;
+    public URL getURL() {
+        return url;
     }
 
-    public void setServiceName(QName serviceName) {
-        this.serviceName = serviceName;
+    public void setURL(URL url) {
+        this.url = url;
     }
 
+    public String getUrl() {
+        return url.toExternalForm();
+    }
+
+    public void setUrl(String url) {
+        try {
+            this.url = new URL(url);
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public boolean isValidateCertificates() {
+        return validateCertificates;
+    }
+
+    public void setValidateCertificates(boolean validateCertificates) {
+        this.validateCertificates = validateCertificates;
+    }
 }
