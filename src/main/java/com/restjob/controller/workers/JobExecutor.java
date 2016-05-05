@@ -70,6 +70,10 @@ public class JobExecutor implements Runnable {
             initialized = provider.initialize(job);
             if (initialized) {
                 isAvailable = provider.isAvailable(job);
+            } else {
+                em.getTransaction().begin();
+                job.setState(State.COMPLETED);
+                em.getTransaction().commit();
             }
             if (initialized && isAvailable) {
                 em.getTransaction().begin();
@@ -79,7 +83,7 @@ public class JobExecutor implements Runnable {
 
                 success = provider.process(job);
                 result = provider.getResult();
-            } else {
+            } else if (initialized && !isAvailable){
                 em.getTransaction().begin();
                 job.setState(State.UNAVAILABLE);
                 em.getTransaction().commit();
