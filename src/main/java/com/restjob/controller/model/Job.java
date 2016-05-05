@@ -61,6 +61,9 @@ public class Job implements Serializable {
     @Column(name = "provider", nullable = false)
     private String provider;
 
+    @Column(name = "publisher")
+    private String publisher;
+
     @Column(name = "message")
     private String message;
 
@@ -116,12 +119,28 @@ public class Job implements Serializable {
         this.provider = provider;
     }
 
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void addMessage(String message) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getMessage());
+        sb.append("\n");
+        sb.append(message);
+        setMessage(sb.toString());
     }
 
     public String getPayload() {
