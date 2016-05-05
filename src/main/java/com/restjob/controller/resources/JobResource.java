@@ -34,9 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/job")
@@ -78,30 +76,27 @@ public class JobResource {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new job",
             notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
             response = Job.class)
-    public Response addJob(MultivaluedMap<String, String> formParams) {
-        if (formParams == null || (!(formParams.containsKey("payload") && formParams.containsKey("provider")))) {
+    public Response addJob(Job jsonJob) {
+        if (jsonJob.getProvider() == null || jsonJob.getPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<Job> jobs = new ArrayList<>();
-        for (String payload: formParams.get("payload")) {
-            EntityManager em = LocalEntityManagerFactory.createEntityManager();
-            em.getTransaction().begin();
-            Job job = new Job();
-            job.setProvider(formParams.getFirst("provider"));
-            job.setPayload(payload);
-            em.persist(job);
-            em.getTransaction().commit();
-            em.close();
-            jobs.add(job);
-        }
-        return Response.ok(jobs).build();
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Job job = new Job();
+        job.setProvider(jsonJob.getProvider());
+        job.setPayload(jsonJob.getPayload());
+        em.persist(job);
+        em.getTransaction().commit();
+        em.close();
+        return Response.ok(job).build();
     }
 
+    //todo: delete this when major testing is complete
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Purges all jobs from database")
