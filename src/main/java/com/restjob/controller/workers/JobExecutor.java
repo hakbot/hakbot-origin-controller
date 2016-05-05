@@ -91,11 +91,9 @@ public class JobExecutor implements Runnable {
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
-            if (StringUtils.isEmpty(job.getMessage())) {
-                em.getTransaction().begin();
-                job.setMessage(e.getMessage());
-                em.getTransaction().commit();
-            }
+            em.getTransaction().begin();
+            job.addMessage(e.getMessage());
+            em.getTransaction().commit();
         } finally {
             if (job.getState() != State.UNAVAILABLE) {
                 em.getTransaction().begin();
