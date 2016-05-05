@@ -54,6 +54,7 @@ them in some way.
 
 Publishers included are:
 
+* FileSystem - Saves the results to the filesystem
 * ThreadFix - Upload the results to ThreadFix for vulnerability aggregation and normalization
 
 Use Cases
