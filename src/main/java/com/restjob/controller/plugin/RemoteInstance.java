@@ -14,22 +14,23 @@
  * You should have received a copy of the GNU General Public License along with
  * RESTjob Controller. If not, see http://www.gnu.org/licenses/.
  */
-package com.restjob.providers;
+package com.restjob.controller.plugin;
 
 import com.restjob.controller.logging.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class RemoteScanEngine {
+public class RemoteInstance {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(RemoteScanEngine.class);
+    private static final Logger logger = Logger.getLogger(RemoteInstance.class);
 
     private String alias;
     private URL url;
     private String username;
     private String password;
+    private String apiKey;
     private boolean validateCertificates;
 
     public String getAlias() {
@@ -54,6 +55,14 @@ public class RemoteScanEngine {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
     public URL getURL() {

@@ -19,8 +19,8 @@ package com.restjob.providers.appspider;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.providers.BaseProvider;
-import com.restjob.providers.RemoteScanEngine;
-import com.restjob.providers.RemoteScanEngineAutoConfig;
+import com.restjob.controller.plugin.RemoteInstance;
+import com.restjob.controller.plugin.RemoteInstanceAutoConfig;
 import com.restjob.providers.appspider.ws.NTOService;
 import com.restjob.providers.appspider.ws.NTOServiceSoap;
 import com.restjob.providers.appspider.ws.Result;
@@ -34,15 +34,15 @@ public class AppSpiderProvider extends BaseProvider {
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
-    private static Map<String, RemoteScanEngine> scanEngineMap = new RemoteScanEngineAutoConfig().createMap("appspider");
+    private static Map<String, RemoteInstance> scanEngineMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
 
-    private AppSpiderScanEngine engine;
+    private AppSpiderInstance engine;
 
     @Override
     public boolean initialize(Job job) {
         //todo: change this - testing only - need to define the payload for this provider
         String alias = job.getPayload();
-        this.engine = (AppSpiderScanEngine)scanEngineMap.get(alias);
+        this.engine = (AppSpiderInstance)scanEngineMap.get(alias);
         if (engine == null) {
             logger.error("The specified scan engine is not defined.");
             return false;

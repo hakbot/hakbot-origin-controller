@@ -19,8 +19,8 @@ package com.restjob.providers.nessus;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.providers.BaseProvider;
-import com.restjob.providers.RemoteScanEngine;
-import com.restjob.providers.RemoteScanEngineAutoConfig;
+import com.restjob.controller.plugin.RemoteInstance;
+import com.restjob.controller.plugin.RemoteInstanceAutoConfig;
 import com.restjob.util.PayloadUtil;
 import net.continuumsecurity.ClientFactory;
 import net.continuumsecurity.ReportClient;
@@ -40,9 +40,9 @@ public class NessusProvider extends BaseProvider {
     // Setup logging
     private static final Logger logger = Logger.getLogger(NessusProvider.class);
 
-    private static Map<String, RemoteScanEngine> scanEngineMap = new RemoteScanEngineAutoConfig().createMap("nessus");
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "nessus");
 
-    private RemoteScanEngine engine;
+    private RemoteInstance remoteInstance;
     private String scanName;
     private String scanPolicy;
     private String targets;
@@ -54,17 +54,17 @@ public class NessusProvider extends BaseProvider {
             job.addMessage("Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
             return false;
         }
-        engine = scanEngineMap.get(MapUtils.getString(params, "scanner"));
-        if (engine == null) {
-            engine = new RemoteScanEngine();
+        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        if (remoteInstance == null) {
+            remoteInstance = new RemoteInstance();
             if (!PayloadUtil.requiredParams(params, "nessusUrl", "username", "password")) {
                 job.addMessage("Invalid request. Expected parameters: [nessusUrl], [username], [password]");
                 return false;
             }
-            engine.setUrl(MapUtils.getString(params, "nessusUrl"));
-            engine.setUsername(MapUtils.getString(params, "username"));
-            engine.setPassword(MapUtils.getString(params, "password"));
-            engine.setValidateCertificates(MapUtils.getBooleanValue(params, "validateCertificates"));
+            remoteInstance.setUrl(MapUtils.getString(params, "nessusUrl"));
+            remoteInstance.setUsername(MapUtils.getString(params, "username"));
+            remoteInstance.setPassword(MapUtils.getString(params, "password"));
+            remoteInstance.setValidateCertificates(MapUtils.getBooleanValue(params, "validateCertificates"));
         }
         scanName = MapUtils.getString(params, "scanName");
         scanPolicy = MapUtils.getString(params, "scanPolicy");
@@ -74,8 +74,8 @@ public class NessusProvider extends BaseProvider {
 
     public boolean process(Job job) {
         try {
-            ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(engine.getUrl(), 6, !engine.isValidateCertificates());
-            scan.login(engine.getUsername(), engine.getPassword());
+            ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             String scanID = scan.newScan(scanName, scanPolicy, targets);
             while (scan.isScanRunning(scanID)) {
                 try {
@@ -84,8 +84,8 @@ public class NessusProvider extends BaseProvider {
                     logger.error(e.getMessage());
                 }
             }
-            ReportClient reportClient = ClientFactory.createReportClient(engine.getUrl(), 6, !engine.isValidateCertificates());
-            reportClient.login(engine.getUsername(), engine.getPassword());
+            ReportClient reportClient = ClientFactory.createReportClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            reportClient.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             File report = scan.download(Integer.parseInt(scanID), ExportFormat.NESSUS, Paths.get("~/").toAbsolutePath());
             super.setResult(FileUtils.readFileToByteArray(report));
         } catch (LoginException e) {
