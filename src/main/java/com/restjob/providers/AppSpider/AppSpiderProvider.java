@@ -86,4 +86,12 @@ public class AppSpiderProvider extends BaseProvider {
         return !soap.isBusy(engine.getUsername(), engine.getPassword());
     }
 
+    public String getName() {
+        return "AppSpider Pro";
+    }
+
+    public String getDescription() {
+        return "Performs dynamic analysis using AppSpider Pro. Interacts with AppSpider instances using it's SOAP-based web services interface.";
+    }
+
 }

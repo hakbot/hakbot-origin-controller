@@ -33,6 +33,7 @@ public enum	ConfigItem {
     MAX_QUEUE_SIZE("max.queue.size"),
 
     PROVIDERS_ENALBED("providers.enabled"),
+    PUBLISHERS_ENABLED("publishers.enabled"),
 
     TEMP_DIR("temp.dir");
 

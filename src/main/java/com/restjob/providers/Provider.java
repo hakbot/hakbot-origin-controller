@@ -17,8 +17,9 @@
 package com.restjob.providers;
 
 import com.restjob.controller.model.Job;
+import com.restjob.controller.plugin.Plugin;
 
-public interface Controllable {
+public interface Provider extends Plugin {
 
     /**
      * This method is called prior to any other method and is intended to initialize

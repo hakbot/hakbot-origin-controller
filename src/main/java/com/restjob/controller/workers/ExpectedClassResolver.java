@@ -18,6 +18,7 @@ package com.restjob.controller.workers;
 
 import com.restjob.controller.Config;
 import com.restjob.controller.ConfigItem;
+import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 
 import java.util.ArrayList;
@@ -25,11 +26,21 @@ import java.util.List;
 
 public class ExpectedClassResolver {
 
-    private static List<String> expectedClasses = new ArrayList<>();
+    // Setup logging
+    private static final Logger logger = Logger.getLogger(ExpectedClassResolver.class);
+
+    private static final List<String> providersConfigured = new ArrayList<>();
+    private static final List<String> publishersConfigured = new ArrayList<>();
+    private static final List<Class> resolvedProviders = new ArrayList<>();
+    private static final List<Class> resolvedPublishers = new ArrayList<>();
     static {
         String[] classes = Config.getInstance().getProperty(ConfigItem.PROVIDERS_ENALBED).split(",");
         for (String clazz : classes) {
-            expectedClasses.add(clazz.trim());
+            providersConfigured.add(clazz.trim());
+        }
+        classes = Config.getInstance().getProperty(ConfigItem.PUBLISHERS_ENABLED).split(",");
+        for (String clazz : classes) {
+            publishersConfigured.add(clazz.trim());
         }
     }
 
@@ -39,11 +50,33 @@ public class ExpectedClassResolver {
      * is thrown.
      */
     public Class resolveClass(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
-        if (expectedClasses.contains(job.getProvider())) {
+        if (providersConfigured.contains(job.getProvider()) || publishersConfigured.contains(job.getPublisher())) {
             return Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
         } else {
             throw new ExpectedClassResolverException();
         }
+    }
+
+    private List<Class> autoResolve(List<Class> resolveList, List<String> classNames) {
+        if (resolveList.size() == 0) {
+            for (String className: classNames) {
+                try {
+                    Class clazz = Class.forName(className, false, this.getClass().getClassLoader());
+                    resolveList.add(clazz);
+                } catch (ClassNotFoundException e) {
+                    logger.error("Cannot resolve " + className);
+                }
+            }
+        }
+        return resolveList;
+    }
+
+    public List<Class> getResolvedProviders() {
+        return autoResolve(resolvedProviders, providersConfigured);
+    }
+
+    public List<Class> getResolvedPubishers() {
+        return autoResolve(resolvedPublishers, publishersConfigured);
     }
 
 }
