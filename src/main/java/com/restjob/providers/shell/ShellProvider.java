@@ -90,4 +90,12 @@ public class ShellProvider extends BaseProvider {
         return !process.isAlive();
     }
 
+    public String getName() {
+        return "Shell";
+    }
+
+    public String getDescription() {
+        return "Executes a shell command or script and captures the output from STDOUT/STDERR.";
+    }
+
 }

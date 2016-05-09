@@ -102,4 +102,12 @@ public class NessusProvider extends BaseProvider {
         return true; //todo
     }
 
+    public String getName() {
+        return "Nessus";
+    }
+
+    public String getDescription() {
+        return "Performs a Nessus scan against one or more targets. Interacts with a Nessus instance using v6 of the XML-RPC interface.";
+    }
+
 }
