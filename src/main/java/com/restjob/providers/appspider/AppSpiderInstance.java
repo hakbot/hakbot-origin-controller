@@ -16,11 +16,11 @@
  */
 package com.restjob.providers.appspider;
 
-import com.restjob.providers.RemoteScanEngine;
+import com.restjob.controller.plugin.RemoteInstance;
 
 import javax.xml.namespace.QName;
 
-public class AppSpiderScanEngine extends RemoteScanEngine {
+public class AppSpiderInstance extends RemoteInstance {
 
     private QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
 

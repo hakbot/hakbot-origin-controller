@@ -18,6 +18,11 @@ package com.restjob.controller.plugin;
 
 public interface Plugin {
 
+    enum Type {
+        PROVIDER,
+        PUBLISHER
+    }
+
     /**
      * Returns the simple name of the plugin
      */
