@@ -18,6 +18,7 @@ package com.restjob.controller.model;
 
 import com.restjob.controller.workers.State;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -136,6 +137,9 @@ public class Job implements Serializable {
     }
 
     public void addMessage(String message) {
+        if (StringUtils.isEmpty(message)) {
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(getMessage());
         sb.append("\n");
