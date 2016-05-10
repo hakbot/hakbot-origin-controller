@@ -18,6 +18,7 @@ package com.restjob.controller.plugin;
 
 import com.restjob.controller.Config;
 import com.restjob.controller.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +36,7 @@ import java.util.Map;
  *     provider.${pluginId}.instance1.url=http://scanner1.example.com
  *     provider.${pluginId}.instance1.username=${username}
  *     provider.${pluginId}.instance1.password=${password}
+ *     provider.${pluginId}.instance1.apikey=${apikey}
  *
  *     # Properties for instance2
  *     ...
@@ -48,16 +50,19 @@ public class RemoteInstanceAutoConfig {
     public Map<String, RemoteInstance> createMap(Plugin.Type pluginType, String pluginId) {
         Map<String, RemoteInstance> instanceMap = new HashMap<>();
         String type = pluginType.name().toLowerCase();
-        String[] instances = Config.getInstance().getProperty(type + "." + pluginId + ".instances").split(",");
+        String[] instances = StringUtils.split(Config.getInstance().getProperty(type + "." + pluginId + ".instances"), ",");
+        if (instances == null) {
+            return instanceMap;
+        }
         for (String s: instances) {
             s = s.trim();
             RemoteInstance instance = new RemoteInstance();
-            instance.setAlias(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".alias").trim());
-            instance.setUsername(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".username").trim());
-            instance.setPassword(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".password").trim());
-            instance.setApiKey(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".apikey").trim());
+            instance.setAlias(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".alias")));
+            instance.setUsername(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".username")));
+            instance.setPassword(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".password")));
+            instance.setApiKey(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".apikey")));
             try {
-                instance.setURL(new URL(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".url").trim()));
+                instance.setURL(new URL(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".url"))));
             } catch (MalformedURLException e) {
                 logger.error("The URL specified for the server instance is not valid. " + e.getMessage());
             }
