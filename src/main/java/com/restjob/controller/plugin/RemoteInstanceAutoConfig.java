@@ -48,10 +48,12 @@ public class RemoteInstanceAutoConfig {
     private static final Logger logger = Logger.getLogger(RemoteInstanceAutoConfig.class);
 
     public Map<String, RemoteInstance> createMap(Plugin.Type pluginType, String pluginId) {
+        logger.info("Initializing instance properties");
         Map<String, RemoteInstance> instanceMap = new HashMap<>();
         String type = pluginType.name().toLowerCase();
         String[] instances = StringUtils.split(Config.getInstance().getProperty(type + "." + pluginId + ".instances"), ",");
         if (instances == null) {
+            logger.info("Instances were not specified. Unable to autoconfigure.");
             return instanceMap;
         }
         for (String s: instances) {
