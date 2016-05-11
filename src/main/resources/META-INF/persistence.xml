@@ -6,7 +6,7 @@
         <class>com.restjob.controller.model.Job</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/.restjob-controller/db/db;MVCC=TRUE"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/.restjob-controller/db/db"/>
             <property name="javax.persistence.jdbc.user" value="sa" />
             <property name="openjpa.RuntimeUnenhancedClasses" value="supported" />
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
