@@ -37,6 +37,7 @@ public enum	State {
     @XmlEnumValue("In Queue") IN_QUEUE("In Queue"),
     @XmlEnumValue("In Progress") IN_PROGRESS("In Progress"),
     @XmlEnumValue("Completed") COMPLETED("Completed"),
+    @XmlEnumValue("Published") PUBLISHED("Published"),
     @XmlEnumValue("Canceled") CANCELED("Canceled"),
     @XmlEnumValue("Unavailable") UNAVAILABLE("Unavailable");
 
