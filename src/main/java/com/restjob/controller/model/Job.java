@@ -142,9 +142,8 @@ public class Job implements Serializable {
         }
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isEmpty(getMessage())) {
-            sb.append(getMessage());
+            sb.append(getMessage()).append("\n");
         }
-        sb.append("\n");
         sb.append(message);
         setMessage(sb.toString());
     }
