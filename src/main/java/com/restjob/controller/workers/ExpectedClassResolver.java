@@ -21,7 +21,6 @@ import com.restjob.controller.ConfigItem;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.controller.plugin.Plugin;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -21,7 +21,6 @@ import com.restjob.controller.ConfigItem;
 import com.restjob.controller.listener.LocalEntityManagerFactory;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;

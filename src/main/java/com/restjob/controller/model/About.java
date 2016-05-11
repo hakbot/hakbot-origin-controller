@@ -18,7 +18,6 @@ package com.restjob.controller.model;
 
 import com.restjob.controller.Config;
 import com.restjob.controller.ConfigItem;
-
 import java.io.Serializable;
 
 public class About implements Serializable {

@@ -105,6 +105,12 @@
             <artifactId>logback-core</artifactId>
             <version>1.1.2</version>
         </dependency>
+        <!-- ThreadFix Publisher -->
+        <dependency>
+            <groupId>com.denimgroup.threadfix</groupId>
+            <artifactId>threadfix-cli</artifactId>
+            <version>2.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -25,7 +25,6 @@ import io.swagger.models.Swagger;
 import io.swagger.models.auth.ApiKeyAuthDefinition;
 import io.swagger.models.auth.In;
 import org.glassfish.jersey.servlet.ServletContainer;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 

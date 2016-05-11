@@ -22,7 +22,6 @@ import com.restjob.controller.plugin.PluginMetadata;
 import com.restjob.providers.Provider;
 import com.restjob.publishers.Publisher;
 import org.apache.commons.lang.StringUtils;
-
 import javax.persistence.EntityManager;
 import java.lang.reflect.Constructor;
 import java.util.Date;
