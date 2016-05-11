@@ -17,7 +17,6 @@
 package com.restjob.controller.plugin;
 
 import com.restjob.controller.logging.Logger;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 

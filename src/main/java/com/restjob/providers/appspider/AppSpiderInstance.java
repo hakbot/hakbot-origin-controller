@@ -17,7 +17,6 @@
 package com.restjob.providers.appspider;
 
 import com.restjob.controller.plugin.RemoteInstance;
-
 import javax.xml.namespace.QName;
 
 public class AppSpiderInstance extends RemoteInstance {

@@ -17,7 +17,6 @@
 package com.restjob.controller.resources;
 
 import com.restjob.controller.model.About;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

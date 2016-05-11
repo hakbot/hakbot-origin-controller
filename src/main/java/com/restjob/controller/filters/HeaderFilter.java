@@ -18,7 +18,6 @@ package com.restjob.controller.filters;
 
 import com.restjob.controller.Config;
 import com.restjob.controller.ConfigItem;
-
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;

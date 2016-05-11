@@ -19,7 +19,6 @@ package com.restjob.controller.plugin;
 import com.restjob.controller.Config;
 import com.restjob.controller.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;

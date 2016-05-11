@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.jaxrs.cfg.EndpointConfigBase;
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterModifier;
-
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;

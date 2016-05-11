@@ -18,7 +18,6 @@ package com.restjob.publishers;
 
 import com.restjob.controller.model.Job;
 import com.restjob.providers.Provider;
-
 import java.util.Base64;
 
 public abstract class BasePublisher implements Publisher {

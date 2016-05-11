@@ -17,7 +17,6 @@
 package com.restjob.controller;
 
 import com.restjob.controller.logging.Logger;
-
 import java.io.IOException;
 import java.util.Properties;
 

@@ -17,7 +17,6 @@
 package com.restjob.providers;
 
 import com.restjob.controller.model.Job;
-
 import java.util.Base64;
 
 public abstract class BaseProvider implements Provider {

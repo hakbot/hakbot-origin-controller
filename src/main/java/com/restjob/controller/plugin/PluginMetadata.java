@@ -18,7 +18,6 @@ package com.restjob.controller.plugin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.restjob.controller.logging.Logger;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
