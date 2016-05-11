@@ -18,6 +18,7 @@ package com.restjob.publishers;
 
 import com.restjob.controller.model.Job;
 import com.restjob.controller.plugin.Plugin;
+import com.restjob.providers.Provider;
 
 public interface Publisher extends Plugin {
 
@@ -25,11 +26,15 @@ public interface Publisher extends Plugin {
      * This method is called prior to any other method and is intended to initialize
      * the instance of the publisher.
      */
-    boolean initialize(Job job);
+    boolean initialize(Job job, Provider provider);
 
     /**
      * Publishes the results from a job. Returns true if the publish was successful, false if not.
      */
     boolean publish(Job job);
 
+    /**
+     * Returns the provider that generated the results about to be published.
+     */
+    Provider getProvider();
 }

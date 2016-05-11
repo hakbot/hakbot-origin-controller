@@ -25,7 +25,6 @@ import com.restjob.providers.appspider.ws.NTOService;
 import com.restjob.providers.appspider.ws.NTOServiceSoap;
 import com.restjob.providers.appspider.ws.Result;
 import com.restjob.providers.appspider.ws.SYSTEMINFO;
-
 import javax.xml.ws.Holder;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class AppSpiderProvider extends BaseProvider {
     @Override
     public boolean initialize(Job job) {
         //todo: change this - testing only - need to define the payload for this provider
-        String alias = job.getPayload();
+        String alias = job.getProviderPayload();
         this.engine = (AppSpiderInstance)scanEngineMap.get(alias);
         if (engine == null) {
             logger.error("The specified scan engine is not defined.");
@@ -92,6 +91,14 @@ public class AppSpiderProvider extends BaseProvider {
 
     public String getDescription() {
         return "Performs dynamic analysis using AppSpider Pro. Interacts with AppSpider instances using it's SOAP-based web services interface.";
+    }
+
+    public String getResultMimeType() {
+        return "application/xml";
+    }
+
+    public String getResultExtension() {
+        return "xml";
     }
 
 }
