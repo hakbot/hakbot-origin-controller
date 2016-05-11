@@ -17,20 +17,23 @@
 package com.restjob.publishers;
 
 import com.restjob.controller.model.Job;
+import com.restjob.providers.Provider;
 
 import java.util.Base64;
 
 public abstract class BasePublisher implements Publisher {
 
     private String result;
+    private Provider provider;
 
     /**
      * This method is called prior to any other method and is intended to initialize
      * the instance of the publisher. This method can be overwritten if initialization
      * of the publisher is necessary.
      */
-    public boolean initialize(Job job) {
+    public boolean initialize(Job job, Provider provider) {
         this.result = job.getResult();
+        this.provider = provider;
         return true;
     }
 
@@ -39,6 +42,13 @@ public abstract class BasePublisher implements Publisher {
      */
     public byte[] getResult() {
         return Base64.getDecoder().decode(result);
+    }
+
+    /**
+     * Returns the provider that generated the results about to be published.
+     */
+    public Provider getProvider() {
+        return provider;
     }
 
 }

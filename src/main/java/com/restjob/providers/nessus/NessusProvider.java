@@ -49,7 +49,7 @@ public class NessusProvider extends BaseProvider {
 
     @Override
     public boolean initialize(Job job) {
-        Map<String, String> params = PayloadUtil.toParameters(job.getPayload());
+        Map<String, String> params = PayloadUtil.toParameters(job.getProviderPayload());
         if (!PayloadUtil.requiredParams(params, "scanName", "scanPolicy", "targets")) {
             job.addMessage("Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
             return false;
@@ -108,6 +108,14 @@ public class NessusProvider extends BaseProvider {
 
     public String getDescription() {
         return "Performs a Nessus scan against one or more targets. Interacts with a Nessus instance using v6 of the XML-RPC interface.";
+    }
+
+    public String getResultMimeType() {
+        return "application/xml";
+    }
+
+    public String getResultExtension() {
+        return "nessus";
     }
 
 }

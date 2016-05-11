@@ -19,11 +19,9 @@ package com.restjob.providers.shell;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
 import com.restjob.controller.workers.JobException;
-import com.restjob.controller.workers.State;
 import com.restjob.providers.BaseProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -36,8 +34,9 @@ public class ShellProvider extends BaseProvider {
 
     public boolean process(Job job) {
         InputStream inputStream = null;
+        job.setSuccess(false);
         try {
-            ProcessBuilder pb = new ProcessBuilder(job.getPayload().split(" "));
+            ProcessBuilder pb = new ProcessBuilder(job.getProviderPayload().split(" "));
             process = pb.start();
             int exitCode = process.waitFor();
             byte[] stdout = IOUtils.toByteArray(process.getInputStream());
@@ -60,13 +59,11 @@ public class ShellProvider extends BaseProvider {
             logger.error(message);
             logger.error(e.getMessage());
             job.addMessage(message);
-            job.setSuccess(false);
         } catch (JobException e) {
             String message = "Job terminated abnormally. Exit code: " + e.getExitCode();
             logger.error(message);
             logger.error(e.getMessage());
             job.addMessage(message);
-            job.setSuccess(false);
         } finally {
             IOUtils.closeQuietly(inputStream);
             job.setCompleted(new Date());
@@ -74,11 +71,7 @@ public class ShellProvider extends BaseProvider {
         if (job.getMessage() == null) {
             job.addMessage("Job execution successful");
             job.setSuccess(true);
-        } else {
-            job.setSuccess(false);
         }
-        job.setState(State.COMPLETED);
-        job.setCompleted(new Date());
         return job.getSuccess();
     }
 
@@ -96,6 +89,14 @@ public class ShellProvider extends BaseProvider {
 
     public String getDescription() {
         return "Executes a shell command or script and captures the output from STDOUT/STDERR.";
+    }
+
+    public String getResultMimeType() {
+        return "text/plain";
+    }
+
+    public String getResultExtension() {
+        return "txt";
     }
 
 }

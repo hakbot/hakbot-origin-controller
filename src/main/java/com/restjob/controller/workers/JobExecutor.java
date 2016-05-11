@@ -18,18 +18,19 @@ package com.restjob.controller.workers;
 
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
-import com.restjob.providers.BaseProvider;
+import com.restjob.controller.plugin.PluginMetadata;
+import com.restjob.providers.Provider;
+import com.restjob.publishers.Publisher;
 import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 /**
  * This class is responsible for executing jobs.
  */
-public class JobExecutor implements Runnable {
+class JobExecutor implements Runnable {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(JobExecutor.class);
@@ -37,13 +38,14 @@ public class JobExecutor implements Runnable {
     private Job job;
     private boolean isExecuting = true;
     private EntityManager em;
-    private BaseProvider provider;
+    private Provider provider;
+    private Publisher publisher;
 
     /**
      * Constructs a new JobExecutor instance for the specified Job
      * @param job A Job object
      */
-    public JobExecutor(EntityManager em, Job job) {
+    JobExecutor(EntityManager em, Job job) {
         this.em = em;
         this.job = job;
     }
@@ -52,60 +54,93 @@ public class JobExecutor implements Runnable {
      * Executes the job.
      */
     public void run() {
-        if (job.getUuid() == null || job.getPayload() == null) {
+        if (job.getUuid() == null || job.getProviderPayload() == null) {
             return;
         }
         if (logger.isInfoEnabled()) {
             logger.info("Job: " + job.getUuid() + " is being executed.");
         }
 
-        boolean initialized = false;
-        boolean isAvailable = false;
-        boolean success = false;
+        executeProvider();
+        if (!StringUtils.isEmpty(job.getPublisher()) && job.getState() == State.COMPLETED) {
+            executePublisher();
+        }
+        isExecuting = false;
+    }
+
+    private void executeProvider() {
+        boolean initialized, isAvailable = false, success = false;
         String result = null;
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
-            Class clazz = resolver.resolveClass(job);
+            Class clazz = resolver.resolveProvider(job);
+            @SuppressWarnings("unchecked")
             Constructor<?> constructor = clazz.getConstructor();
-            this.provider = (BaseProvider) constructor.newInstance();
+            this.provider = (Provider) constructor.newInstance();
             initialized = provider.initialize(job);
+            em.getTransaction().begin();
             if (initialized) {
                 isAvailable = provider.isAvailable(job);
             } else {
-                em.getTransaction().begin();
                 job.setState(State.COMPLETED);
-                em.getTransaction().commit();
             }
             if (initialized && isAvailable) {
-                em.getTransaction().begin();
                 job.setState(State.IN_PROGRESS);
                 job.setStarted(new Date());
                 em.getTransaction().commit();
+                em.getTransaction().begin();
 
                 success = provider.process(job);
                 result = provider.getResult();
             } else if (initialized && !isAvailable){
-                em.getTransaction().begin();
                 job.setState(State.UNAVAILABLE);
-                em.getTransaction().commit();
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
-            em.getTransaction().begin();
             job.addMessage(e.getMessage());
-            em.getTransaction().commit();
         } finally {
             if (job.getState() != State.UNAVAILABLE) {
-                em.getTransaction().begin();
                 job.setState(State.COMPLETED);
                 job.setCompleted(new Date());
                 job.setResult(result);
                 job.setSuccess(success);
-                em.getTransaction().commit();
             }
-            isExecuting = false;
+            em.getTransaction().commit();
             if (logger.isInfoEnabled()) {
-                logger.info(job.getUuid() + " - Provider: " + job.getProvider());
+                PluginMetadata pluginMetadata = new PluginMetadata(provider.getClass());
+                logger.info(job.getUuid() + " - Provider: " + pluginMetadata.getName());
+                logger.info(job.getUuid() + " - State: " + job.getState());
+                logger.info(job.getUuid() + " - Success: " + job.getSuccess());
+            }
+        }
+    }
+
+    private void executePublisher() {
+        boolean initialized, success = false;
+        try {
+            ExpectedClassResolver resolver = new ExpectedClassResolver();
+            Class clazz = resolver.resolvePublisher(job);
+            @SuppressWarnings("unchecked")
+            Constructor<?> constructor = clazz.getConstructor();
+            this.publisher = (Publisher) constructor.newInstance();
+            initialized = publisher.initialize(job, provider);
+            em.getTransaction().begin();
+            if (initialized) {
+                success = publisher.publish(job);
+            }
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+            job.addMessage(e.getMessage());
+        } finally {
+            if (success) {
+                job.setState(State.PUBLISHED);
+                job.setCompleted(new Date());
+            }
+            job.setSuccess(success);
+            em.getTransaction().commit();
+            if (logger.isInfoEnabled()) {
+                PluginMetadata pluginMetadata = new PluginMetadata(publisher.getClass());
+                logger.info(job.getUuid() + " - Publisher: " + pluginMetadata.getName());
                 logger.info(job.getUuid() + " - State: " + job.getState());
                 logger.info(job.getUuid() + " - Success: " + job.getSuccess());
             }

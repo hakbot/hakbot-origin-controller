@@ -18,11 +18,12 @@ package com.restjob.publishers.filesystem;
 
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
+import com.restjob.providers.Provider;
 import com.restjob.publishers.BasePublisher;
 import com.restjob.util.PayloadUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
-
+import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -35,19 +36,22 @@ public class FileSystemPublisher extends BasePublisher {
     private String publishPath;
 
     @Override
-    public boolean initialize(Job job) {
-        super.initialize(job);
-        Map<String, String> params = PayloadUtil.toParameters(job.getPayload());
+    public boolean initialize(Job job, Provider provider) {
+        super.initialize(job, provider);
+        Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
         if (!PayloadUtil.requiredParams(params, "publishPath")) {
             job.addMessage("Invalid request. Expected parameter: [publishPath]");
             return false;
         }
         publishPath = MapUtils.getString(params, "publishPath");
+        if (publishPath.startsWith("~" + File.separator)) {
+            publishPath = System.getProperty("user.home") + publishPath.substring(1);
+        }
         return true;
     }
 
     public boolean publish(Job job) {
-        File path = new File(publishPath);
+        File path = new File(publishPath).getAbsoluteFile();
         if (!path.exists()) {
             job.addMessage("Specified publishPath does not exist.");
             return false;
@@ -58,7 +62,12 @@ public class FileSystemPublisher extends BasePublisher {
             job.addMessage("Cannot write to the specified publishPath.");
             return false;
         }
-        File report = new File(path, job.getUuid());
+
+        String filename = job.getUuid();
+        if (!StringUtils.isEmpty(getProvider().getResultExtension())) {
+            filename = filename + "." + getProvider().getResultExtension();
+        }
+        File report = new File(path, filename);
         try {
             FileUtils.writeByteArrayToFile(report, getResult());
             job.addMessage("Report written to: " + report.getAbsolutePath());

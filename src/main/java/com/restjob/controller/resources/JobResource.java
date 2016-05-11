@@ -82,14 +82,16 @@ public class JobResource {
             notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
             response = Job.class)
     public Response addJob(Job jsonJob) {
-        if (jsonJob.getProvider() == null || jsonJob.getPayload() == null) {
+        if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         EntityManager em = LocalEntityManagerFactory.createEntityManager();
         em.getTransaction().begin();
         Job job = new Job();
         job.setProvider(jsonJob.getProvider());
-        job.setPayload(jsonJob.getPayload());
+        job.setPublisher(jsonJob.getPublisher());
+        job.setProviderPayload(jsonJob.getProviderPayload());
+        job.setPublisherPayload(jsonJob.getPublisherPayload());
         em.persist(job);
         em.getTransaction().commit();
         em.close();

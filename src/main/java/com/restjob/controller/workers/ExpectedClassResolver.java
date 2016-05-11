@@ -20,6 +20,7 @@ import com.restjob.controller.Config;
 import com.restjob.controller.ConfigItem;
 import com.restjob.controller.logging.Logger;
 import com.restjob.controller.model.Job;
+import com.restjob.controller.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,16 +46,39 @@ public class ExpectedClassResolver {
     }
 
     /**
+     * Resolves the Class for the specified Job and plugin type. The plugin needs to be whitelisted
+     * in order to be resolved. If plugin is not whitelisted, an ExpectedClassResolverException
+     * is thrown.
+     */
+    private Class resolveClass(Plugin.Type type, Job job) throws ClassNotFoundException, ExpectedClassResolverException {
+        if (type.equals(Plugin.Type.PROVIDER)) {
+            if (providersConfigured.contains(job.getProvider())) {
+                return Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
+            }
+        } else {
+            if (publishersConfigured.contains(job.getPublisher())) {
+                return Class.forName(job.getPublisher(), false, this.getClass().getClassLoader());
+            }
+        }
+        throw new ExpectedClassResolverException();
+    }
+
+    /**
      * Resolves the Class for the specified Job's provider. The provider needs to be whitelisted
      * in order to be resolved. If provider is not whitelisted, an ExpectedClassResolverException
      * is thrown.
      */
-    public Class resolveClass(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
-        if (providersConfigured.contains(job.getProvider()) || publishersConfigured.contains(job.getPublisher())) {
-            return Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
-        } else {
-            throw new ExpectedClassResolverException();
-        }
+    public Class resolveProvider(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
+        return resolveClass(Plugin.Type.PROVIDER, job);
+    }
+
+    /**
+     * Resolves the Class for the specified Job's publisher. The publisher needs to be whitelisted
+     * in order to be resolved. If publisher is not whitelisted, an ExpectedClassResolverException
+     * is thrown.
+     */
+    public Class resolvePublisher(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
+        return resolveClass(Plugin.Type.PUBLISHER, job);
     }
 
     private List<Class> autoResolve(List<Class> resolveList, List<String> classNames) {

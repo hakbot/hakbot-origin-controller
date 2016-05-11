@@ -19,7 +19,6 @@ package com.restjob.controller.model;
 import com.restjob.controller.workers.State;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang.StringUtils;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -68,8 +67,11 @@ public class Job implements Serializable {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "payload")
-    private String payload;
+    @Column(name = "providerpayload")
+    private String providerPayload;
+
+    @Column(name = "publisherpayload")
+    private String publisherPayload;
 
     @Column(name = "created")
     private Date created;
@@ -148,12 +150,20 @@ public class Job implements Serializable {
         setMessage(sb.toString());
     }
 
-    public String getPayload() {
-        return payload;
+    public String getProviderPayload() {
+        return providerPayload;
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
+    public void setProviderPayload(String payload) {
+        this.providerPayload = payload;
+    }
+
+    public String getPublisherPayload() {
+        return publisherPayload;
+    }
+
+    public void setPublisherPayload(String payload) {
+        this.publisherPayload = payload;
     }
 
     public Date getCreated() {
