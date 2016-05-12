@@ -16,7 +16,7 @@
  */
 package io.hakbot.publishers.threadfix;
 
-import com.denimgroup.threadfix.data.entities.Organization;
+import com.denimgroup.threadfix.data.entities.Scan;
 import com.denimgroup.threadfix.remote.ThreadFixRestClientImpl;
 import com.denimgroup.threadfix.remote.response.RestResponse;
 import io.hakbot.controller.logging.Logger;
@@ -27,7 +27,7 @@ import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.PayloadUtil;
 import org.apache.commons.collections.MapUtils;
-import java.util.Arrays;
+import java.io.File;
 import java.util.Map;
 
 public class ThreadFixPublisher extends BasePublisher {
@@ -58,10 +58,13 @@ public class ThreadFixPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        ThreadFixRestClientImpl client = new ThreadFixRestClientImpl(remoteInstance.getUrl(), remoteInstance.getApiKey());
-        RestResponse<Organization[]> allTeams = client.getAllTeams();
-        System.out.println(Arrays.asList(allTeams.object));
-        return true;
+        File report = getReport(new File(System.getProperty("java.io.tmpdir")));
+        if (report == null) {
+            return false;
+        }
+        final ThreadFixRestClientImpl client = new ThreadFixRestClientImpl(remoteInstance.getUrl(), remoteInstance.getApiKey());
+        final RestResponse<Scan> uploadResponse = client.uploadScan(appId, report.getAbsolutePath());
+        return uploadResponse.success;
     }
 
     public String getName() {

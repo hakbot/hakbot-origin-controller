@@ -22,10 +22,7 @@ import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.PayloadUtil;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 public class FileSystemPublisher extends BasePublisher {
@@ -62,21 +59,8 @@ public class FileSystemPublisher extends BasePublisher {
             job.addMessage("Cannot write to the specified publishPath.");
             return false;
         }
-
-        String filename = job.getUuid();
-        if (!StringUtils.isEmpty(getProvider().getResultExtension())) {
-            filename = filename + "." + getProvider().getResultExtension();
-        }
-        File report = new File(path, filename);
-        try {
-            FileUtils.writeByteArrayToFile(report, getResult());
-            job.addMessage("Report written to: " + report.getAbsolutePath());
-        } catch (IOException e) {
-            job.addMessage(e.getMessage());
-            logger.error(e.getMessage());
-            return false;
-        }
-        return true;
+        File report = getReport(path);
+        return report != null;
     }
 
     public String getName() {

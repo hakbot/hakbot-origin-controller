@@ -16,14 +16,21 @@
  */
 package io.hakbot.publishers;
 
+import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.providers.Provider;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import java.io.File;
+import java.io.IOException;
 import java.util.Base64;
 
 public abstract class BasePublisher implements Publisher {
 
-    private String result;
+    // Setup logging
+    private static final Logger logger = Logger.getLogger(BasePublisher.class);
+
+    private Job job;
     private Provider provider;
 
     /**
@@ -32,7 +39,7 @@ public abstract class BasePublisher implements Publisher {
      * of the publisher is necessary.
      */
     public boolean initialize(Job job, Provider provider) {
-        this.result = job.getResult();
+        this.job = job;
         this.provider = provider;
         return true;
     }
@@ -41,7 +48,7 @@ public abstract class BasePublisher implements Publisher {
      * Returns the Base64 decoded results.
      */
     public byte[] getResult() {
-        return Base64.getDecoder().decode(result);
+        return Base64.getDecoder().decode(job.getResult());
     }
 
     /**
@@ -49,6 +56,25 @@ public abstract class BasePublisher implements Publisher {
      */
     public Provider getProvider() {
         return provider;
+    }
+
+    public File getReport(File directory) {
+        String filename = job.getUuid();
+        if (!StringUtils.isEmpty(provider.getResultExtension())) {
+            filename = filename + "." + provider.getResultExtension();
+        }
+
+        File report = new File(directory, filename);
+        try {
+            FileUtils.writeByteArrayToFile(report, job.getResult().getBytes());
+            job.addMessage("Result written to: " + report.getAbsolutePath());
+        } catch (IOException e) {
+            logger.error("Unable to write report from job: " + job.getUuid());
+            logger.error(e.getMessage());
+            job.addMessage(e.getMessage());
+            return null;
+        }
+        return report;
     }
 
 }
