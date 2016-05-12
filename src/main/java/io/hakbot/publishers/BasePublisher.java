@@ -64,17 +64,17 @@ public abstract class BasePublisher implements Publisher {
             filename = filename + "." + provider.getResultExtension();
         }
 
-        File report = new File(directory, filename);
+        File report = new File(directory, filename).getAbsoluteFile();
         try {
             FileUtils.writeByteArrayToFile(report, job.getResult().getBytes());
-            job.addMessage("Result written to: " + report.getAbsolutePath());
+            job.addMessage("Result written to: " + report.getPath());
         } catch (IOException e) {
             logger.error("Unable to write report from job: " + job.getUuid());
             logger.error(e.getMessage());
             job.addMessage(e.getMessage());
             return null;
         }
-        return report.getAbsoluteFile();
+        return report;
     }
 
 }
