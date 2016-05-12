@@ -7,7 +7,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>RESTjob Controller</name>
+    <name>Hakbot Origin Controller</name>
     <description>A Java Servlet incorporating a simple JSON API for the controlling of jobs</description>
     <inceptionYear>2016</inceptionYear>
 

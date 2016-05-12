@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/stevespringett/restjob-controller.svg?branch=master)](https://travis-ci.org/stevespringett/restjob-controller)
 
-RESTjob Controller
+Hakbot Origin Controller
 =====================================
 
 A minimalistic Java Web Application (Servlet) that provides the queuing and processing of jobs over JSON.
@@ -14,13 +14,13 @@ In software development, it is essential that security tools are integrated into
 development process. Sometimes, custom tools and scripts may be necessary to integrate with continuous
 integration servers, the security tools, and the target application being tested.
 
-This is why the RESTjob Controller came about. The controller accepts incoming jobs over JSON/HTTP,
+This is why the Hakbot Origin Controller came about. The controller accepts incoming jobs over JSON/HTTP,
 places the jobs into a queue for processing, and when worker threads are available, the jobs will
 be processed.
 
 Jobs can be anything ranging from executing shell scripts to controlling dynamic analysis engines.
 
-The RESTjob Controller is not designed to be a security application. It's designed for integrating into
+The Hakbot Origin Controller is not designed to be a security application. It's designed for integrating into
 the build process via continuous integration. Basic security features are implemented, but best-practices
 should be employed.
 
@@ -37,7 +37,7 @@ Features
 Providers
 -------------------
 
-Providers are the integration points that can be controlled through the RESTjob Controller. Writing
+Providers are the integration points that can be controlled through the Hakbot Origin Controller. Writing
 a custom provider is straight-forward and simply involves extending the BaseProvider class.
 
 Providers included are:
@@ -89,8 +89,8 @@ Compiling
 Installing
 -------------------
 
-The RESTjob Controller can be deployed to any Servlet 3 compatible container including Tomcat and Jetty.
-Simply copy restjob-controller.war to the webapps directory and restart the servlet engine.
+The Hakbot Origin Controller can be deployed to any Servlet 3 compatible container including Tomcat and Jetty.
+Simply copy origin-controller.war to the webapps directory and restart the servlet engine.
 
 Usage
 -------------------
@@ -102,7 +102,7 @@ Swagger JSON is located: http://$HOSTNAME:$PORT/$CONTEXT/api/swagger.json
 Copyright & License
 -------------------
 
-RESTjob Controller is Copyright (c) Steve Springett. All Rights Reserved.
+Hakbot Origin Controller is Copyright (c) Steve Springett. All Rights Reserved.
 
 Permission to modify and redistribute is granted under the terms of the [GPL 3.0] license.
 

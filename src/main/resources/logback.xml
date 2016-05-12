@@ -2,8 +2,8 @@
 <configuration scan="true">
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <!--<file>${catalina.base}/logs/restjob-controller.log</file>-->
-        <file>${user.home}/.restjob-controller/restjob-controller.log</file>
+        <!--<file>${catalina.base}/logs/origin-controller.log</file>-->
+        <file>${user.home}/.origin-controller/origin-controller.log</file>
         <encoder>
             <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
         </encoder>
@@ -15,7 +15,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.restjob" level="INFO" additivity="false">
+    <logger name="io.hakbot" level="INFO" additivity="false">
         <appender-ref ref="FILE" />
     </logger>
 
