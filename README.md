@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/stevespringett/restjob-controller.svg?branch=master)](https://travis-ci.org/stevespringett/restjob-controller)
+[![Build Status](https://travis-ci.org/hakbot/hakbot-origin-controller.svg?branch=master)](https://travis-ci.org/hakbot/hakbot-origin-controller)
 
 Hakbot Origin Controller
 =====================================
