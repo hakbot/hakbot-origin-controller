@@ -35,7 +35,7 @@ public class ThreadFixPublisher extends BasePublisher {
     // Setup logging
     private static final Logger logger = Logger.getLogger(ThreadFixPublisher.class);
 
-    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "nessus");
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "threadfix");
 
     private RemoteInstance remoteInstance;
     private String appId;
@@ -45,15 +45,15 @@ public class ThreadFixPublisher extends BasePublisher {
         super.initialize(job, provider);
 
         Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
-        if (!PayloadUtil.requiredParams(params, "publishAppId")) {
-            job.addMessage("Invalid request. Expected parameter: [publishAppId]");
+        if (!PayloadUtil.requiredParams(params, "appId")) {
+            job.addMessage("Invalid request. Expected parameter: [appId]");
             return false;
         }
         remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
         if (remoteInstance == null) {
             return false;
         }
-        appId = MapUtils.getString(params, "publishAppId");
+        appId = MapUtils.getString(params, "appId");
         return true;
     }
 
