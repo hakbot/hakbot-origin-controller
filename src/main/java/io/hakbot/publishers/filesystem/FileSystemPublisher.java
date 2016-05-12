@@ -59,7 +59,7 @@ public class FileSystemPublisher extends BasePublisher {
             job.addMessage("Cannot write to the specified publishPath.");
             return false;
         }
-        File report = getReport(path);
+        File report = getResult(path);
         return report != null;
     }
 

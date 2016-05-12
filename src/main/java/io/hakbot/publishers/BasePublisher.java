@@ -58,23 +58,23 @@ public abstract class BasePublisher implements Publisher {
         return provider;
     }
 
-    public File getReport(File directory) {
+    public File getResult(File directory) {
         String filename = job.getUuid();
         if (!StringUtils.isEmpty(provider.getResultExtension())) {
             filename = filename + "." + provider.getResultExtension();
         }
 
-        File report = new File(directory, filename).getAbsoluteFile();
+        File result = new File(directory, filename).getAbsoluteFile();
         try {
-            FileUtils.writeByteArrayToFile(report, job.getResult().getBytes());
-            job.addMessage("Result written to: " + report.getPath());
+            FileUtils.writeByteArrayToFile(result, getResult());
+            job.addMessage("Result written to: " + result.getPath());
         } catch (IOException e) {
-            logger.error("Unable to write report from job: " + job.getUuid());
+            logger.error("Unable to write result from job: " + job.getUuid());
             logger.error(e.getMessage());
             job.addMessage(e.getMessage());
             return null;
         }
-        return report;
+        return result;
     }
 
 }

@@ -35,7 +35,7 @@ public class ThreadFixPublisher extends BasePublisher {
     // Setup logging
     private static final Logger logger = Logger.getLogger(ThreadFixPublisher.class);
 
-    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "threadfix");
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PUBLISHER, "threadfix");
 
     private RemoteInstance remoteInstance;
     private String appId;
@@ -51,6 +51,7 @@ public class ThreadFixPublisher extends BasePublisher {
         }
         remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
         if (remoteInstance == null) {
+            job.addMessage("ThreadFix remote instance cannot be found or is not defined.");
             return false;
         }
         appId = MapUtils.getString(params, "appId");
@@ -58,12 +59,16 @@ public class ThreadFixPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        File report = getReport(new File(System.getProperty("java.io.tmpdir")));
+        File report = getResult(new File(System.getProperty("java.io.tmpdir")));
         if (report == null) {
             return false;
         }
         final ThreadFixRestClientImpl client = new ThreadFixRestClientImpl(remoteInstance.getUrl(), remoteInstance.getApiKey());
         final RestResponse<Scan> uploadResponse = client.uploadScan(appId, report.getAbsolutePath());
+        if (!uploadResponse.success) {
+            job.addMessage("Failed to upload result to ThreadFix");
+            job.addMessage(uploadResponse.message);
+        }
         return uploadResponse.success;
     }
 
