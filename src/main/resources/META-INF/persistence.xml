@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
 
-    <persistence-unit name="RestJobController" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="OriginController" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.restjob.controller.model.Job</class>
+        <class>io.hakbot.controller.model.Job</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/.restjob-controller/db/db"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/.origin-controller/db/db"/>
             <property name="javax.persistence.jdbc.user" value="sa" />
             <property name="openjpa.RuntimeUnenhancedClasses" value="supported" />
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
