@@ -74,7 +74,7 @@ public abstract class BasePublisher implements Publisher {
             job.addMessage(e.getMessage());
             return null;
         }
-        return report;
+        return report.getAbsoluteFile();
     }
 
 }
