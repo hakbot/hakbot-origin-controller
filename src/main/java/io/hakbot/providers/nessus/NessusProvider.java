@@ -87,6 +87,7 @@ public class NessusProvider extends BaseProvider {
             reportClient.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             File report = scan.download(Integer.parseInt(scanID), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")).toAbsolutePath());
             super.setResult(FileUtils.readFileToByteArray(report));
+            report.delete();
         } catch (LoginException e) {
             job.addMessage("Unable to login to Nessus");
             return false;
