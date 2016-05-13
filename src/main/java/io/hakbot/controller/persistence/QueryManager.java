@@ -38,12 +38,21 @@ public class QueryManager {
         return result;
     }
 
+    public List<Job> getJobs(State state) {
+        EntityManager em = getEntityManager();
+        TypedQuery<Job> query = em.createNamedQuery("Job.getJobsByState", Job.class);
+        query.setParameter("state", state.getValue());
+        List<Job> result = query.getResultList();
+        em.close();
+        return result;
+    }
+
     public Job getJob(String uuid) {
         EntityManager em = getEntityManager();
         TypedQuery<Job> query = em.createNamedQuery("Job.getJobByUuid", Job.class).setParameter("uuid", uuid);
-        List<Job> jobs = query.getResultList();
+        List<Job> result = query.getResultList();
         em.close();
-        return jobs.size() == 0 ? null : jobs.get(0);
+        return result.size() == 0 ? null : result.get(0);
     }
 
     public Job createJob(Job transientJob) {
@@ -87,6 +96,7 @@ public class QueryManager {
         query.setParameter("state", state.getValue());
         query.executeUpdate();
         em.getTransaction().commit();
+        em.getEntityManagerFactory().getCache().evict(Job.class);
         em.close();
     }
 
