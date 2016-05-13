@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Hakbot Origin Controller</title>
+    <link rel="icon" href="images/favicon.png">
   </head>
   <body>
   Hakbot Origin Controller
