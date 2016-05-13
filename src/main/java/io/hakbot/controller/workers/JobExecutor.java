@@ -128,7 +128,7 @@ class JobExecutor implements Runnable {
                 success = publisher.publish(job);
             }
         } catch (Throwable e) {
-            logger.error(e.getMessage());
+            logger.error(e.toString());
             job.addMessage(e.getMessage());
         } finally {
             if (success) {
