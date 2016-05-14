@@ -33,9 +33,7 @@
 
         <maven-compiler-plugin-version>3.1</maven-compiler-plugin-version>
         <maven-surefire-plugin-version>2.18.1</maven-surefire-plugin-version>
-        <maven-assembly-plugin-version>2.5.3</maven-assembly-plugin-version>
         <maven-war-plugin-version>2.4</maven-war-plugin-version>
-        <maven-openjpa-plugin-version>2.4.1</maven-openjpa-plugin-version>
     </properties>
 
     <dependencies>
@@ -43,6 +41,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -74,16 +77,6 @@
             <version>1.5.8</version>
         </dependency>
         <!-- Persistence -->
-        <dependency>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-persistence</artifactId>
-            <version>2.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-persistence-jdbc</artifactId>
-            <version>2.4.1</version>
-        </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -135,32 +128,6 @@
                 <configuration>
                     <skipTests>false</skipTests>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.openjpa</groupId>
-                <artifactId>openjpa-maven-plugin</artifactId>
-                <version>${maven-openjpa-plugin-version}</version>
-                <configuration>
-                    <includes>com/restjob/controller/model/**/*.class</includes>
-                    <addDefaultConstructor>true</addDefaultConstructor>
-                    <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>enhancer</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.openjpa</groupId>
-                        <artifactId>openjpa</artifactId>
-                        <version>${maven-openjpa-plugin-version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
 

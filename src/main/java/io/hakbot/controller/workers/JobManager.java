@@ -18,12 +18,9 @@ package io.hakbot.controller.workers;
 
 import io.hakbot.controller.Config;
 import io.hakbot.controller.ConfigItem;
-import io.hakbot.controller.listener.LocalEntityManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import io.hakbot.controller.persistence.JobDao;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,9 +59,6 @@ public class JobManager {
     // Holds an instance of JobManager
     private static final JobManager instance = new JobManager();
 
-    // JPA Entity Manager
-    private EntityManager em;
-
     /**
      * Construct a new JobManager instance and setups up queues and scheduling
      */
@@ -86,8 +80,6 @@ public class JobManager {
 
         executors = new ArrayBlockingQueue<>(maxJobSize);
         workQueue = new LinkedList<>();
-
-        em = LocalEntityManagerFactory.createEntityManager();
 
         // Creates a new JobSchedulerTask every 15 seconds
         Timer schTimer = new Timer();
@@ -115,10 +107,10 @@ public class JobManager {
             logger.debug("Adding job to queue: " + job.getUuid());
         }
         if (workQueue.size() < maxQueueSize) {
-            em.getTransaction().begin();
             job.setState(State.IN_QUEUE);
-            em.getTransaction().commit();
-            workQueue.add(job);
+            JobDao jobDao = new JobDao();
+
+            workQueue.add(jobDao.update(job));
         }
     }
 
@@ -147,9 +139,9 @@ public class JobManager {
                 executor.waitFor();
             }
         }
-        em.getTransaction().begin();
         job.setState(State.CANCELED);
-        em.getTransaction().commit();
+        JobDao jobDao = new JobDao();
+        jobDao.update(job);
     }
 
     /**
@@ -251,7 +243,7 @@ public class JobManager {
                 Job job = workQueue.remove();
 
                 // Create and start new JobExecutor
-                JobExecutor executor = new JobExecutor(em, job);
+                JobExecutor executor = new JobExecutor(job);
                 Thread thread = new Thread(executor);
                 thread.start();
 
@@ -262,15 +254,9 @@ public class JobManager {
 
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
-
-            TypedQuery<Job> query = em.createNamedQuery("Job.getJobsByState", Job.class);
-            query.setParameter("state", State.UNAVAILABLE.getValue());
-            jobs.addAll(query.getResultList());
-
-            query = em.createNamedQuery("Job.getJobsByState", Job.class);
-            query.setParameter("state", State.CREATED.getValue());
-            jobs.addAll(query.getResultList());
-
+            JobDao jobDao = new JobDao();
+            jobs.addAll(jobDao.getJobs(State.UNAVAILABLE));
+            jobs.addAll(jobDao.getJobs(State.CREATED));
             return jobs;
         }
     }

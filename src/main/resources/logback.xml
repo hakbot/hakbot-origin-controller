@@ -2,8 +2,7 @@
 <configuration scan="true">
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <!--<file>${catalina.base}/logs/origin-controller.log</file>-->
-        <file>${user.home}/.origin-controller/origin-controller.log</file>
+        <file>${user.home}/.hakbot/origin-controller/origin-controller.log</file>
         <encoder>
             <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
         </encoder>

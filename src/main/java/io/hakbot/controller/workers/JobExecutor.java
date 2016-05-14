@@ -18,11 +18,11 @@ package io.hakbot.controller.workers;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.persistence.JobDao;
 import io.hakbot.controller.plugin.PluginMetadata;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.Publisher;
-import org.apache.commons.lang.StringUtils;
-import javax.persistence.EntityManager;
+import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 import java.util.Date;
 
@@ -36,7 +36,6 @@ class JobExecutor implements Runnable {
 
     private Job job;
     private boolean isExecuting = true;
-    private EntityManager em;
     private Provider provider;
     private Publisher publisher;
 
@@ -44,8 +43,7 @@ class JobExecutor implements Runnable {
      * Constructs a new JobExecutor instance for the specified Job
      * @param job A Job object
      */
-    JobExecutor(EntityManager em, Job job) {
-        this.em = em;
+    JobExecutor(Job job) {
         this.job = job;
     }
 
@@ -70,6 +68,7 @@ class JobExecutor implements Runnable {
     private void executeProvider() {
         boolean initialized, isAvailable = false, success = false;
         String result = null;
+        JobDao jobDao = new JobDao();
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolveProvider(job);
@@ -77,7 +76,6 @@ class JobExecutor implements Runnable {
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (Provider) constructor.newInstance();
             initialized = provider.initialize(job);
-            em.getTransaction().begin();
             if (initialized) {
                 isAvailable = provider.isAvailable(job);
             } else {
@@ -86,9 +84,7 @@ class JobExecutor implements Runnable {
             if (initialized && isAvailable) {
                 job.setState(State.IN_PROGRESS);
                 job.setStarted(new Date());
-                em.getTransaction().commit();
-                em.getTransaction().begin();
-
+                job = jobDao.update(job);
                 success = provider.process(job);
                 result = provider.getResult();
             } else if (initialized && !isAvailable){
@@ -101,10 +97,9 @@ class JobExecutor implements Runnable {
             if (job.getState() != State.UNAVAILABLE) {
                 job.setState(State.COMPLETED);
                 job.setCompleted(new Date());
-                job.setResult(result);
                 job.setSuccess(success);
             }
-            em.getTransaction().commit();
+            job = jobDao.update(job);
             if (logger.isInfoEnabled()) {
                 PluginMetadata pluginMetadata = new PluginMetadata(provider.getClass());
                 logger.info(job.getUuid() + " - Provider: " + pluginMetadata.getName());
@@ -116,6 +111,7 @@ class JobExecutor implements Runnable {
 
     private void executePublisher() {
         boolean initialized, success = false;
+        JobDao jobDao = new JobDao();
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolvePublisher(job);
@@ -123,7 +119,6 @@ class JobExecutor implements Runnable {
             Constructor<?> constructor = clazz.getConstructor();
             this.publisher = (Publisher) constructor.newInstance();
             initialized = publisher.initialize(job, provider);
-            em.getTransaction().begin();
             if (initialized) {
                 success = publisher.publish(job);
             }
@@ -136,7 +131,7 @@ class JobExecutor implements Runnable {
                 job.setCompleted(new Date());
             }
             job.setSuccess(success);
-            em.getTransaction().commit();
+            job = jobDao.update(job);
             if (logger.isInfoEnabled()) {
                 PluginMetadata pluginMetadata = new PluginMetadata(publisher.getClass());
                 logger.info(job.getUuid() + " - Publisher: " + pluginMetadata.getName());

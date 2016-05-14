@@ -4,10 +4,6 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
-    <listener>
-        <listener-class>io.hakbot.controller.listener.LocalEntityManagerFactory</listener-class>
-    </listener>
-
     <servlet>
         <servlet-name>OriginController</servlet-name>
         <servlet-class>io.hakbot.controller.OriginControllerServlet</servlet-class>
