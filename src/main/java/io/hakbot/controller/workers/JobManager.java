@@ -18,9 +18,11 @@ package io.hakbot.controller.workers;
 
 import io.hakbot.controller.Config;
 import io.hakbot.controller.ConfigItem;
+import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.persistence.JobDao;
+import io.hakbot.controller.persistence.QueryManager;
+import javax.jdo.PersistenceManager;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,10 +109,11 @@ public class JobManager {
             logger.debug("Adding job to queue: " + job.getUuid());
         }
         if (workQueue.size() < maxQueueSize) {
+            PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
             job.setState(State.IN_QUEUE);
-            JobDao jobDao = new JobDao();
-
-            workQueue.add(jobDao.update(job));
+            job = pm.getObjectById(Job.class, job.getId());
+            workQueue.add(job);
+            pm.close();
         }
     }
 
@@ -139,9 +142,9 @@ public class JobManager {
                 executor.waitFor();
             }
         }
+        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         job.setState(State.CANCELED);
-        JobDao jobDao = new JobDao();
-        jobDao.update(job);
+        job = pm.getObjectById(Job.class, job.getId());
     }
 
     /**
@@ -254,9 +257,9 @@ public class JobManager {
 
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
-            JobDao jobDao = new JobDao();
-            jobs.addAll(jobDao.getJobs(State.UNAVAILABLE));
-            jobs.addAll(jobDao.getJobs(State.CREATED));
+            QueryManager qm = new QueryManager();
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE));
+            jobs.addAll(qm.getJobs(State.CREATED));
             return jobs;
         }
     }

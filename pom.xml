@@ -31,9 +31,12 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
+        <lib.datanucleus.version>4.2.5</lib.datanucleus.version>
+
         <maven-compiler-plugin-version>3.1</maven-compiler-plugin-version>
         <maven-surefire-plugin-version>2.18.1</maven-surefire-plugin-version>
         <maven-war-plugin-version>2.4</maven-war-plugin-version>
+        <maven-datanucleus-plugin-version>4.0.5</maven-datanucleus-plugin-version>
     </properties>
 
     <dependencies>
@@ -77,6 +80,31 @@
             <version>1.5.8</version>
         </dependency>
         <!-- Persistence -->
+        <dependency>
+            <groupId>javax.jdo</groupId>
+            <artifactId>jdo-api</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-core</artifactId>
+            <version>4.1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-api-jdo</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-rdbms</artifactId>
+            <version>4.1.12</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -128,6 +156,24 @@
                 <configuration>
                     <skipTests>false</skipTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.datanucleus</groupId>
+                <artifactId>datanucleus-maven-plugin</artifactId>
+                <version>${maven-datanucleus-plugin-version}</version>
+                <configuration>
+                    <api>JDO</api>
+                    <persistenceUnitName>HakbotOrigin</persistenceUnitName>
+                    <verbose>true</verbose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 

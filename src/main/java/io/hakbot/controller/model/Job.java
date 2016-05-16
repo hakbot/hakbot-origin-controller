@@ -16,28 +16,84 @@
  */
 package io.hakbot.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.StringUtils;
+import javax.jdo.annotations.Column;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 import java.io.Serializable;
 import java.util.Date;
 
+@PersistenceCapable
 public class Job implements Serializable {
 
-    private static final long serialVersionUID = 3956171171879917556L;
+    private static final long serialVersionUID = -427569825931186883L;
 
+
+    @PrimaryKey
+    @Persistent(valueStrategy= IdGeneratorStrategy.INCREMENT)
+    @JsonIgnore
+    private long id;
+
+    @Persistent
+    @Column(name="UUID", jdbcType="VARCHAR", length=36, allowsNull="false")
     private String uuid;
+
+    @Persistent
+    @Column(name="PROVIDER", jdbcType="VARCHAR", length=255, allowsNull="false")
     private String provider;
+
+    @Persistent
+    @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
     private String publisher;
+
+    @Persistent
+    @Column(name="MESSAGE", jdbcType="VARCHAR", length=4096)
     private String message;
+
+    @Persistent
+    @Column(name="PROVIDERPAYLOAD", jdbcType="CLOB")
     private String providerPayload;
+
+    @Persistent
+    @Column(name="PUBLISHERPAYLOAD", jdbcType="CLOB")
     private String publisherPayload;
+
+    @Persistent
+    @Column(name="CREATED", jdbcType="TIMESTAMP", allowsNull="false")
     private Date created;
+
+    @Persistent
+    @Column(name="STARTED", jdbcType="TIMESTAMP")
     private Date started;
+
+    @Persistent
+    @Column(name="COMPLETED", jdbcType="TIMESTAMP")
     private Date completed;
+
+    @Persistent
+    @Column(name="STATE", jdbcType="VARCHAR", length=20, allowsNull="false")
     private String state;
+
+    @Persistent
+    @Column(name="SUCCESS", jdbcType="BOOLEAN")
     private boolean success;
+
+    @Persistent
+    @Column(name="RESULT", jdbcType="CLOB")
     private String result;
 
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getUuid() {
         return uuid;

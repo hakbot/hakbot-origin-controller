@@ -23,12 +23,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class BaseDao {
-
+/*
     // Setup logging
     private static final Logger logger = Logger.getLogger(BaseDao.class);
 
     private static final String DRIVER_NAME = "org.h2.Driver";
-    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/.hakbot/origin-controller/db/db";
+    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/.hakbot/origin-controller/db";
     private static final String ID = "sa";
     private static final String PASS = "";
 
@@ -61,5 +61,5 @@ public class BaseDao {
             }
         }
     }
-
+*/
 }

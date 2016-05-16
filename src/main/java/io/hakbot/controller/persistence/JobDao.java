@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class JobDao extends BaseDao {
-
+/*
     // Setup logging
     private static final Logger logger = Logger.getLogger(JobDao.class);
 
@@ -198,5 +198,5 @@ public class JobDao extends BaseDao {
             return new java.sql.Timestamp(date.getTime());
         }
     }
-
+*/
 }

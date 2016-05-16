@@ -17,7 +17,7 @@
 package io.hakbot.controller.resources;
 
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.persistence.JobDao;
+import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,8 +45,8 @@ public class JobResource {
             response = Job.class,
             responseContainer = "List")
     public Response getAllJobs() {
-        JobDao jobDao = new JobDao();
-        return Response.ok(jobDao.getJobs()).build();
+        QueryManager qm = new QueryManager();
+        return Response.ok(qm.getJobs()).build();
     }
 
     @GET
@@ -56,8 +56,8 @@ public class JobResource {
             notes = "Returns a specific job by it's UUID.",
             response = Job.class)
     public Response getJobByUuid(@PathParam("uuid") String uuid) {
-        JobDao jobDao = new JobDao();
-        Job job = jobDao.getJob(uuid);
+        QueryManager qm = new QueryManager();
+        Job job = qm.getJob(uuid);
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
@@ -75,8 +75,8 @@ public class JobResource {
         if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        JobDao jobDao = new JobDao();
-        Job job = jobDao.create(jsonJob);
+        QueryManager qm = new QueryManager();
+        Job job = qm.createJob(jsonJob);
         return Response.ok(job).build();
     }
 
@@ -85,8 +85,8 @@ public class JobResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Purges all jobs from database")
     public Response purgeAll() {
-        JobDao jobDao = new JobDao();
-        jobDao.delete();
+        QueryManager qm = new QueryManager();
+        qm.deleteAllJobs();
         return Response.ok().build();
     }
 
@@ -95,8 +95,8 @@ public class JobResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Deletes a specific job")
     public Response purgeByUuid(@PathParam("uuid") String uuid) {
-        JobDao jobDao = new JobDao();
-        jobDao.delete(uuid);
+        QueryManager qm = new QueryManager();
+        qm.deleteJob(uuid);
         return Response.ok().build();
     }
 
@@ -106,8 +106,8 @@ public class JobResource {
     @ApiOperation(value = "Purges all jobs with a specific state from the database",
                 notes = "A supported state is required.")
     public Response purge(@PathParam("state") State state) {
-        JobDao jobDao = new JobDao();
-        jobDao.delete(state);
+        QueryManager qm = new QueryManager();
+        qm.deleteJobs(state);
         return Response.ok().build();
     }
 

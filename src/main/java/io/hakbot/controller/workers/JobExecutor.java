@@ -16,13 +16,14 @@
  */
 package io.hakbot.controller.workers;
 
+import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.persistence.JobDao;
 import io.hakbot.controller.plugin.PluginMetadata;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.Publisher;
 import org.apache.commons.lang3.StringUtils;
+import javax.jdo.PersistenceManager;
 import java.lang.reflect.Constructor;
 import java.util.Date;
 
@@ -68,7 +69,7 @@ class JobExecutor implements Runnable {
     private void executeProvider() {
         boolean initialized, isAvailable = false, success = false;
         String result = null;
-        JobDao jobDao = new JobDao();
+        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolveProvider(job);
@@ -76,30 +77,34 @@ class JobExecutor implements Runnable {
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (Provider) constructor.newInstance();
             initialized = provider.initialize(job);
+            job = pm.getObjectById(Job.class, job.getId());
             if (initialized) {
                 isAvailable = provider.isAvailable(job);
             } else {
                 job.setState(State.COMPLETED);
+                job = pm.getObjectById(Job.class, job.getId());
             }
             if (initialized && isAvailable) {
                 job.setState(State.IN_PROGRESS);
                 job.setStarted(new Date());
-                job = jobDao.update(job);
                 success = provider.process(job);
                 result = provider.getResult();
+                job = pm.getObjectById(Job.class, job.getId());
             } else if (initialized && !isAvailable){
                 job.setState(State.UNAVAILABLE);
+                job = pm.getObjectById(Job.class, job.getId());
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());
             job.addMessage(e.getMessage());
+            job = pm.getObjectById(Job.class, job.getId());
         } finally {
             if (job.getState() != State.UNAVAILABLE) {
                 job.setState(State.COMPLETED);
                 job.setCompleted(new Date());
                 job.setSuccess(success);
             }
-            job = jobDao.update(job);
+            job = pm.getObjectById(Job.class, job.getId());
             if (logger.isInfoEnabled()) {
                 PluginMetadata pluginMetadata = new PluginMetadata(provider.getClass());
                 logger.info(job.getUuid() + " - Provider: " + pluginMetadata.getName());
@@ -111,7 +116,7 @@ class JobExecutor implements Runnable {
 
     private void executePublisher() {
         boolean initialized, success = false;
-        JobDao jobDao = new JobDao();
+        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolvePublisher(job);
@@ -131,7 +136,7 @@ class JobExecutor implements Runnable {
                 job.setCompleted(new Date());
             }
             job.setSuccess(success);
-            job = jobDao.update(job);
+            job = pm.getObjectById(Job.class, job.getId());
             if (logger.isInfoEnabled()) {
                 PluginMetadata pluginMetadata = new PluginMetadata(publisher.getClass());
                 logger.info(job.getUuid() + " - Publisher: " + pluginMetadata.getName());
