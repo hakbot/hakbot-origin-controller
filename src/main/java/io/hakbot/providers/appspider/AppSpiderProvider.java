@@ -24,8 +24,9 @@ import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
-import io.hakbot.providers.appspider.ws.SYSTEMINFO;
-import javax.xml.ws.Holder;
+import io.hakbot.util.PayloadUtil;
+import org.apache.commons.collections.MapUtils;
+import javax.xml.namespace.QName;
 import java.util.Map;
 
 public class AppSpiderProvider extends BaseProvider {
@@ -33,44 +34,37 @@ public class AppSpiderProvider extends BaseProvider {
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
-    private static Map<String, RemoteInstance> scanEngineMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
+    private static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
 
-    private AppSpiderInstance engine;
+    private RemoteInstance remoteInstance;
+    private String scanConfig;
 
     @Override
     public boolean initialize(Job job) {
-        //todo: change this - testing only - need to define the payload for this provider
-        String alias = job.getProviderPayload();
-        this.engine = (AppSpiderInstance)scanEngineMap.get(alias);
-        if (engine == null) {
-            logger.error("The specified scan engine is not defined.");
+        Map<String, String> params = PayloadUtil.toParameters(job.getProviderPayload());
+        if (!PayloadUtil.requiredParams(params, "instance", "scanConfig")) {
+            job.addMessage("Invalid request. Expected parameters: [instance], [config]");
             return false;
         }
+        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        if (remoteInstance == null) {
+            return false;
+        }
+        scanConfig = MapUtils.getString(params, "scanConfig");
         return true;
     }
 
     public boolean process(Job job) {
-        Holder<Result> resultHolder = new Holder<>();
-        Holder<SYSTEMINFO> dataHolder = new Holder<>();
-
-        NTOService service = new NTOService(engine.getURL(), engine.getServiceName());
+        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
         NTOServiceSoap soap = service.getNTOServiceSoap();
+        Result result = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), null, scanConfig, null, null);
 
-        soap.getSysInfo(engine.getUsername(), engine.getPassword(), null, resultHolder, dataHolder);
-
-        Result result = resultHolder.value;
         if (result.isSuccess()) {
-            String resultData = result.getData();
-            System.out.println(resultData);
+            setResult(result.getData());
         } else {
             System.out.println(result.getErrorDescription());
         }
-
-        SYSTEMINFO systeminfo = dataHolder.value;
-        System.out.println(systeminfo.getTotalRAM());
-
-        setResult(systeminfo.getTotalRAM());
-
         return result.isSuccess();
     }
 
@@ -80,9 +74,9 @@ public class AppSpiderProvider extends BaseProvider {
 
     @Override
     public boolean isAvailable(Job job) {
-        NTOService service = new NTOService(engine.getURL(), engine.getServiceName());
+        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
         NTOServiceSoap soap = service.getNTOServiceSoap();
-        return !soap.isBusy(engine.getUsername(), engine.getPassword());
+        return !soap.isBusy(remoteInstance.getUsername(), remoteInstance.getPassword());
     }
 
     public String getName() {
