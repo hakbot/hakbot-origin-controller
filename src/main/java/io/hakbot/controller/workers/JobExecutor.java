@@ -102,6 +102,7 @@ class JobExecutor implements Runnable {
             if (job.getState() != State.UNAVAILABLE) {
                 job.setState(State.COMPLETED);
                 job.setCompleted(new Date());
+                job.setResult(result);
                 job.setSuccess(success);
             }
             job = pm.getObjectById(Job.class, job.getId());

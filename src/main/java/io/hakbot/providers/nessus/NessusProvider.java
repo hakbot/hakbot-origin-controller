@@ -85,14 +85,14 @@ public class NessusProvider extends BaseProvider {
             }
             ReportClient reportClient = ClientFactory.createReportClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             reportClient.login(remoteInstance.getUsername(), remoteInstance.getPassword());
-            File report = scan.download(Integer.parseInt(scanID), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")).toAbsolutePath());
+            File report = scan.download(Integer.parseInt(scanID), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")));
             super.setResult(FileUtils.readFileToByteArray(report));
             report.delete();
         } catch (LoginException e) {
             job.addMessage("Unable to login to Nessus");
             return false;
         } catch (IOException e) {
-            job.addMessage("IOExceptio - Possibly due to downloading report");
+            job.addMessage("IOException - Possibly due to downloading report");
             return false;
         }
         return true;
