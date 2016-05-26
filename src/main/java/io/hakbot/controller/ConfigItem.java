@@ -35,7 +35,7 @@ public enum	ConfigItem {
     PROVIDERS_ENALBED("providers.enabled"),
     PUBLISHERS_ENABLED("publishers.enabled"),
 
-    TEMP_DIR("temp.dir");
+    GZIP_COMPRESSION_ENABLED("proto.gzip.enabled");
 
     String propertyName;
     private ConfigItem(String item) {

@@ -75,6 +75,10 @@ public final class Config {
         return Integer.parseInt(getProperty(item));
     }
 
+    public boolean getPropertyAsBoolean(ConfigItem item) {
+        return "true".equalsIgnoreCase(getProperty(item));
+    }
+
     public String getProperty(String key) {
         return properties.getProperty(key);
     }
