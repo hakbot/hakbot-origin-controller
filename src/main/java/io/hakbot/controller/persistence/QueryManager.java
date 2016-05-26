@@ -64,6 +64,7 @@ public class QueryManager {
         PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();
         Job job = new Job();
+        job.setName(transientJob.getName());
         job.setProvider(transientJob.getProvider());
         job.setPublisher(transientJob.getPublisher());
         job.setProviderPayload(transientJob.getProviderPayload());

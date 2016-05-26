@@ -72,7 +72,7 @@ public class JobResource {
             notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
             response = Job.class)
     public Response addJob(Job jsonJob) {
-        if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null) {
+        if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null || jsonJob.getName() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         QueryManager qm = new QueryManager();

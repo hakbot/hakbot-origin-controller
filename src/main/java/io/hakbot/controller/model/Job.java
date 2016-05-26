@@ -21,6 +21,7 @@ import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.StringUtils;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -30,7 +31,7 @@ import java.util.Date;
 @PersistenceCapable
 public class Job implements Serializable {
 
-    private static final long serialVersionUID = -427569825931186883L;
+    private static final long serialVersionUID = 4247510467373253623L;
 
 
     @PrimaryKey
@@ -43,6 +44,10 @@ public class Job implements Serializable {
     private String uuid;
 
     @Persistent
+    @Column(name="NAME", jdbcType="VARCHAR", length=50, allowsNull="false")
+    private String name;
+
+    @Persistent
     @Column(name="PROVIDER", jdbcType="VARCHAR", length=255, allowsNull="false")
     private String provider;
 
@@ -51,7 +56,7 @@ public class Job implements Serializable {
     private String publisher;
 
     @Persistent
-    @Column(name="MESSAGE", jdbcType="VARCHAR", length=4096)
+    @Column(name="MESSAGE", jdbcType="CLOB")
     private String message;
 
     @Persistent
@@ -73,6 +78,9 @@ public class Job implements Serializable {
     @Persistent
     @Column(name="COMPLETED", jdbcType="TIMESTAMP")
     private Date completed;
+
+    @NotPersistent
+    private Long duration;
 
     @Persistent
     @Column(name="STATE", jdbcType="VARCHAR", length=20, allowsNull="false")
@@ -101,6 +109,14 @@ public class Job implements Serializable {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getProvider() {
@@ -186,6 +202,13 @@ public class Job implements Serializable {
 
     public void setCompleted(Date completed) {
         this.completed = new Date(completed.getTime());
+    }
+
+    public Long getDuration() {
+        if (created != null && created.getTime() > 0 && completed != null && completed.getTime() > created.getTime()) {
+            return completed.getTime() - created.getTime();
+        }
+        return null;
     }
 
     public boolean getSuccess() {
