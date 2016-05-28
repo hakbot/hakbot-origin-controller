@@ -46,7 +46,7 @@ public class JobResource {
             responseContainer = "List")
     public Response getAllJobs() {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJobs()).build();
+        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC)).build();
     }
 
     @GET

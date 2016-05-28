@@ -258,8 +258,8 @@ public class JobManager {
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE));
-            jobs.addAll(qm.getJobs(State.CREATED));
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC));
+            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC));
             return jobs;
         }
     }

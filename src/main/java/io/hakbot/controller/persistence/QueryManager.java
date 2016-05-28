@@ -27,25 +27,29 @@ import java.util.UUID;
 
 public class QueryManager {
 
+    public enum OrderDirection {
+        ASC, DESC
+    }
+
     private PersistenceManager getPersistenceManager() {
         return LocalPersistenceManagerFactory.createPersistenceManager();
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs() {
+    public List<Job> getJobs(OrderDirection order) {
         PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(Job.class);
-        query.setOrdering("created asc");
+        query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>) query.execute();
         pm.close();
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(State state) {
+    public List<Job> getJobs(State state, OrderDirection order) {
         PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(Job.class, "state == :state");
-        query.setOrdering("created asc");
+        query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute (state.getValue());
         pm.close();
         return result;
