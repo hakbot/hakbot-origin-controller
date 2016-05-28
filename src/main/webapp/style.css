@@ -1,5 +1,7 @@
 body {
     padding-top: 50px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.250em;
 }
 .sub-header {
     padding-bottom: 10px;
@@ -18,15 +20,14 @@ body {
         bottom: 0;
         right: 0;
         z-index: 1000;
-        display: block;
-        padding: 20px;
+        display: none;
+        padding: 10px;
         overflow-x: hidden;
         overflow-y: auto;
         background-color: #f5f5f5;
         border-left: 1px solid #eee;
     }
 }
-
 .nav-sidebar {
     margin-right: -21px; /* 20px padding + 1px border */
     margin-bottom: 20px;
@@ -68,8 +69,55 @@ body {
     display: inline-block;
     border-radius: 50%;
 }
+.table th {
+    background-color: #837E7C;
+    color: #444444;
+    font-weight: 600;
+    text-transform: uppercase;
+}
 .table td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.job-details-panel {
+    display: none;
+}
+.job-label {
+    display: block;
+    font-size: 0.938em;
+    font-weight: 800;
+    padding-top: 4px;
+}
+.job-data {
+    display: block;
+    font-size: 0.938em;
+    border-bottom: 1px solid #cecece;
+    padding-bottom: 4px;
+}
+#sidebar h3 {
+    margin-top: 2px;
+}
+table tr:first-child th {
+    background: #ffffff;
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iI2Y2ZjZmNiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iI2Y2ZjZmNiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlNWU1ZTUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top,  #ffffff 0%, #f6f6f6 30%, #f6f6f6 30%, #e5e5e5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(30%,#f6f6f6), color-stop(30%,#f6f6f6), color-stop(100%,#e5e5e5));
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#f6f6f6 30%,#f6f6f6 30%,#e5e5e5 100%);
+    background: -o-linear-gradient(top,  #ffffff 0%,#f6f6f6 30%,#f6f6f6 30%,#e5e5e5 100%);
+    background: -ms-linear-gradient(top,  #ffffff 0%,#f6f6f6 30%,#f6f6f6 30%,#e5e5e5 100%);
+    background: linear-gradient(to bottom,  #ffffff 0%,#f6f6f6 30%,#f6f6f6 30%,#e5e5e5 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5e5e5',GradientType=0 );
+}
+.table-striped>tbody>tr:nth-child(even)>td {
+    background-color: rgba(195,253,184,.15);
+}
+.table-striped>tbody>tr:nth-child(odd)>td {
+    background-color: #ffffff;
+}
+.table-striped tbody tr.highlight td {
+    background-color: #FFF380;
+}
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: #FFFFCC;
 }

@@ -177,11 +177,11 @@ function getDuration(startTimestamp, endTimestamp) {
 
 function getSuccessIcon(success, state) {
     if (success) {
-        return '<span class="glyphicon glyphicon glyphicon-ok-circle" style="color:royalblue" aria-hidden="true"></span>';
+        return '<span class="glyphicon glyphicon glyphicon-ok-circle" style="color:seagreen" aria-hidden="true"></span>';
     } else if (state == STATE_CREATED || state == STATE_IN_QUEUE || state == STATE_IN_PROGRESS) {
         return '<span class="glyphicon glyphicon-hourglass" style="color:dimgrey" aria-hidden="true"></span>';
     } else if (state == STATE_COMPLETED || state == STATE_PUBLISHED){
-        return '<span class="glyphicon glyphicon-warning-sign" style="color:red" aria-hidden="true"></span>';
+        return '<span class="glyphicon glyphicon-warning-sign" style="color:darkred" aria-hidden="true"></span>';
     } else if (state == STATE_UNAVAILABLE ){
         return '<span class="glyphicon glyphicon-time" style="color:lightslategrey" aria-hidden="true"></span>';
     } else if (state == STATE_CANCELED ){
@@ -189,3 +189,28 @@ function getSuccessIcon(success, state) {
     }
 }
 
+$('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
+    $('#main').removeClass("col-sm-12");
+    $('#main').removeClass("col-md-12");
+    $('#main').addClass("col-sm-9");
+    $('#main').addClass("col-md-10");
+    $('#sidebar').css("display", "block");
+    $('#jobsTable').bootstrapTable('resetView');
+    $('#details-uuid').html(job.uuid);
+    $('#details-name').html(job.name);
+    $('#details-provider').html(job.provider);
+    $('#details-publisher').html(job.publisher);
+    $('#details-message').html(job.message);
+    $('#details-providerPayload').html(job.providerPayload);
+    $('#details-publisherPayload').html(job.publisherPayload);
+    $('#details-created').html(job.created);
+    $('#details-started').html(job.started);
+    $('#details-completed').html(job.completed);
+    $('#details-duration').html(job.duration);
+    $('#details-state').html(job.state);
+    $('#details-success').html(job.success);
+    $('#details-result').html(job.result);
+});
+$('#jobsTable').on('click', 'tbody tr', function(event) {
+    $(this).addClass('highlight').siblings().removeClass('highlight');
+});
