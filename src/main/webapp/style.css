@@ -116,7 +116,8 @@ table tr:first-child th {
     background-color: #ffffff;
 }
 .table-striped tbody tr.highlight td {
-    background-color: #FFF380;
+    /*background-color: #C2DFFF;*/
+    background-color: #FFFFCC;
 }
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
     background-color: #FFFFCC;

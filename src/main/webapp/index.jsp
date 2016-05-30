@@ -9,6 +9,7 @@
     <link rel="icon" href="<c:url value="/images/favicon.png"/>">
     <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap/css/bootstrap.min.css"/>">
     <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap-table/bootstrap-table.min.css"/>">
+    <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap-toggle/css/bootstrap-toggle.min.css"/>">
     <link rel="stylesheet" type="text/css" href="<c:url value="/assets/fonts/opensans/opensans.css"/>">
     <link rel="stylesheet" type="text/css" href="<c:url value="/style.css"/>">
     <title>Hakbot Origin Controller</title>
@@ -61,7 +62,7 @@
                 </table>
             </div>
         </div>
-        <div class="col-sm-3 col-sm-offset-9 col-md-2 col-sm-offset-10 sidebar" id="sidebar">
+        <div class="col-sm-3 col-sm-offset-9 sidebar" id="sidebar">
             <h3>Job Details</h3>
             <div id="job-details-panel" class="job-details">
                 <div class="job-label">Name:</div>
@@ -70,7 +71,6 @@
                 <div id="details-provider" class="job-data"></div>
                 <div class="job-label">Publisher:</div>
                 <div id="details-publisher" class="job-data"></div>
-
                 <div class="job-label">Artifacts:</div>
                 <div class="job-data">
                     <div class="btn-group btn-group-xs" role="group" aria-label="...">
@@ -80,8 +80,8 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#">View Payload</a></li>
-                                <li><a href="#">Download Payload</a></li>
+                                <li><a href="#" data-toggle="modal" data-target="#modalTextDetail" data-modal-title="Provider Payload" data-api="/payload/provider">View Payload</a></li>
+                                <li><a href="#" onClick="downloadJobArtifact('/payload/provider?q=1')">Download Payload</a></li>
                             </ul>
                         </div>
                         <div class="btn-group btn-group-xs" role="group">
@@ -90,12 +90,25 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#">View Payload</a></li>
-                                <li><a href="#">Download Payload</a></li>
+                                <li><a href="#" data-toggle="modal" data-target="#modalTextDetail" data-modal-title="Publisher Payload" data-api="/payload/publisher">View Payload</a></li>
+                                <li><a href="#" onClick="downloadJobArtifact('/payload/publisher?q=1')">Download Payload</a></li>
                             </ul>
                         </div>
-                        <button type="button" class="btn btn-default">Messages</button>
+                        <div class="btn-group btn-group-xs" role="group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Result
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="#" data-toggle="modal" data-target="#modalTextDetail" data-modal-title="Result" data-api="/result">View</a></li>
+                                <li><a href="#" onClick="downloadJobArtifact('/result?q=1')">Download</a></li>
+                            </ul>
+                        </div>
                     </div>
+                </div>
+                <div class="job-label">Messages:</div>
+                <div class="job-data">
+                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#modalTextDetail" data-modal-title="Messages" data-api="/message">View Processing Messages</button>
                 </div>
                 <div class="job-label">Created:</div>
                 <div id="details-created" class="job-data"></div>
@@ -109,17 +122,38 @@
                 <div id="details-state" class="job-data"></div>
                 <div class="job-label">Success:</div>
                 <div id="details-success" class="job-data"></div>
-                <div class="job-label">Result:</div>
-                <div id="details-result" class="job-data"></div>
                 <div class="job-label">UUID:</div>
                 <div id="details-uuid" class="job-data"></div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalTextDetail" tabindex="-1" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalTitle">Messages</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="details-result" style="min-width:100%; max-width:100%; min-height:100%; max-height:100%; resize:none; font-family:monospace;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <label id="decodeToggleLabel" for="decodeToggle">Decode: </label>
+                        <input type="checkbox" class="form-control" id="decodeToggle" data-toggle="toggle">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <script type="text/javascript" src="<c:url value="/assets/jquery/jquery-2.2.3.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/bootstrap/js/bootstrap.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/bootstrap-table/bootstrap-table.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/assets/bootstrap-toggle/js/bootstrap-toggle.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/functions.js"/>"></script>
 </body>
 </html>

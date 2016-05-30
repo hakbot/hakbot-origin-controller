@@ -17,9 +17,12 @@
 package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.StringUtils;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.FetchGroup;
+import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
@@ -29,6 +32,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 @PersistenceCapable
+@FetchGroups({
+        @FetchGroup(name="message", members={@Persistent(name="uuid"), @Persistent(name="message")}),
+        @FetchGroup(name="providerPayload", members={@Persistent(name="uuid"), @Persistent(name="providerPayload")}),
+        @FetchGroup(name="publisherPayload", members={@Persistent(name="uuid"), @Persistent(name="publisherPayload")}),
+        @FetchGroup(name="result", members={@Persistent(name="uuid"), @Persistent(name="result")})})
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Job implements Serializable {
 
     private static final long serialVersionUID = 4247510467373253623L;
@@ -55,15 +64,15 @@ public class Job implements Serializable {
     @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
     private String publisher;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="MESSAGE", jdbcType="CLOB")
     private String message;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="PROVIDERPAYLOAD", jdbcType="CLOB")
     private String providerPayload;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="PUBLISHERPAYLOAD", jdbcType="CLOB")
     private String publisherPayload;
 
@@ -90,7 +99,7 @@ public class Job implements Serializable {
     @Column(name="SUCCESS", jdbcType="BOOLEAN")
     private boolean success;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="RESULT", jdbcType="CLOB")
     private String result;
 

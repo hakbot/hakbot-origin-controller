@@ -18,7 +18,8 @@
 /**
  * Constants
  */
-var CONTENT_TYPE = 'application/json';
+var CONTENT_TYPE_JSON = 'application/json';
+var CONTENT_TYPE_TEXT = 'text/plain';
 var DATA_TYPE = "json";
 var METHOD_GET = "GET";
 var METHOD_POST = "POST";
@@ -42,6 +43,7 @@ var initialized = false;
 var about;
 var providers;
 var publishers;
+var selectedJob;
 
 
 function contextPath() {
@@ -56,7 +58,7 @@ $(document).ready(function () {
     var successAbout=false, successProviders=false, successPublishers=false;
     $.ajax({
         url: contextPath() + URL_ABOUT,
-        contentType: CONTENT_TYPE,
+        contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_GET,
         async: false,
@@ -67,7 +69,7 @@ $(document).ready(function () {
     });
     $.ajax({
         url: contextPath() + URL_PROVIDERS,
-        contentType: CONTENT_TYPE,
+        contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_GET,
         async: false,
@@ -78,7 +80,7 @@ $(document).ready(function () {
     });
     $.ajax({
         url: contextPath() + URL_PUBLISHERS,
-        contentType: CONTENT_TYPE,
+        contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_GET,
         async: false,
@@ -91,19 +93,6 @@ $(document).ready(function () {
     if (successAbout && successProviders && successPublishers) {
         initialized = true;
     }
-
-    for (var i=0; i<providers.length; i++) {
-        console.log(providers[i].class);
-        console.log(resolvePluginByClass(PLUGIN_PROVIDER, providers[i].class).name);
-    }
-    for (var j=0; j<publishers.length; j++) {
-        console.log(publishers[j].class);
-        console.log(resolvePluginByClass(PLUGIN_PUBLISHER, publishers[j].class).name);
-    }
-
-    console.log(getAppName());
-    console.log(getAppVersion());
-    
 });
 
 function resolvePluginByClass(pluginType, className) {
@@ -190,27 +179,77 @@ function getSuccessIcon(success, state) {
 }
 
 $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
+    selectedJob = job;
     $('#main').removeClass("col-sm-12");
     $('#main').removeClass("col-md-12");
     $('#main').addClass("col-sm-9");
-    $('#main').addClass("col-md-10");
+    //$('#main').addClass("col-md-10");
     $('#sidebar').css("display", "block");
     $('#jobsTable').bootstrapTable('resetView');
     $('#details-uuid').html(job.uuid);
     $('#details-name').html(job.name);
     $('#details-provider').html(job.provider);
     $('#details-publisher').html(job.publisher);
-    $('#details-message').html(job.message);
-    $('#details-providerPayload').html(job.providerPayload);
-    $('#details-publisherPayload').html(job.publisherPayload);
     $('#details-created').html(job.created);
     $('#details-started').html(job.started);
     $('#details-completed').html(job.completed);
     $('#details-duration').html(job.duration);
     $('#details-state').html(job.state);
     $('#details-success').html(job.success);
-    $('#details-result').html(job.result);
 });
+
 $('#jobsTable').on('click', 'tbody tr', function(event) {
     $(this).addClass('highlight').siblings().removeClass('highlight');
 });
+
+$('#modalTextDetail').on('show.bs.modal', function(e) {
+    $('.modal-content').css('height',$( window ).height()*0.8);
+    var title = $(e.relatedTarget).data('modal-title');
+    $(e.currentTarget).find('h4[id="modalTitle"]').html(title);
+    var height = $('.modal-content').height() - 170;
+
+    var textarea = $('#details-result');
+    textarea.height(height);
+    textarea.val(null);
+
+    var api = $(e.relatedTarget).data('api');
+
+    // Show or hide the decode button
+    if (api.lastIndexOf('/result', 0) === 0) {
+        $('#decodeToggle').bootstrapToggle(); // initialize
+        $('#decodeToggleLabel').css('display', 'inline-block');
+        $('#decodeToggle').bootstrapToggle('off')
+    } else {
+        $('#decodeToggle').bootstrapToggle('destroy');
+        $('#decodeToggle').css('display', 'none');
+        $('#decodeToggleLabel').css('display', 'none');
+    }
+
+    var url = contextPath() + "/job/" + selectedJob.uuid + api;
+    populateModalTextarea(url);
+});
+
+$(function() {
+    $('#decodeToggle').change(function() {
+        var url = contextPath() + "/job/" + selectedJob.uuid + "/result";
+        if ($(this).prop('checked') == true) {
+            url += ("?q=2");
+        }
+        populateModalTextarea(url);
+    })
+});
+
+function populateModalTextarea(url) {
+    $.ajax({
+        url: url,
+        contentType: CONTENT_TYPE_TEXT,
+        type: METHOD_GET,
+        success: function (data) {
+            $('#details-result').val(data);
+        }
+    });
+}
+
+function downloadJobArtifact(api) {
+    window.location = contextPath() + "/job/" + selectedJob.uuid + api;
+}

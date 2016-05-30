@@ -64,6 +64,32 @@ public class QueryManager {
         return result.size() == 0 ? null : result.get(0);
     }
 
+    public Job getJobMessage(String uuid) {
+        return getJobByFetchGroup("message", uuid);
+    }
+
+    public Job getJobProviderPayload(String uuid) {
+        return getJobByFetchGroup("providerPayload", uuid);
+    }
+
+    public Job getJobPublisherPayload(String uuid) {
+        return getJobByFetchGroup("publisherPayload", uuid);
+    }
+
+    public Job getJobResult(String uuid) {
+        return getJobByFetchGroup("result", uuid);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Job getJobByFetchGroup(String fetchGroup, String uuid) {
+        PersistenceManager pm = getPersistenceManager();
+        pm.getFetchPlan().addGroup(fetchGroup);
+        Query query = pm.newQuery(Job.class, "uuid == :uuid");
+        List<Job> result = (List<Job>)query.execute (uuid);
+        pm.close();
+        return result.size() == 0 ? null : result.get(0);
+    }
+
     public Job createJob(Job transientJob) {
         PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();

@@ -22,13 +22,17 @@ import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.glassfish.jersey.internal.util.Base64;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -63,6 +67,75 @@ public class JobResource {
         } else {
             return Response.ok(job).build();
         }
+    }
+
+    @GET
+    @Path("{uuid}/message")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Returns the messages produced by the job",
+            notes = "The UUID of the job")
+    public Response getJobMessage(@PathParam("uuid") String uuid) {
+        QueryManager qm = new QueryManager();
+        return Response.ok(qm.getJobMessage(uuid).getMessage()).build();
+    }
+
+    @GET
+    @Path("{uuid}/payload/provider")
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
+    @ApiOperation(value = "Returns the provider payload of the job",
+            notes = "The UUID of the job")
+    public Response getJobProviderPayload(@PathParam("uuid") String uuid,
+                                          @DefaultValue("0") @QueryParam("q") int q) {
+        QueryManager qm = new QueryManager();
+        String payload = qm.getJobProviderPayload(uuid).getProviderPayload();
+        if (q == 0) {
+            return Response.ok(payload, MediaType.TEXT_PLAIN).build();
+        } else if (q == 1){
+            return Response.ok(payload, MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + uuid + "-provider-payload" + "\"" )
+                    .build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @GET
+    @Path("{uuid}/payload/publisher")
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
+    @ApiOperation(value = "Returns the publisher payload of the job",
+            notes = "The UUID of the job")
+    public Response getJobPublisherPayload(@PathParam("uuid") String uuid,
+                                           @DefaultValue("0") @QueryParam("q") int q) {
+        QueryManager qm = new QueryManager();
+        String payload = qm.getJobPublisherPayload(uuid).getPublisherPayload();
+        if (q == 0) {
+            return Response.ok(payload, MediaType.TEXT_PLAIN).build();
+        } else if (q == 1){
+            return Response.ok(payload, MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + uuid + "-publisher-payload" + "\"" )
+                    .build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @GET
+    @Path("{uuid}/result")
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
+    @ApiOperation(value = "Returns the result produced by the job",
+            notes = "The UUID of the job")
+    public Response getJobResult(@PathParam("uuid") String uuid,
+                                 @DefaultValue("0") @QueryParam("q") int q) {
+        QueryManager qm = new QueryManager();
+        String payload = qm.getJobResult(uuid).getResult();
+        if (q == 0) {
+            return Response.ok(payload, MediaType.TEXT_PLAIN).build();
+        } else if (q == 1){
+            return Response.ok(Base64.decode(payload.getBytes()), MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + uuid + "-result" + "\"" )
+                    .build();
+        } else if (q == 2){
+            return Response.ok(Base64.decode(payload.getBytes()), MediaType.TEXT_PLAIN).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @POST
