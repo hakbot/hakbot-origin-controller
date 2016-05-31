@@ -33,10 +33,10 @@ import java.util.Date;
 
 @PersistenceCapable
 @FetchGroups({
-        @FetchGroup(name="message", members={@Persistent(name="uuid"), @Persistent(name="message")}),
-        @FetchGroup(name="providerPayload", members={@Persistent(name="uuid"), @Persistent(name="providerPayload")}),
-        @FetchGroup(name="publisherPayload", members={@Persistent(name="uuid"), @Persistent(name="publisherPayload")}),
-        @FetchGroup(name="result", members={@Persistent(name="uuid"), @Persistent(name="result")})})
+        @FetchGroup(name="message", members={@Persistent(name="message")}),
+        @FetchGroup(name="providerPayload", members={@Persistent(name="providerPayload")}),
+        @FetchGroup(name="publisherPayload", members={@Persistent(name="publisherPayload")}),
+        @FetchGroup(name="result", members={@Persistent(name="result")})})
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Job implements Serializable {
 
