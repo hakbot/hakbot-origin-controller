@@ -4,13 +4,13 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${user.home}/.hakbot/origin-controller/origin-controller.log</file>
         <encoder>
-            <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
+            <pattern>%date %level [%logger{5}] %msg%n</pattern>
         </encoder>
     </appender>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %level [%logger{5}] %msg%n</pattern>
         </encoder>
     </appender>
 
