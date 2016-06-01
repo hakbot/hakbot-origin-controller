@@ -52,18 +52,24 @@ class JobExecutor implements Runnable {
      * Executes the job.
      */
     public void run() {
-        if (job.getUuid() == null || job.getProviderPayload() == null) {
-            return;
-        }
-        if (logger.isInfoEnabled()) {
-            logger.info("Job: " + job.getUuid() + " is being executed.");
-        }
+        try {
+            if (job.getUuid() == null || job.getProviderPayload() == null) {
+                PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+                job.setState(State.CANCELED);
+                job = pm.getObjectById(Job.class, job.getId());
+                return;
+            }
+            if (logger.isInfoEnabled()) {
+                logger.info("Job: " + job.getUuid() + " is being executed.");
+            }
 
-        executeProvider();
-        if (!StringUtils.isEmpty(job.getPublisher()) && job.getState() == State.COMPLETED) {
-            executePublisher();
+            executeProvider();
+            if (!StringUtils.isEmpty(job.getPublisher()) && job.getState() == State.COMPLETED) {
+                executePublisher();
+            }
+        } finally {
+            isExecuting = false;
         }
-        isExecuting = false;
     }
 
     private void executeProvider() {

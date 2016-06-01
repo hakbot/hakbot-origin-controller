@@ -24,11 +24,11 @@ import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import javax.jdo.PersistenceManager;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -58,6 +58,9 @@ public class JobManager {
     // Defines the value for the maximum number of items in the queue to prevent DoS attacks
     private int maxQueueSize;
 
+    // Defines the interval that jobs will be permanently removed from the system
+    private long jobPruneInterval;
+
     // Holds an instance of JobManager
     private static final JobManager instance = new JobManager();
 
@@ -70,26 +73,34 @@ public class JobManager {
         maxJobSize = Config.getInstance().getPropertyAsInt(ConfigItem.MAX_JOB_SIZE);
         maxQueueSize = Config.getInstance().getPropertyAsInt(ConfigItem.MAX_QUEUE_SIZE);
 
-        int queueCheckInterval = Config.getInstance().getPropertyAsInt(ConfigItem.QUEUE_CHECK_INTERVAL) * 1000;
-        int jobCleanupInterval = Config.getInstance().getPropertyAsInt(ConfigItem.JOB_CLEANUP_INTERVAL) * 1000;
+        int queueCheckInterval = Config.getInstance().getPropertyAsInt(ConfigItem.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
+        int jobCleanupInterval = Config.getInstance().getPropertyAsInt(ConfigItem.JOB_CLEANUP_INTERVAL) * 1000; // in Seconds
+        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(ConfigItem.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
+        this.jobPruneInterval = Config.getInstance().getPropertyAsLong(ConfigItem.JOB_PRUNE_INTERVAL) * 86400000; // in Days
 
         if (logger.isDebugEnabled()) {
             logger.debug("Max Job Size: " + maxJobSize);
             logger.debug("Max Queue Size: " + maxQueueSize);
             logger.debug("Queue Check Interval: " + queueCheckInterval);
             logger.debug("Job Cleanup Interval: " + jobCleanupInterval);
+            logger.debug("Job Prune Check Interval: " + jobPruneCheckInterval);
+            logger.debug("Job Prune Interval: " + jobPruneInterval);
         }
 
         executors = new ArrayBlockingQueue<>(maxJobSize);
         workQueue = new LinkedList<>();
 
-        // Creates a new JobSchedulerTask every 15 seconds
+        // Creates a new JobSchedulerTask every x seconds (defined by queueCheckInterval)
         Timer schTimer = new Timer();
         schTimer.schedule(new JobSchedulerTask(), 0, queueCheckInterval);
 
-        // Creates a new JobCleanupTask every 5 seconds
+        // Creates a new JobCleanupTask every x seconds (defined by jobCleanupInterval)
         Timer cleanupTimer = new Timer();
         cleanupTimer.schedule(new JobCleanupTask(), 0, jobCleanupInterval);
+
+        // Creates a new JobCleanupTask every x seconds (defined by jobPruneInterval)
+        Timer pruneTimer = new Timer();
+        pruneTimer.schedule(new JobPruneTask(), 0, jobPruneCheckInterval);
     }
 
     /**
@@ -105,6 +116,9 @@ public class JobManager {
      * @param job the Job object to add to queue
      */
     private synchronized void add(Job job) {
+        if (inQueue(job)) {
+            return;
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("Adding job to queue: " + job.getUuid());
         }
@@ -149,24 +163,22 @@ public class JobManager {
 
     /**
      * Checks to see if the specified job is currently in progress.
-     * Compares the UUID against the UUID of the jobs in progress
-     * @param uuid the uuid of the job
+     * @param job the job to check
      * @return true if job is in progress, false if not in progress
      */
-    public boolean inProgress(UUID uuid) {
-        return getJobInProgress(uuid) != null;
+    public boolean inProgress(Job job) {
+        return getJobInProgress(job) != null;
     }
 
     /**
-     * Returns a Job which is in progress from the specified UUID
-     * Returns null if the specified uuid is not found in the list
-     * of jobs in progress.
-     * @param uuid The uuid of job
+     * Returns a Job which is in progress. Returns null if the
+     * specified uuid is not found in the list of jobs in progress.
+     * @param job the job to check
      * @return a Job object matching the specified uuid
      */
-    public Job getJobInProgress(UUID uuid) {
+    public Job getJobInProgress(Job job) {
         for (JobExecutor executor: executors) {
-            if (executor.getJob().getUuid().equals(uuid))
+            if (executor.getJob().getUuid().equals(job.getUuid()))
                 return executor.getJob();
         }
         return null;
@@ -177,7 +189,7 @@ public class JobManager {
      * @return a list of Job objects
      */
     public List<Job> getJobsInProgress() {
-        List<Job> jobs = new ArrayList<Job>();
+        List<Job> jobs = new ArrayList<>();
         for (JobExecutor executor: executors) {
             jobs.add(executor.getJob());
         }
@@ -189,29 +201,27 @@ public class JobManager {
      * @return a list of Job object
      */
     public List<Job> getJobsInQueue() {
-        return new ArrayList<Job>(workQueue);
+        return new ArrayList<>(workQueue);
     }
 
     /**
      * Checks to see if the specified job is currently in the queue.
-     * Compares the UUID against the UUID of the jobs in the queue
-     * @param uuid the uuid of the job
+     * @param job the job to check
      * @return true if job is in the queue, false if not in the queue
      */
-    public boolean inQueue(UUID uuid) {
-        return getJobInQueue(uuid) != null;
+    public boolean inQueue(Job job) {
+        return getJobInQueue(job) != null;
     }
 
     /**
-     * Returns a Job which is in the queue from the specified UUID
-     * Returns null if the specified uuid is not found in the list
-     * of jobs in the queue.
-     * @param uuid The uuid of job
+     * Returns a Job which is in the queue. Returns null if the
+     * specified job is not found in the list of jobs in the queue.
+     * @param job the job to check
      * @return a Job object matching the specified uuid
      */
-    public Job getJobInQueue(UUID uuid) {
-        for (Job job: workQueue) {
-            if (job.getUuid().equals(uuid)) {
+    public Job getJobInQueue(Job job) {
+        for (Job j: workQueue) {
+            if (j.getUuid().equals(job.getUuid())) {
                 return job;
             }
         }
@@ -231,7 +241,7 @@ public class JobManager {
      * from the queue and add them to the list of jobs being performed
      * and execute the job.
      */
-    class JobSchedulerTask extends TimerTask {
+    private class JobSchedulerTask extends TimerTask {
         public synchronized void run() {
             if (logger.isDebugEnabled()) {
                 logger.debug("Polling for new jobs");
@@ -258,8 +268,8 @@ public class JobManager {
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC));
-            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC));
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, QueryManager.FetchGroup.DEFAULT));
+            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC, QueryManager.FetchGroup.DEFAULT));
             return jobs;
         }
     }
@@ -267,7 +277,7 @@ public class JobManager {
     /**
      * This class will look for Jobs which are no loner being executed and cleanup references
      */
-    class JobCleanupTask extends TimerTask {
+    private class JobCleanupTask extends TimerTask {
         public synchronized void run() {
             for (JobExecutor executor: executors) {
                 // Check to see if the executor job is still executing
@@ -279,6 +289,37 @@ public class JobManager {
         }
     }
 
+    /**
+     * This class will look for Jobs which should be pruned from the database
+     */
+    private class JobPruneTask extends TimerTask {
+        public synchronized void run() {
+            logger.info("Starting Prune of Job Database");
+            Date now = new Date();
+            QueryManager qm = new QueryManager();
+            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, QueryManager.FetchGroup.DEFAULT);
+            for (Job job: allJobs) {
+                if (!(job.getState() == State.CREATED)) {
+                    if (now.getTime() - (jobPruneInterval * 86400000) >= getLastestTimestamp(job).getTime()) {
+                        if (!(inQueue(job) || inProgress(job))) {
+                            logger.info("Pruning Job: " + job.getUuid());
+                            qm.deleteJob(job.getUuid());
+                        }
+                    }
+                }
+            }
+            logger.info("Completed Prune of Job Database");
+        }
+    }
+
+    private Date getLastestTimestamp(Job job) {
+        if (job.getCompleted() != null) {
+            return job.getCompleted();
+        } else if (job.getStarted() != null) {
+            return job.getStarted();
+        } else {
+            return job.getCreated();
+        }
+    }
+
 }
-
-

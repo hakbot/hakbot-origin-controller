@@ -29,6 +29,8 @@ public enum	ConfigItem {
 
     QUEUE_CHECK_INTERVAL("queue.check.interval"),
     JOB_CLEANUP_INTERVAL("job.cleanup.interval"),
+    JOB_PRUNE_INTERVAL("job.prune.interval"),
+    JOB_PRUNE_CHECK_INTERVAL("job.prune.check.interval"),
     MAX_JOB_SIZE("max.job.size"),
     MAX_QUEUE_SIZE("max.queue.size"),
 

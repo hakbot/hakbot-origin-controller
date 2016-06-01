@@ -36,7 +36,22 @@ import java.util.Date;
         @FetchGroup(name="message", members={@Persistent(name="message")}),
         @FetchGroup(name="providerPayload", members={@Persistent(name="providerPayload")}),
         @FetchGroup(name="publisherPayload", members={@Persistent(name="publisherPayload")}),
-        @FetchGroup(name="result", members={@Persistent(name="result")})})
+        @FetchGroup(name="result", members={@Persistent(name="result")}),
+        @FetchGroup(name="minimal", members={
+                @Persistent(name="uuid"),
+                @Persistent(name="name"),
+                @Persistent(name="provider"),
+                @Persistent(name="publisher"),
+                @Persistent(name="created"),
+                @Persistent(name="started"),
+                @Persistent(name="completed"),
+                @Persistent(name="state"),
+                @Persistent(name="success"),
+                @Persistent(name="provider"),
+                @Persistent(name="provider"),
+                @Persistent(name="provider"),
+                @Persistent(name="publisher")})
+})
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Job implements Serializable {
 
@@ -64,15 +79,15 @@ public class Job implements Serializable {
     @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
     private String publisher;
 
-    @Persistent(defaultFetchGroup="false")
+    @Persistent
     @Column(name="MESSAGE", jdbcType="CLOB")
     private String message;
 
-    @Persistent(defaultFetchGroup="false")
+    @Persistent
     @Column(name="PROVIDERPAYLOAD", jdbcType="CLOB")
     private String providerPayload;
 
-    @Persistent(defaultFetchGroup="false")
+    @Persistent
     @Column(name="PUBLISHERPAYLOAD", jdbcType="CLOB")
     private String publisherPayload;
 
@@ -99,7 +114,7 @@ public class Job implements Serializable {
     @Column(name="SUCCESS", jdbcType="BOOLEAN")
     private boolean success;
 
-    @Persistent(defaultFetchGroup="false")
+    @Persistent
     @Column(name="RESULT", jdbcType="CLOB")
     private String result;
 

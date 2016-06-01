@@ -72,7 +72,21 @@ public final class Config {
     }
 
     public int getPropertyAsInt(ConfigItem item) {
-        return Integer.parseInt(getProperty(item));
+        try {
+            return Integer.parseInt(getProperty(item));
+        } catch (NumberFormatException e) {
+            logger.error("Error parsing number from property: " + item.name());
+            throw e;
+        }
+    }
+
+    public long getPropertyAsLong(ConfigItem item) {
+        try {
+            return Long.parseLong(getProperty(item));
+        } catch (NumberFormatException e) {
+            logger.error("Error parsing number from property: " + item.name());
+            throw e;
+        }
     }
 
     public boolean getPropertyAsBoolean(ConfigItem item) {
