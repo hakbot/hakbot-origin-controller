@@ -297,10 +297,10 @@ public class JobManager {
             logger.info("Starting Prune of Job Database");
             Date now = new Date();
             QueryManager qm = new QueryManager();
-            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, QueryManager.FetchGroup.DEFAULT);
+            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, QueryManager.FetchGroup.MINIMAL);
             for (Job job: allJobs) {
                 if (!(job.getState() == State.CREATED)) {
-                    if (now.getTime() - (jobPruneInterval * 86400000) >= getLastestTimestamp(job).getTime()) {
+                    if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {
                         if (!(inQueue(job) || inProgress(job))) {
                             logger.info("Pruning Job: " + job.getUuid());
                             qm.deleteJob(job.getUuid());
