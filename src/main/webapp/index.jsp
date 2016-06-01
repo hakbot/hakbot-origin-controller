@@ -25,10 +25,10 @@
                 <span class="icon-bar"></span>
             </button>
             <div style="float:left">
-                <img src="images/hakbot-header-logo.png" style="margin-top:2px; margin-right:10px"/>
+                <a href="<c:url value="/"/>"> <img src="images/hakbot-header-logo.png" style="margin-top:2px; margin-right:10px"/></a>
             </div>
             <div style="float:right">
-                <a class="navbar-brand" href="#"> Origin Controller</a>
+                <a class="navbar-brand" href="<c:url value="/"/>"> Origin Controller</a>
             </div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
