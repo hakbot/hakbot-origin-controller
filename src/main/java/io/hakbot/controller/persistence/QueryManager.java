@@ -31,30 +31,12 @@ public class QueryManager {
         ASC, DESC
     }
 
-    public enum FetchGroup {
-        DEFAULT(javax.jdo.FetchGroup.DEFAULT),
-        MESSAGE("message"),
-        PROVIDER_PAYLOAD("providerPayload"),
-        PUBLISHER_PAYLOAD("publisherPayload"),
-        RESULT("result"),
-        MINIMAL("minimal");
-
-        private String fetchGroupName;
-        FetchGroup(String fetchGroupName) {
-            this.fetchGroupName = fetchGroupName;
-        }
-
-        public String getName() {
-            return fetchGroupName;
-        }
-    }
-
     private PersistenceManager getPersistenceManager() {
         return LocalPersistenceManagerFactory.createPersistenceManager();
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(OrderDirection order, FetchGroup fetchGroup) {
+    public List<Job> getJobs(OrderDirection order, Job.FetchGroup fetchGroup) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class);
@@ -65,7 +47,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(State state, OrderDirection order, FetchGroup fetchGroup) {
+    public List<Job> getJobs(State state, OrderDirection order, Job.FetchGroup fetchGroup) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "state == :state");
@@ -76,7 +58,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public Job getJob(String uuid, FetchGroup fetchGroup) {
+    public Job getJob(String uuid, Job.FetchGroup fetchGroup) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "uuid == :uuid");

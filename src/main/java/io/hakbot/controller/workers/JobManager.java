@@ -124,6 +124,7 @@ public class JobManager {
         }
         if (workQueue.size() < maxQueueSize) {
             PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+            pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
             job.setState(State.IN_QUEUE);
             job = pm.getObjectById(Job.class, job.getId());
             workQueue.add(job);
@@ -157,6 +158,7 @@ public class JobManager {
             }
         }
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
         job.setState(State.CANCELED);
         job = pm.getObjectById(Job.class, job.getId());
     }
@@ -268,8 +270,8 @@ public class JobManager {
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, QueryManager.FetchGroup.DEFAULT));
-            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC, QueryManager.FetchGroup.DEFAULT));
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL));
+            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL));
             return jobs;
         }
     }
@@ -297,7 +299,7 @@ public class JobManager {
             logger.info("Starting Prune of Job Database");
             Date now = new Date();
             QueryManager qm = new QueryManager();
-            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, QueryManager.FetchGroup.MINIMAL);
+            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL);
             for (Job job: allJobs) {
                 if (!(job.getState() == State.CREATED)) {
                     if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {

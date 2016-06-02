@@ -23,7 +23,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.glassfish.jersey.internal.util.Base64;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -50,7 +49,7 @@ public class JobResource {
             responseContainer = "List")
     public Response getAllJobs() {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, QueryManager.FetchGroup.MINIMAL)).build();
+        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL)).build();
     }
 
     @GET
@@ -61,7 +60,7 @@ public class JobResource {
             response = Job.class)
     public Response getJobByUuid(@PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, QueryManager.FetchGroup.MINIMAL);
+        Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL);
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
@@ -76,7 +75,7 @@ public class JobResource {
             notes = "The UUID of the job")
     public Response getJobMessage(@PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJob(uuid, QueryManager.FetchGroup.MESSAGE).getMessage()).build();
+        return Response.ok(qm.getJob(uuid, Job.FetchGroup.MESSAGE).getMessage()).build();
     }
 
     @GET
@@ -87,7 +86,7 @@ public class JobResource {
     public Response getJobProviderPayload(@PathParam("uuid") String uuid,
                                           @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, QueryManager.FetchGroup.PROVIDER_PAYLOAD).getProviderPayload();
+        String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD).getProviderPayload();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -106,7 +105,7 @@ public class JobResource {
     public Response getJobPublisherPayload(@PathParam("uuid") String uuid,
                                            @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, QueryManager.FetchGroup.PUBLISHER_PAYLOAD).getPublisherPayload();
+        String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD).getPublisherPayload();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -125,7 +124,7 @@ public class JobResource {
     public Response getJobResult(@PathParam("uuid") String uuid,
                                  @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, QueryManager.FetchGroup.RESULT).getResult();
+        String payload = qm.getJob(uuid, Job.FetchGroup.RESULT).getResult();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){

@@ -55,8 +55,10 @@ class JobExecutor implements Runnable {
         try {
             if (job.getUuid() == null || job.getProviderPayload() == null) {
                 PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+                pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
                 job.setState(State.CANCELED);
                 job = pm.getObjectById(Job.class, job.getId());
+                pm.close();
                 return;
             }
             if (logger.isInfoEnabled()) {
@@ -76,6 +78,7 @@ class JobExecutor implements Runnable {
         boolean initialized, isAvailable = false, success = false;
         String result = null;
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolveProvider(job);
@@ -118,12 +121,14 @@ class JobExecutor implements Runnable {
                 logger.info(job.getUuid() + " - State: " + job.getState());
                 logger.info(job.getUuid() + " - Success: " + job.getSuccess());
             }
+            pm.close();
         }
     }
 
     private void executePublisher() {
         boolean initialized, success = false;
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolvePublisher(job);
@@ -150,6 +155,7 @@ class JobExecutor implements Runnable {
                 logger.info(job.getUuid() + " - State: " + job.getState());
                 logger.info(job.getUuid() + " - Success: " + job.getSuccess());
             }
+            pm.close();
         }
     }
 

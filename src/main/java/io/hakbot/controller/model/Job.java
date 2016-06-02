@@ -37,26 +37,34 @@ import java.util.Date;
         @FetchGroup(name="providerPayload", members={@Persistent(name="providerPayload")}),
         @FetchGroup(name="publisherPayload", members={@Persistent(name="publisherPayload")}),
         @FetchGroup(name="result", members={@Persistent(name="result")}),
-        @FetchGroup(name="minimal", members={
-                @Persistent(name="uuid"),
-                @Persistent(name="name"),
-                @Persistent(name="provider"),
-                @Persistent(name="publisher"),
-                @Persistent(name="created"),
-                @Persistent(name="started"),
-                @Persistent(name="completed"),
-                @Persistent(name="state"),
-                @Persistent(name="success"),
-                @Persistent(name="provider"),
-                @Persistent(name="provider"),
-                @Persistent(name="provider"),
-                @Persistent(name="publisher")})
+        @FetchGroup(name="all", members={
+                @Persistent(name="message"),
+                @Persistent(name="providerPayload"),
+                @Persistent(name="publisherPayload"),
+                @Persistent(name="result")})
 })
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Job implements Serializable {
 
     private static final long serialVersionUID = 4247510467373253623L;
 
+    public enum FetchGroup {
+        MINIMAL(javax.jdo.FetchGroup.DEFAULT),
+        MESSAGE("message"),
+        PROVIDER_PAYLOAD("providerPayload"),
+        PUBLISHER_PAYLOAD("publisherPayload"),
+        RESULT("result"),
+        ALL("all");
+
+        private String fetchGroupName;
+        FetchGroup(String fetchGroupName) {
+            this.fetchGroupName = fetchGroupName;
+        }
+
+        public String getName() {
+            return fetchGroupName;
+        }
+    }
 
     @PrimaryKey
     @Persistent(valueStrategy= IdGeneratorStrategy.INCREMENT)
@@ -79,15 +87,15 @@ public class Job implements Serializable {
     @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
     private String publisher;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="MESSAGE", jdbcType="CLOB")
     private String message;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="PROVIDERPAYLOAD", jdbcType="CLOB")
     private String providerPayload;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="PUBLISHERPAYLOAD", jdbcType="CLOB")
     private String publisherPayload;
 
@@ -114,7 +122,7 @@ public class Job implements Serializable {
     @Column(name="SUCCESS", jdbcType="BOOLEAN")
     private boolean success;
 
-    @Persistent
+    @Persistent(defaultFetchGroup="false")
     @Column(name="RESULT", jdbcType="CLOB")
     private String result;
 
