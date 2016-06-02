@@ -125,6 +125,7 @@ public class JobManager {
         if (workQueue.size() < maxQueueSize) {
             PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
             pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+            job.addMessage("Job added to queue");
             job.setState(State.IN_QUEUE);
             job = pm.getObjectById(Job.class, job.getId());
             workQueue.add(job);
@@ -139,12 +140,15 @@ public class JobManager {
      * @param job the Job object to remove from the queue or from current running processes
      */
     public synchronized void cancel(Job job) {
+        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
         if (logger.isDebugEnabled()) {
             logger.debug("Canceling job: " + job.getUuid());
         }
         // First, check the queue, if job exists in queue, remove it
         for (Job checkJob: workQueue) {
             if (checkJob.getUuid().equals(job.getUuid())) {
+                job.addMessage("Job removed from queue");
                 workQueue.remove(checkJob);
             }
         }
@@ -152,13 +156,12 @@ public class JobManager {
         // Next, check the list of current jobs in progress, if found, quit the process
         for (JobExecutor executor: executors) {
             if (executor.getJob().getUuid().equals(job.getUuid())) {
+                job.addMessage("Job is executing - requesting cancellation");
                 executor.cancel();
                 sleep(2000); // sleep for 2 seconds
                 executor.waitFor();
             }
         }
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
-        pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
         job.setState(State.CANCELED);
         job = pm.getObjectById(Job.class, job.getId());
     }

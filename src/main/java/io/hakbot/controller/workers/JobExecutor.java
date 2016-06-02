@@ -88,8 +88,10 @@ class JobExecutor implements Runnable {
             initialized = provider.initialize(job);
             job = pm.getObjectById(Job.class, job.getId());
             if (initialized) {
+                job.addMessage("Initialized " + provider.getName());
                 isAvailable = provider.isAvailable(job);
             } else {
+                job.addMessage("Unable to initialize " + provider.getName());
                 job.setState(State.COMPLETED);
                 job = pm.getObjectById(Job.class, job.getId());
             }
@@ -100,6 +102,7 @@ class JobExecutor implements Runnable {
                 result = provider.getResult();
                 job = pm.getObjectById(Job.class, job.getId());
             } else if (initialized && !isAvailable){
+                job.addMessage(provider.getName() + " is unavailable at this time");
                 job.setState(State.UNAVAILABLE);
                 job = pm.getObjectById(Job.class, job.getId());
             }
@@ -137,7 +140,10 @@ class JobExecutor implements Runnable {
             this.publisher = (Publisher) constructor.newInstance();
             initialized = publisher.initialize(job, provider);
             if (initialized) {
+                job.addMessage("Initialized " + publisher.getName());
                 success = publisher.publish(job);
+            } else {
+                job.addMessage("Unable to initialize " + publisher.getName());
             }
         } catch (Throwable e) {
             logger.error(e.toString());
