@@ -131,7 +131,8 @@ function formatJobTable(res) {
         res[i].created = timeConverter(res[i].created);
         res[i].started = timeConverter(res[i].started);
         res[i].completed = timeConverter(res[i].completed);
-        res[i].success = getSuccessIcon(res[i].success, res[i].state);
+        res[i].successIcon = getSuccessIcon(res[i].success, res[i].state);
+        res[i].successLabel = getSuccessLabel(res[i].success, res[i].state);
     }
     return res;
 }
@@ -178,6 +179,38 @@ function getSuccessIcon(success, state) {
     }
 }
 
+function getSuccessLabel(success, state) {
+    if (success) {
+        return '<span class="label label-success">' + getPrettyState(state) + '</span>';
+    } else if (state == STATE_CREATED || state == STATE_IN_QUEUE || state == STATE_IN_PROGRESS) {
+        return '<span class="label label-info">' + getPrettyState(state) + '</span>';
+    } else if (state == STATE_COMPLETED || state == STATE_PUBLISHED){
+        return '<span class="label label-danger">Failed</span>';
+    } else if (state == STATE_UNAVAILABLE ){
+        return '<span class="label label-warning">' + getPrettyState(state) + '</span>';
+    } else if (state == STATE_CANCELED ){
+        return '<span class="label label-default">' + getPrettyState(state) + '</span>';
+    }
+}
+
+function getPrettyState(state) {
+    if (state == STATE_CANCELED) {
+        return "Canceled";
+    } else if (state == STATE_COMPLETED) {
+        return "Completed"
+    } else if (state == STATE_CREATED) {
+        return "Created";
+    } else if (state == STATE_IN_PROGRESS) {
+        return "In Progress";
+    } else if (state == STATE_IN_QUEUE) {
+        return "In Queue";
+    } else if (state == STATE_PUBLISHED) {
+        return "Published";
+    } else if (state == STATE_UNAVAILABLE) {
+        return "Unavailable";
+    }
+}
+
 $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     selectedJob = job;
     $('#main').removeClass("col-sm-12");
@@ -195,7 +228,8 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     $('#details-completed').html(job.completed);
     $('#details-duration').html(job.duration);
     $('#details-state').html(job.state);
-    $('#details-success').html(job.success);
+    $('#details-success').html(job.success.toString());
+    $('#details-successLabel').html(job.successLabel);
 });
 
 $('#jobsTable').on('click', 'tbody tr', function(event) {

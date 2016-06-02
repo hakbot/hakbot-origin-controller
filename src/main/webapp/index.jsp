@@ -49,7 +49,7 @@
                        data-click-to-select="true" data-height="100%">
                     <thead>
                     <tr>
-                        <th data-align="center" data-field="success"></th>
+                        <th data-align="center" data-field="successIcon"></th>
                         <th data-align="left" data-field="name">Job Name</th>
                         <th data-align="left" data-field="provider">Provider</th>
                         <th data-align="left" data-field="publisher">Publisher</th>
@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="col-sm-3 col-sm-offset-9 sidebar" id="sidebar">
-            <h3>Job Details</h3>
+            <h3>Job Details <span id="details-successLabel" style="float:right"></span></h3>
             <div id="job-details-panel" class="job-details">
                 <div class="job-label">Name:</div>
                 <div id="details-name" class="job-data"></div>
