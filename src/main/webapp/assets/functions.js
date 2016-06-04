@@ -92,6 +92,7 @@ $(document).ready(function () {
 
     if (successAbout && successProviders && successPublishers) {
         initialized = true;
+        populateSystemModal();
     }
 });
 
@@ -286,4 +287,17 @@ function populateModalTextarea(url) {
 
 function downloadJobArtifact(api) {
     window.location = contextPath() + "/job/" + selectedJob.uuid + api;
+}
+
+function populateSystemModal() {
+    $('#systemAppName').html(about.application);
+    $('#systemAppVersion').html(about.version);
+
+    for (var i = 0; i < providers.length; i++) {
+        $('#providersTab').append('<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">' + providers[i].name + '</h3></div><div class="panel-body">' + providers[i].description + '<br/>Class: <strong>' + providers[i].class + '</strong></div></div>');
+    }
+
+    for (i = 0; i < publishers.length; i++) {
+        $('#publishersTab').append('<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">' + publishers[i].name + '</h3></div><div class="panel-body">' + publishers[i].description + '<br/>Class: <strong>' + publishers[i].class + '</strong></div></div>');
+    }
 }

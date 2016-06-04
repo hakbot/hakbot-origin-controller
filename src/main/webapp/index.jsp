@@ -33,7 +33,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> System</a></li>
+                <li><a href="#" data-toggle="modal" data-target="#modalSystem"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> System</a></li>
                 <li><a href="#"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Help</a></li>
             </ul>
         </div>
@@ -144,6 +144,43 @@
                         <input type="checkbox" class="form-control" id="decodeToggle" data-toggle="toggle">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSystem" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">System</h4>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#aboutTab" data-toggle="tab">About</a></li>
+                        <li><a href="#providersTab" data-toggle="tab">Providers</a></li>
+                        <li><a href="#publishersTab" data-toggle="tab">Publishers</a></li>
+                    </ul>
+
+                    <div class="tab-content" style="margin-top:20px; max-height:calc(85vh - 250px); overflow-y: auto;">
+                        <div class="tab-pane active" id="aboutTab">
+                            <div style="max-width:150px; display:inline-block">
+                                <img src="<c:url value="/images/hakbot-logo-500x500.png"/>" width="150" height="150">
+                            </div>
+                            <div style="margin-left:30px; display:inline-block">
+                                <h3 id="systemAppName"></h3>
+                                <div id="systemAppVersion"></div>
+                                <div><a href="http://hakbot.io/">Website</a> - <a href="https://github.com/hakbot">GitHub</a></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="providersTab"></div>
+                        <div class="tab-pane" id="publishersTab"></div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
