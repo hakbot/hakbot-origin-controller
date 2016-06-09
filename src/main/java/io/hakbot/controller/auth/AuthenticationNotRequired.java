@@ -14,25 +14,16 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.auth;
 
-import io.hakbot.controller.auth.AuthenticationNotRequired;
-import io.hakbot.controller.model.About;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.NameBinding;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Path("/version")
-@Produces(MediaType.APPLICATION_JSON)
-public class VersionResource {
-
-    @GET
-    @AuthenticationNotRequired
-    public Response getVersion() {
-        return Response.ok(new GenericEntity<About>(new About()) {}).build();
-    }
-
+@NameBinding
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD })
+public @interface AuthenticationNotRequired {
 }

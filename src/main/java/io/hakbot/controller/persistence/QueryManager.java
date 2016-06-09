@@ -17,7 +17,9 @@
 package io.hakbot.controller.persistence;
 
 import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
+import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.workers.State;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -78,6 +80,7 @@ public class QueryManager {
         job.setPublisherPayload(transientJob.getPublisherPayload());
         job.setCreated(new Date());
         job.setState(State.CREATED);
+        job.setStartedByApiKeyId(transientJob.getStartedByApiKeyId());
         job.setUuid(UUID.randomUUID().toString());
         pm.makePersistent(job);
         pm.currentTransaction().commit();
@@ -116,5 +119,22 @@ public class QueryManager {
         pm.close();
     }
 
-}
+    @SuppressWarnings("unchecked")
+    public ApiKey getApiKey(String key) {
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(ApiKey.class, "key == :key");
+        List<ApiKey> result = (List<ApiKey>)query.execute (key);
+        pm.close();
+        return result.size() == 0 ? null : result.get(0);
+    }
 
+    @SuppressWarnings("unchecked")
+    public LdapUser getLdapUser(String username) {
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(LdapUser.class, "username == :username");
+        List<LdapUser> result = (List<LdapUser>)query.execute (username);
+        pm.close();
+        return result.size() == 0 ? null : result.get(0);
+    }
+
+}

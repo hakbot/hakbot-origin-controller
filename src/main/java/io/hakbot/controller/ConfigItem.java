@@ -37,6 +37,9 @@ public enum	ConfigItem {
     PROVIDERS_ENALBED("providers.enabled"),
     PUBLISHERS_ENABLED("publishers.enabled"),
 
+    LDAP_SERVER_URL("ldap.server.url"),
+    LDAP_DOMAIN("ldap.domain"),
+
     GZIP_COMPRESSION_ENABLED("proto.gzip.enabled");
 
     String propertyName;

@@ -121,6 +121,12 @@
             <artifactId>h2</artifactId>
             <version>1.3.176</version>
         </dependency>
+        <!-- Authentication and Authorization -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.6.0</version>
+        </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>

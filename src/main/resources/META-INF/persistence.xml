@@ -4,8 +4,11 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
 
     <persistence-unit name="HakbotOrigin">
+        <class>io.hakbot.controller.model.ApiKey</class>
         <class>io.hakbot.controller.model.Job</class>
-        <exclude-unlisted-classes/>
+        <class>io.hakbot.controller.model.LdapUser</class>
+        <class>io.hakbot.controller.model.Team</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
             <property name="javax.jdo.option.ConnectionURL" value="jdbc:h2:tcp://localhost/~/.hakbot/origin-controller/db"/>

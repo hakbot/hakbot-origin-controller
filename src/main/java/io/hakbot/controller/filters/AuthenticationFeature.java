@@ -14,25 +14,25 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.filters;
 
 import io.hakbot.controller.auth.AuthenticationNotRequired;
-import io.hakbot.controller.model.About;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.Provider;
+import java.lang.reflect.Method;
 
-@Path("/version")
-@Produces(MediaType.APPLICATION_JSON)
-public class VersionResource {
+@Provider
+public class AuthenticationFeature implements DynamicFeature {
 
-    @GET
-    @AuthenticationNotRequired
-    public Response getVersion() {
-        return Response.ok(new GenericEntity<About>(new About()) {}).build();
+    @Override
+    public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+        Method method = resourceInfo.getResourceMethod();
+        if (!method.isAnnotationPresent(AuthenticationNotRequired.class)) {
+            AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+            context.register(authenticationFilter);
+        }
     }
 
 }

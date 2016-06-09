@@ -1,0 +1,89 @@
+/*
+ * This file is part of Hakbot Origin Controller.
+ *
+ * Hakbot Origin Controller is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * Hakbot Origin Controller is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
+ */
+package io.hakbot.controller.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.jdo.annotations.Column;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
+import java.util.Set;
+
+@PersistenceCapable
+public class Team {
+
+    @PrimaryKey
+    @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+    @JsonIgnore
+    private long id;
+
+    @Persistent
+    @Column(name="NAME", jdbcType="VARCHAR", length=50, allowsNull="false")
+    private String name;
+
+    @Persistent
+    @Column(name="HAKMASTER")
+    private boolean hakmaster;
+
+    @Persistent(mappedBy="teams")
+    private Set<ApiKey> apiKeys;
+
+    @Persistent(mappedBy="teams")
+    private Set<LdapUser> ldapUsers;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isHakmaster() {
+        return hakmaster;
+    }
+
+    public void setHakmaster(boolean hakmaster) {
+        this.hakmaster = hakmaster;
+    }
+
+    public Set<ApiKey> getApiKeys() {
+        return apiKeys;
+    }
+
+    public void setApiKeys(Set<ApiKey> apiKeys) {
+        this.apiKeys = apiKeys;
+    }
+
+    public Set<LdapUser> getLdapUsers() {
+        return ldapUsers;
+    }
+
+    public void setLdapUsers(Set<LdapUser> ldapUsers) {
+        this.ldapUsers = ldapUsers;
+    }
+
+}

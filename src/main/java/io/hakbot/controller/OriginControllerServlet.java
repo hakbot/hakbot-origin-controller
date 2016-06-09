@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller;
 
+import io.hakbot.controller.auth.KeyManager;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.workers.JobManager;
 import io.swagger.jaxrs.config.SwaggerContextService;
@@ -25,8 +26,12 @@ import io.swagger.models.Swagger;
 import io.swagger.models.auth.ApiKeyAuthDefinition;
 import io.swagger.models.auth.In;
 import org.glassfish.jersey.servlet.ServletContainer;
+import javax.crypto.SecretKey;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * The OriginControllerServlet is the main servlet which extends
@@ -61,8 +66,34 @@ public final class OriginControllerServlet extends ServletContainer {
                         .url("http://www.gnu.org/licenses/gpl-3.0.txt"));
 
         Swagger swagger = new Swagger().info(info);
-        swagger.securityDefinition("api_key", new ApiKeyAuthDefinition("api_key", In.HEADER));
+        swagger.securityDefinition("X-Api-Key", new ApiKeyAuthDefinition("X-Api-Key", In.HEADER));
         new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
+
+        KeyManager keyManager = KeyManager.getInstance();
+        if (!keyManager.keyPairExists()) {
+            try {
+                KeyPair keyPair = keyManager.generateKeyPair();
+                keyManager.save(keyPair);
+            } catch (NoSuchAlgorithmException e) {
+                logger.error("An error occurred generating new keypair");
+                logger.error(e.getMessage());
+            } catch (IOException e) {
+                logger.error("An error occurred saving newly generated keypair");
+                logger.error(e.getMessage());
+            }
+        }
+        if (!keyManager.secretKeyExists()) {
+            try {
+                SecretKey secretKey = keyManager.generateSecretKey();
+                keyManager.save(secretKey);
+            } catch (NoSuchAlgorithmException e) {
+                logger.error("An error occurred generating new secret key");
+                logger.error(e.getMessage());
+            } catch (IOException e) {
+                logger.error("An error occurred saving newly generated secret key");
+                logger.error(e.getMessage());
+            }
+        }
 
         JobManager.getInstance(); // starts the JobManager
     }

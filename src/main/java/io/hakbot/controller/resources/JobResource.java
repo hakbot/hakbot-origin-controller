@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller.resources;
 
+import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
@@ -32,14 +33,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.Principal;
 
 @Path("/job")
 @Api(value = "job", authorizations = {
         @Authorization(value="api_key")
 })
 public class JobResource {
+
+    @Context
+    ContainerRequestContext requestContext;
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -147,6 +155,8 @@ public class JobResource {
         if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null || jsonJob.getName() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        ApiKey apiKey = (ApiKey)requestContext.getProperty("Principal");
+        jsonJob.setStartedByApiKeyId(apiKey.getId());
         QueryManager qm = new QueryManager();
         Job job = qm.createJob(jsonJob);
         return Response.ok(job).build();
