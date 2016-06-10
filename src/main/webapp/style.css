@@ -10,6 +10,9 @@ body {
 .navbar-fixed-top {
     border: 0;
 }
+#navbar-container, #main {
+    display: none;
+}
 .sidebar {
     display: none;
 }
@@ -124,4 +127,58 @@ table tr:first-child th {
 }
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
     background-color: #FFFFCC;
+}
+.login-modal-header .close {
+    font-size: 36px;
+    color: #888;
+    font-weight: 300;
+    text-shadow: none;
+    opacity: 1;
+}
+.login-modal-header img {
+    padding-left: 15px;
+    margin-right: 10px;
+}
+.login-modal-title {
+    margin-bottom: 10px;
+    line-height: 30px;
+}
+.login-modal-body {
+    padding: 25px 25px 30px 25px;
+    background: #eee;
+    text-align: left;
+    -moz-border-radius: 0 0 4px 4px; -webkit-border-radius: 0 0 4px 4px; border-radius: 0 0 4px 4px;
+}
+.login-modal-body img {
+    margin-bottom: 15px;
+}
+.login-modal-body form textarea {
+    height: 100px;
+}
+.login-modal-body form .input-error {
+    border-color: #399599;
+}
+.vertical-alignment-helper {
+    display:table;
+    height: 100%;
+    width: 100%;
+    pointer-events:none; /* This makes sure that we can still click outside of the modal to close it */
+}
+.vertical-align-center {
+    /* To center vertically */
+    display: table-cell;
+    vertical-align: middle;
+    pointer-events:none;
+}
+.login-modal-content {
+    /* Bootstrap sets the size of the modal in the modal-dialog class, we need to inherit it */
+    width:inherit;
+    height:inherit;
+    /* To center horizontally */
+    margin: 0 auto;
+    pointer-events: all;
+}
+.login-header {
+    font-size: 2em;
+    color: #027f8b;
 }

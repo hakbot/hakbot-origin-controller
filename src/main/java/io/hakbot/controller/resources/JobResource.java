@@ -54,7 +54,7 @@ public class JobResource {
             notes = "Returns a list of all jobs ordered by the time the job was created.",
             response = Job.class,
             responseContainer = "List")
-    public Response getAllJobs() {
+    public Response getAllJobs(@QueryParam("order") String order) {
         QueryManager qm = new QueryManager();
         return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL)).build();
     }

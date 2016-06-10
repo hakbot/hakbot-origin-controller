@@ -15,7 +15,7 @@
     <title>Hakbot Origin Controller</title>
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav id="navbar-container" class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -34,7 +34,7 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="#" data-toggle="modal" data-target="#modalSystem"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> System</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Help</a></li>
+                <li><a href="#" onclick="logout();"><span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a></li>
             </ul>
         </div>
     </div>
@@ -162,7 +162,6 @@
                         <li><a href="#providersTab" data-toggle="tab">Providers</a></li>
                         <li><a href="#publishersTab" data-toggle="tab">Publishers</a></li>
                     </ul>
-
                     <div class="tab-content" style="margin-top:20px; max-height:calc(85vh - 250px); overflow-y: auto;">
                         <div class="tab-pane active" id="aboutTab">
                             <div style="max-width:150px; display:inline-block">
@@ -177,7 +176,6 @@
                         <div class="tab-pane" id="providersTab"></div>
                         <div class="tab-pane" id="publishersTab"></div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -186,8 +184,35 @@
         </div>
     </div>
 
+    <div class="modal" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="modal-login-label" aria-hidden="true">
+        <div class="vertical-alignment-helper">
+            <div class="modal-dialog vertical-align-center">
+                <div class="modal-content login-modal-content">
+                    <div class="modal-header login-modal-header login-header">
+                        <img src="images/hakbot-header-logo.png"/> Origin Controller Login
+                    </div>
+                    <div class="modal-body login-modal-body">
+                        <form id="login-form" role="form" action="" method="post" class="login-form">
+                            <div class="form-group">
+                                <label class="sr-only" for="username">Username</label>
+                                <input type="text" name="username" placeholder="Username..." class="form-control" id="username">
+                            </div>
+                            <div class="form-group">
+                                <label class="sr-only" for="password">Password</label>
+                                <input type="password" name="password" placeholder="Password..." class="form-control" id="password">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Log In</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
 <script type="text/javascript" src="<c:url value="/assets/jquery/jquery-2.2.3.min.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/assets/jquery/jquery.storageapi.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/bootstrap/js/bootstrap.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/bootstrap-table/bootstrap-table.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/assets/bootstrap-toggle/js/bootstrap-toggle.min.js"/>"></script>

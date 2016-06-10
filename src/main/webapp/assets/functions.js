@@ -23,9 +23,11 @@ var CONTENT_TYPE_TEXT = 'text/plain';
 var DATA_TYPE = "json";
 var METHOD_GET = "GET";
 var METHOD_POST = "POST";
+var URL_LOGIN = "/user/login";
 var URL_ABOUT = "/version";
 var URL_PROVIDERS = "/providers";
 var URL_PUBLISHERS = "/publishers";
+var URL_JOB = "/job";
 var STATE_CREATED = "CREATED";
 var STATE_IN_QUEUE = "IN_QUEUE";
 var STATE_IN_PROGRESS = "IN_PROGRESS";
@@ -55,6 +57,19 @@ function contextPath() {
  * Retrieve a listing of all providers & publishers and stores JSON response in variables
  */
 $(document).ready(function () {
+    /* Prevents focus loss on login modal */
+    $('#modal-login').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    /* Initializes page */
+    initialize();
+});
+
+/**
+ * Initializes page by looking up about info, providers and publishers configured
+ */
+function initialize() {
     var successAbout=false, successProviders=false, successPublishers=false;
     $.ajax({
         url: contextPath() + URL_ABOUT,
@@ -90,12 +105,90 @@ $(document).ready(function () {
         }
     });
 
+    // If the page was successfully initialized, populate the system modal and refresh the jobs table
     if (successAbout && successProviders && successPublishers) {
         initialized = true;
         populateSystemModal();
+        $('#jobsTable').bootstrapTable('refresh');
+    }
+}
+
+/**
+ * Generic handler for all AJAX requests
+ */
+$.ajaxSetup({
+    beforeSend: function(xhr) {
+        var jwt = $.sessionStorage.get("token");
+        if (jwt != null) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+        }
+    },
+    statusCode: {
+        200: function(){
+            $('#navbar-container').css('display', 'block');
+            $('#main').css('display', 'block');
+            $('#modal-login').modal('hide');
+        },
+        401: function(){
+            $('#navbar-container').css('display', 'none');
+            $('#main').css('display', 'none');
+            $('#modal-login').modal('show');
+        }
     }
 });
 
+/**
+ * Executed when the login button is clicked. Prevent the form from actually being
+ * submitted and uses javascript to submit the form info.
+ */
+$("#login-form").submit(function(event){
+    event.preventDefault();
+    submitLogin();
+});
+
+/**
+ * Submits the actual login form data, retrieves jwt token (if successful) and places it
+ * in html5 session storage.
+ */
+function submitLogin() {
+    var username = $("#username").val();
+    var password = $("#password").val();
+    $.ajax({
+        type: METHOD_POST,
+        url: contextPath() + URL_LOGIN,
+        data: ({username: username, password: password}),
+        success: function (data) {
+            $.sessionStorage.set("token", data);
+        },
+        statusCode: {
+            200: function(){
+                $('#navbar-container').css('display', 'block');
+                $('#main').css('display', 'block');
+                $('#modal-login').modal('hide');
+                initialize();
+            },
+            401: function(){
+                $("#username").val("");
+                $("#password").val("");
+            }
+        }
+    });
+}
+
+/**
+ * Logout function removes the stored jwt token and reloads the page, which will
+ * force the login modal to display
+ */
+function logout() {
+    $.sessionStorage.remove("token");
+    location.reload();
+}
+
+/**
+ * Resolves the name of the plugin by it's class. Used whenever the name should be
+ * used rather than the class, but name isn't available. This function performs the
+ * lookup.
+ */
 function resolvePluginByClass(pluginType, className) {
     if (PLUGIN_PROVIDER == pluginType) {
         for (var i=0; i<providers.length; i++) {
@@ -122,6 +215,9 @@ function getAppVersion() {
     return about.version;
 }
 
+/**
+ * Called by bootstrap table to format the data in the table.
+ */
 function formatJobTable(res) {
     for (var i=0; i<res.length; i++) {
         res[i].provider = resolvePluginByClass(PLUGIN_PROVIDER, res[i].provider).name;
@@ -138,6 +234,9 @@ function formatJobTable(res) {
     return res;
 }
 
+/**
+ * Converts a timestamp into a more user friendly format for display
+ */
 function timeConverter(timestamp) {
     if (timestamp == null || timestamp == "" || timestamp == 0) {
         return;
@@ -154,6 +253,10 @@ function timeConverter(timestamp) {
     return time;
 }
 
+/**
+ * Calculates the duration of an event based on the time the event started and ended.
+ * Returns the value is minutes or hours in human readable format.
+ */
 function getDuration(startTimestamp, endTimestamp) {
     if (startTimestamp == null || startTimestamp == "" || startTimestamp == 0 || endTimestamp == null || endTimestamp == "" || endTimestamp == 0) {
         return;
@@ -166,6 +269,9 @@ function getDuration(startTimestamp, endTimestamp) {
     }
 }
 
+/**
+ * Creates HTML based on the success and state of a job.
+ */
 function getSuccessIcon(success, state) {
     if (success) {
         return '<span class="glyphicon glyphicon glyphicon-ok-circle" style="color:seagreen" aria-hidden="true"></span>';
@@ -180,6 +286,9 @@ function getSuccessIcon(success, state) {
     }
 }
 
+/**
+ * Creates TML based on the success and state of a job.
+ */
 function getSuccessLabel(success, state) {
     if (success) {
         return '<span class="label label-success">' + getPrettyState(state) + '</span>';
@@ -194,6 +303,9 @@ function getSuccessLabel(success, state) {
     }
 }
 
+/**
+ * Returns the word(s) of the state based on its value.
+ */
 function getPrettyState(state) {
     if (state == STATE_CANCELED) {
         return "Canceled";
@@ -212,6 +324,11 @@ function getPrettyState(state) {
     }
 }
 
+/**
+ * Event that's fired whenever a row in the jobs table is clicked. This function
+ * will populate and display the details and reposition the jobs table to make
+ * room for the details.
+ */
 $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     selectedJob = job;
     $('#main').removeClass("col-sm-12");
@@ -233,10 +350,17 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     $('#details-successLabel').html(job.successLabel);
 });
 
+/**
+ * Adds a highlight to a row in the jobs table when clicked
+ */
 $('#jobsTable').on('click', 'tbody tr', function(event) {
     $(this).addClass('highlight').siblings().removeClass('highlight');
 });
 
+/**
+ * Event thats fired whenever the text detail modal is displayed.
+ * This function is utilized for all job details where a modal is used.
+ */
 $('#modalTextDetail').on('show.bs.modal', function(e) {
     $('.modal-content').css('height',$( window ).height()*0.8);
     var title = $(e.relatedTarget).data('modal-title');
@@ -264,6 +388,9 @@ $('#modalTextDetail').on('show.bs.modal', function(e) {
     populateModalTextarea(url);
 });
 
+/**
+ * Event that's fired whenever the value of the decode toggle is changed
+ */
 $(function() {
     $('#decodeToggle').change(function() {
         var url = contextPath() + "/job/" + selectedJob.uuid + "/result";
@@ -274,6 +401,10 @@ $(function() {
     })
 });
 
+/**
+ * Performs an AJAX request and populates the textual response in the details-result
+ * form field
+ */
 function populateModalTextarea(url) {
     $.ajax({
         url: url,
@@ -285,10 +416,17 @@ function populateModalTextarea(url) {
     });
 }
 
+/**
+ * Called when user requests to download an artifact.
+ */
 function downloadJobArtifact(api) {
     window.location = contextPath() + "/job/" + selectedJob.uuid + api;
 }
 
+/**
+ * Populates the system modal with about, providers, and publishers info
+ * obtained from the page initialization.
+ */
 function populateSystemModal() {
     $('#systemAppName').html(about.application);
     $('#systemAppVersion').html(about.version);
