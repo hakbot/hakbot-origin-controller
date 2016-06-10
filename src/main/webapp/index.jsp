@@ -189,10 +189,10 @@
             <div class="modal-dialog vertical-align-center">
                 <div class="modal-content login-modal-content">
                     <div class="modal-header login-modal-header login-header">
-                        <img src="images/hakbot-header-logo.png"/> Origin Controller Login
+                        <img src="images/hakbot-header-logo.png"/> Hakbot Origin Controller
                     </div>
                     <div class="modal-body login-modal-body">
-                        <form id="login-form" role="form" action="" method="post" class="login-form">
+                        <form id="login-form" role="form" action="" method="post" class="login-form" autocomplete="off">
                             <div class="form-group">
                                 <label class="sr-only" for="username">Username</label>
                                 <input type="text" name="username" placeholder="Username..." class="form-control" id="username">

@@ -133,6 +133,7 @@ $.ajaxSetup({
             $('#navbar-container').css('display', 'none');
             $('#main').css('display', 'none');
             $('#modal-login').modal('show');
+            $("#username").focus();
         }
     }
 });
