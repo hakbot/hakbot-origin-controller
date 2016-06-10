@@ -110,6 +110,9 @@ function initialize() {
         initialized = true;
         populateSystemModal();
         $('#jobsTable').bootstrapTable('refresh');
+        if (!$.sessionStorage.isSet("token")) {
+            $('#nav-logout').css('display', "none");
+        }
     }
 }
 

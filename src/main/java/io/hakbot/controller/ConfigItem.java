@@ -37,6 +37,9 @@ public enum	ConfigItem {
     PROVIDERS_ENALBED("providers.enabled"),
     PUBLISHERS_ENABLED("publishers.enabled"),
 
+    ENFORCE_AUTHENTICATION("enforce.authentication"),
+    ENFORCE_AUTHORIZATION("enforce.authorization"),
+
     LDAP_SERVER_URL("ldap.server.url"),
     LDAP_DOMAIN("ldap.domain"),
 
