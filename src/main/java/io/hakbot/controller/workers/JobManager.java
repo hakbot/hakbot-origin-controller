@@ -21,6 +21,7 @@ import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
 import javax.jdo.PersistenceManager;
 import java.util.ArrayList;
@@ -61,6 +62,9 @@ public class JobManager {
     // Defines the interval that jobs will be permanently removed from the system
     private long jobPruneInterval;
 
+    // A Principal implementation for system-wide object-level access control
+    private SystemAccount systemAccount;
+
     // Holds an instance of JobManager
     private static final JobManager instance = new JobManager();
 
@@ -89,6 +93,7 @@ public class JobManager {
 
         executors = new ArrayBlockingQueue<>(maxJobSize);
         workQueue = new LinkedList<>();
+        systemAccount = new SystemAccount();
 
         // Creates a new JobSchedulerTask every x seconds (defined by queueCheckInterval)
         Timer schTimer = new Timer();
@@ -273,8 +278,8 @@ public class JobManager {
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL));
-            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL));
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL, systemAccount));
+            jobs.addAll(qm.getJobs(State.CREATED, QueryManager.OrderDirection.ASC, Job.FetchGroup.ALL, systemAccount));
             return jobs;
         }
     }
@@ -302,13 +307,13 @@ public class JobManager {
             logger.info("Starting Prune of Job Database");
             Date now = new Date();
             QueryManager qm = new QueryManager();
-            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL);
+            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, systemAccount);
             for (Job job: allJobs) {
                 if (!(job.getState() == State.CREATED)) {
                     if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {
                         if (!(inQueue(job) || inProgress(job))) {
                             logger.info("Pruning Job: " + job.getUuid());
-                            qm.deleteJob(job.getUuid());
+                            qm.deleteJob(job.getUuid(), systemAccount);
                         }
                     }
                 }

@@ -33,8 +33,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -42,10 +40,7 @@ import javax.ws.rs.core.Response;
 @Api(value = "job", authorizations = {
         @Authorization(value="api_key")
 })
-public class JobResource {
-
-    @Context
-    ContainerRequestContext requestContext;
+public class JobResource extends BaseResource {
 
 
     @GET
@@ -56,7 +51,7 @@ public class JobResource {
             responseContainer = "List")
     public Response getAllJobs(@QueryParam("order") String order) {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL)).build();
+        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, getPrincipal())).build();
     }
 
     @GET
@@ -67,7 +62,7 @@ public class JobResource {
             response = Job.class)
     public Response getJobByUuid(@PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL);
+        Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL, getPrincipal());
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
@@ -82,7 +77,7 @@ public class JobResource {
             notes = "The UUID of the job")
     public Response getJobMessage(@PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJob(uuid, Job.FetchGroup.MESSAGE).getMessage()).build();
+        return Response.ok(qm.getJob(uuid, Job.FetchGroup.MESSAGE, getPrincipal()).getMessage()).build();
     }
 
     @GET
@@ -93,7 +88,7 @@ public class JobResource {
     public Response getJobProviderPayload(@PathParam("uuid") String uuid,
                                           @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD).getProviderPayload();
+        String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD, getPrincipal()).getProviderPayload();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -112,7 +107,7 @@ public class JobResource {
     public Response getJobPublisherPayload(@PathParam("uuid") String uuid,
                                            @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD).getPublisherPayload();
+        String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD, getPrincipal()).getPublisherPayload();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -131,7 +126,7 @@ public class JobResource {
     public Response getJobResult(@PathParam("uuid") String uuid,
                                  @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
-        String payload = qm.getJob(uuid, Job.FetchGroup.RESULT).getResult();
+        String payload = qm.getJob(uuid, Job.FetchGroup.RESULT, getPrincipal()).getResult();
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -154,20 +149,19 @@ public class JobResource {
         if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null || jsonJob.getName() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        ApiKey apiKey = (ApiKey)requestContext.getProperty("Principal");
+        ApiKey apiKey = (ApiKey)getPrincipal();
         jsonJob.setStartedByApiKeyId(apiKey.getId());
         QueryManager qm = new QueryManager();
         Job job = qm.createJob(jsonJob);
         return Response.ok(job).build();
     }
 
-    //todo: delete this when major testing is complete
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Purges all jobs from database")
     public Response purgeAll() {
         QueryManager qm = new QueryManager();
-        qm.deleteAllJobs();
+        qm.deleteAllJobs(getPrincipal());
         return Response.ok().build();
     }
 
@@ -177,7 +171,7 @@ public class JobResource {
     @ApiOperation(value = "Deletes a specific job")
     public Response purgeByUuid(@PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        qm.deleteJob(uuid);
+        qm.deleteJob(uuid, getPrincipal());
         return Response.ok().build();
     }
 
@@ -188,7 +182,7 @@ public class JobResource {
                 notes = "A supported state is required.")
     public Response purge(@PathParam("state") State state) {
         QueryManager qm = new QueryManager();
-        qm.deleteJobs(state);
+        qm.deleteJobs(state, getPrincipal());
         return Response.ok().build();
     }
 

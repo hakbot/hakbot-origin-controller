@@ -16,18 +16,26 @@
  */
 package io.hakbot.controller.persistence;
 
+import io.hakbot.controller.Config;
+import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.LdapUser;
+import io.hakbot.controller.model.SystemAccount;
+import io.hakbot.controller.model.Team;
 import io.hakbot.controller.workers.State;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class QueryManager {
+
+    private static final boolean ENFORCE_AUTHORIZATION = Config.getInstance().getPropertyAsBoolean(ConfigItem.ENFORCE_AUTHORIZATION);
 
     public enum OrderDirection {
         ASC, DESC
@@ -38,35 +46,38 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(OrderDirection order, Job.FetchGroup fetchGroup) {
+    public List<Job> getJobs(OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class);
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>) query.execute();
+        List<Job> permissible = getPermissible(result, principal);
         pm.close();
-        return result;
+        return permissible;
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(State state, OrderDirection order, Job.FetchGroup fetchGroup) {
+    public List<Job> getJobs(State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "state == :state");
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute (state.getValue());
+        List<Job> permissible = getPermissible(result, principal);
         pm.close();
-        return result;
+        return permissible;
     }
 
     @SuppressWarnings("unchecked")
-    public Job getJob(String uuid, Job.FetchGroup fetchGroup) {
+    public Job getJob(String uuid, Job.FetchGroup fetchGroup, Principal principal) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
         List<Job> result = (List<Job>)query.execute (uuid);
+        List<Job> permissible = getPermissible(result, principal);
         pm.close();
-        return result.size() == 0 ? null : result.get(0);
+        return permissible.size() == 0 ? null : permissible.get(0);
     }
 
     public Job createJob(Job transientJob) {
@@ -89,31 +100,37 @@ public class QueryManager {
         return job;
     }
 
-    public void deleteAllJobs() {
+    public void deleteAllJobs(Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
-        pm.currentTransaction().begin();
         Query query = pm.newQuery(Job.class);
-        query.deletePersistentAll();
+        List<Job> result = (List<Job>) query.execute();
+        List<Job> permissible = getPermissible(result, principal);
+        pm.currentTransaction().begin();
+        query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
         pm.close();
     }
 
-    public void deleteJob(String uuid) {
+    public void deleteJob(String uuid, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
-        pm.currentTransaction().begin();
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
-        query.deletePersistentAll(uuid);
+        List<Job> result = (List<Job>) query.execute();
+        List<Job> permissible = getPermissible(result, principal);
+        pm.currentTransaction().begin();
+        query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
         pm.close();
     }
 
-    public void deleteJobs(State state) {
+    public void deleteJobs(State state, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
-        pm.currentTransaction().begin();
         Query query = pm.newQuery(Job.class, "state == :state");
-        query.deletePersistentAll(state.getValue());
+        List<Job> result = (List<Job>) query.execute();
+        List<Job> permissible = getPermissible(result, principal);
+        pm.currentTransaction().begin();
+        query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
         pm.close();
@@ -132,9 +149,56 @@ public class QueryManager {
     public LdapUser getLdapUser(String username) {
         PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(LdapUser.class, "username == :username");
-        List<LdapUser> result = (List<LdapUser>)query.execute (username);
+        List<LdapUser> result = (List<LdapUser>)query.execute(username);
         pm.close();
         return result.size() == 0 ? null : result.get(0);
+    }
+
+    private List<Job> getPermissible(List<Job> result, Principal principal) {
+        List<Job> permissible = new ArrayList<>();
+        for (Job job: result) {
+            if (hasPermission(job, principal)) {
+                permissible.add(job);
+            }
+        }
+        return permissible;
+    }
+
+    public boolean hasPermission(Job job, Principal principal) {
+        if (!ENFORCE_AUTHORIZATION) {
+            return true;
+        }
+        if (principal instanceof ApiKey) {
+            return hasPermission(job, (ApiKey)principal);
+        } else if (principal instanceof LdapUser) {
+            return hasPermission(job, (LdapUser) principal);
+        } else if (principal instanceof SystemAccount) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean hasPermission(Job job, ApiKey apiKey) {
+        long apiKeyId = apiKey.getId();
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(Job.class, "apiKeyId == :apiKeyId");
+        List<Job> result = (List<Job>)query.execute(apiKeyId);
+        boolean hasPermission = result.size() == 1;
+        //todo: check apikey team permission - future enhancement
+        pm.close();
+        return hasPermission;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hasPermission(Job job, LdapUser ldapUser) {
+        PersistenceManager pm = getPersistenceManager();
+        ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
+        Query query = pm.newQuery(Team.class);
+        query.setFilter("(ldapUsers.contains(ldapUser) && apiKeys.contains(apiKey)) || (ldapUsers.contains(ldapUser) && hakmaster == true)");
+        List<Team> teams = (List<Team>)query.execute(ldapUser);
+        pm.close();
+        return teams.size() > 0;
     }
 
 }
