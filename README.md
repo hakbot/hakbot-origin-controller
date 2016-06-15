@@ -3,7 +3,7 @@
 Hakbot Origin Controller
 =====================================
 
-A minimalistic Java Web Application (Servlet) that provides the queuing and processing of jobs over JSON.
+A minimalistic pipeline controller that provides the queuing and processing of jobs over JSON.
 
 **This project is under heavy development and may be unstable. Use at your own risk.**
 
@@ -20,15 +20,15 @@ be processed.
 
 Jobs can be anything ranging from executing shell scripts to controlling dynamic analysis engines.
 
-The Hakbot Origin Controller is not designed to be a security application. It's designed for integrating into
-the build process via continuous integration. Basic security features are implemented, but best-practices
-should be employed.
-
 Features
 -------------------
 
 * Configurable queue and job engine
 * Sequential or simultaneous execution of jobs from the same provider
+* Configurable and enforceable authentication and authorization
+* Team permission model for managing authorization of API keys and LDAP users
+* API key support
+* Active Directory support
 * RESTful endpoints that respond with JSON
 * Swagger2 support
 * Embedded database engine (H2)
@@ -60,13 +60,12 @@ Publishers included are:
 Use Cases
 -------------------
 
-### Automating AppSpider Pro
-AppSpider Pro only allows one simultaneous scan to take place at any given time. In order to automate dynamic analysis
-using AppSpider Pro, a queuing system must be used to stack the jobs in sequential order. Additionally, multiple
-AppSpider Pro instances (scanners) can be defined, each scanner with it's own URL, username, and password. This
-is the basis for the AppSpider Enterprise offering, but without all the additional benefit (and limitations) of using
-AppSpider Enterprise. If organizations simply want to automate one or more instances of AppSpider Pro, this project
-may be of benefit.
+### Automating Dynamic Analysis
+DAST engines like AppSpider Pro only allow one simultaneous scan to take place at any given time. In order to automate
+dynamic analysis using AppSpider Pro, a queuing system must be used to stack the jobs in sequential order. Additionally,
+multiple AppSpider Pro instances can be defined, each instance with it's own URL, username, and password. This is the
+basis for the AppSpider Enterprise offering, but without the additional benefits of using AppSpider Enterprise. If
+organizations simply want to automate one or more instances of AppSpider Pro, this project may be of benefit.
 
 
 ### Limiting Scan Fatigue
@@ -81,6 +80,13 @@ publishers perform a specific task; they take results from the provider and do s
 published to a spreadsheet, populated in a database, or pushed to ThreadFix for vulnerability aggregation.
 
 
+### General Purpose Use
+At it's core, Origin Controller is a simple pipeline job controller and can be used for a variety of tasks, not just
+security-specific. Examples of pipelines that may benefit from this technology are export or conversion jobs such as
+video encoding where a jobs provider may specify source video and encoding parameters and the jobs publisher may
+publish to CDNs or asset management applications.
+
+
 Compiling
 -------------------
 
@@ -92,12 +98,33 @@ Installing
 The Hakbot Origin Controller can be deployed to any Servlet 3 compatible container including Tomcat and Jetty.
 Simply copy origin-controller.war to the webapps directory and restart the servlet engine.
 
+Configuration
+-------------------
+
+Configuration is performed by editing application.properties. Among the configuration parameters are:
+
+* Job processing and optimization parameters
+* Whitelisting (enabling) of specific providers and publishers
+* Gzip compression support
+* Independently enforce authentication and authorization
+* Active Directory integration (via LDAP)
+* Configuration of one or more instances of providers and publisher
+
 Usage
 -------------------
 
 The URL for the API is: http://$HOSTNAME:$PORT/$CONTEXT/api
 
 Swagger JSON is located: http://$HOSTNAME:$PORT/$CONTEXT/api/swagger.json
+
+Data Directory
+-------------------
+
+Hakbot uses ~/.hakbot on UNIX/Linux systems and .hakbot in current users home directory on Windows machines.
+Within this directory will be individual directories for each Hakbot component, including Origin Controller.
+The origin-controller directory will contain log files, the embedded H2 database, as well as keys used during
+normal operation, such as validating JWT tokens. It is essential that best practices are followed to secure the
+.hakbot directory structure if jobs contain sensitive information.
 
 Copyright & License
 -------------------
