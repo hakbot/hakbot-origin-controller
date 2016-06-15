@@ -62,7 +62,7 @@ public class QueryManager {
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "state == :state");
         query.setOrdering("created " + order.name());
-        List<Job> result = (List<Job>)query.execute (state.getValue());
+        List<Job> result = (List<Job>)query.execute(state.getValue());
         List<Job> permissible = getPermissible(result, principal);
         pm.close();
         return permissible;
@@ -73,7 +73,7 @@ public class QueryManager {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
-        List<Job> result = (List<Job>)query.execute (uuid);
+        List<Job> result = (List<Job>)query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
         pm.close();
         return permissible.size() == 0 ? null : permissible.get(0);
@@ -114,7 +114,7 @@ public class QueryManager {
     public void deleteJob(String uuid, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
-        List<Job> result = (List<Job>) query.execute();
+        List<Job> result = (List<Job>) query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         query.deletePersistentAll(permissible);
@@ -126,7 +126,7 @@ public class QueryManager {
     public void deleteJobs(State state, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "state == :state");
-        List<Job> result = (List<Job>) query.execute();
+        List<Job> result = (List<Job>) query.execute(state);
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         query.deletePersistentAll(permissible);
@@ -179,14 +179,8 @@ public class QueryManager {
     }
 
     private boolean hasPermission(Job job, ApiKey apiKey) {
-        long apiKeyId = apiKey.getId();
-        PersistenceManager pm = getPersistenceManager();
-        Query query = pm.newQuery(Job.class, "apiKeyId == :apiKeyId");
-        List<Job> result = (List<Job>)query.execute(apiKeyId);
-        boolean hasPermission = result.size() == 1;
         //todo: check apikey team permission - future enhancement
-        pm.close();
-        return hasPermission;
+        return job.getStartedByApiKeyId() == apiKey.getId();
     }
 
     @SuppressWarnings("unchecked")
