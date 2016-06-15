@@ -23,7 +23,7 @@ import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.glassfish.jersey.internal.util.Base64;
+import java.util.Base64;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -130,11 +130,11 @@ public class JobResource extends BaseResource {
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
-            return Response.ok(Base64.decode(payload.getBytes()), MediaType.APPLICATION_OCTET_STREAM)
+            return Response.ok(Base64.getDecoder().decode(payload.getBytes()), MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Disposition", "attachment; filename=\"" + uuid + "-result" + "\"" )
                     .build();
         } else if (q == 2){
-            return Response.ok(Base64.decode(payload.getBytes()), MediaType.TEXT_PLAIN).build();
+            return Response.ok(Base64.getDecoder().decode(payload.getBytes()), MediaType.TEXT_PLAIN).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
     }

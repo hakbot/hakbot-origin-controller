@@ -26,8 +26,7 @@ import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
 import io.hakbot.util.PayloadUtil;
 import org.apache.commons.collections.MapUtils;
-import org.glassfish.jersey.internal.util.Base64;
-
+import java.util.Base64;
 import javax.xml.namespace.QName;
 import java.util.Map;
 
@@ -60,7 +59,7 @@ public class AppSpiderProvider extends BaseProvider {
     public boolean process(Job job) {
         NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
         NTOServiceSoap soap = service.getNTOServiceSoap();
-        Result result = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), null, Base64.decodeAsString(scanConfig), null, null);
+        Result result = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), null, new String(Base64.getDecoder().decode(scanConfig)), null, null);
 
         if (result.isSuccess()) {
             setResult(result.getData());
