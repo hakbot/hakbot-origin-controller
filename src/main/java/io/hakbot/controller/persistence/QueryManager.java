@@ -18,7 +18,6 @@ package io.hakbot.controller.persistence;
 
 import io.hakbot.controller.Config;
 import io.hakbot.controller.ConfigItem;
-import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.LdapUser;

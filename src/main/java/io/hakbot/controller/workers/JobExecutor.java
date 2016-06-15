@@ -16,7 +16,7 @@
  */
 package io.hakbot.controller.workers;
 
-import io.hakbot.controller.listener.LocalPersistenceManagerFactory;
+import io.hakbot.controller.persistence.LocalPersistenceManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.PluginMetadata;

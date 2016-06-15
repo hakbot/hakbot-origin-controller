@@ -5,7 +5,7 @@
          version="3.1">
 
     <listener>
-        <listener-class>io.hakbot.controller.listener.LocalPersistenceManagerFactory</listener-class>
+        <listener-class>io.hakbot.controller.persistence.LocalPersistenceManagerFactory</listener-class>
     </listener>
 
     <servlet>
