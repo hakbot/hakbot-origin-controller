@@ -56,7 +56,7 @@
                         <th data-align="left" data-field="created">Created</th>
                         <th data-align="left" data-field="duration">Duration</th>
                         <th data-align="left" data-field="completed">Completed</th>
-                        <th data-align="left" data-field="state">State</th>
+                        <th data-align="left" data-field="stateLabel">State</th>
                     </tr>
                     </thead>
                 </table>
@@ -119,7 +119,7 @@
                 <div class="job-label">Duration:</div>
                 <div id="details-duration" class="job-data"></div>
                 <div class="job-label">State:</div>
-                <div id="details-state" class="job-data"></div>
+                <div id="details-stateLabel" class="job-data"></div>
                 <div class="job-label">Success:</div>
                 <div id="details-success" class="job-data"></div>
                 <div class="job-label">UUID:</div>

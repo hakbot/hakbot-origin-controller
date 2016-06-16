@@ -234,6 +234,7 @@ function formatJobTable(res) {
         res[i].completed = timeConverter(res[i].completed);
         res[i].successIcon = getSuccessIcon(res[i].success, res[i].state);
         res[i].successLabel = getSuccessLabel(res[i].success, res[i].state);
+        res[i].stateLabel = getPrettyState(res[i].state);
     }
     return res;
 }
@@ -349,7 +350,7 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     $('#details-started').html(job.started);
     $('#details-completed').html(job.completed);
     $('#details-duration').html(job.duration);
-    $('#details-state').html(job.state);
+    $('#details-stateLabel').html(getPrettyState(job.state));
     $('#details-success').html(job.success.toString());
     $('#details-successLabel').html(job.successLabel);
 });
