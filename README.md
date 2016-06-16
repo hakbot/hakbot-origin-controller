@@ -34,6 +34,13 @@ Features
 * Embedded database engine (H2)
 * Requires Java 8 or higher
 
+Screenshots
+-------------------
+
+![alt tag](doc/img/login.png)
+![alt tag](doc/img/job-listing.png)
+![alt tag](doc/img/job-details.png)
+
 Providers
 -------------------
 
