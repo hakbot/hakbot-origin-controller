@@ -36,6 +36,7 @@ import java.util.Map;
  *     provider.${pluginId}.instance1.username=${username}
  *     provider.${pluginId}.instance1.password=${password}
  *     provider.${pluginId}.instance1.apikey=${apikey}
+ *     provider.${pluginId}.instance1.token=${token}
  *
  *     # Properties for instance2
  *     ...
@@ -62,6 +63,7 @@ public class RemoteInstanceAutoConfig {
             instance.setUsername(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".username")));
             instance.setPassword(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".password")));
             instance.setApiKey(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".apikey")));
+            instance.setToken(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".token")));
             try {
                 instance.setURL(new URL(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".url"))));
             } catch (MalformedURLException e) {

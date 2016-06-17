@@ -70,6 +70,7 @@ public class KennaSecurityPublisher extends BasePublisher {
             FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
             FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
             WebTarget target = client.target(remoteInstance.getUrl());
+            target.request().header("X-Risk-Token", remoteInstance.getToken());
             Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
             success = response.getStatus() == 200;
             if (!success) {

@@ -30,6 +30,7 @@ public class RemoteInstance {
     private String username;
     private String password;
     private String apiKey;
+    private String token;
     private boolean validateCertificates;
 
     public String getAlias() {
@@ -62,6 +63,14 @@ public class RemoteInstance {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public URL getURL() {
