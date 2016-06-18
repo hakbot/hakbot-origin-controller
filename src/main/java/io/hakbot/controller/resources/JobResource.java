@@ -23,6 +23,7 @@ import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import java.security.Principal;
 import java.util.Base64;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -149,8 +150,11 @@ public class JobResource extends BaseResource {
         if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null || jsonJob.getName() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        ApiKey apiKey = (ApiKey)getPrincipal();
-        jsonJob.setStartedByApiKeyId(apiKey.getId());
+        Principal principal = getPrincipal();
+        if (principal != null) {
+            ApiKey apiKey = (ApiKey)principal;
+            jsonJob.setStartedByApiKeyId(apiKey.getId());
+        }
         QueryManager qm = new QueryManager();
         Job job = qm.createJob(jsonJob);
         return Response.ok(job).build();
