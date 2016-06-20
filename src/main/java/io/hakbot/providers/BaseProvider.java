@@ -46,6 +46,17 @@ public abstract class BaseProvider implements Provider {
     }
 
     /**
+     * Determines if the job can be canceled or not. This may be a feature or
+     * limitation of the provider.
+     *
+     * By default, all jobs can be canceled. This method can be  overwritten
+     * if additional checks in a provider are required.
+     */
+    public boolean isCancelable(Job job) {
+        return true;
+    }
+
+    /**
      * Sets the result from the job (if any). Results are Base64 encoded.
      */
     public void setResult(byte[] result) {

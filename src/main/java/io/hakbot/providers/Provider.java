@@ -41,10 +41,16 @@ public interface Provider extends Plugin {
     boolean process(Job job);
 
     /**
+     * Determines if the job can be canceled or not. This may be a feature or
+     * limitation of the provider.
+     */
+    boolean isCancelable(Job job);
+
+    /**
      * Cancels the job. Returns true if the job was canceled successfully, false
      * if not canceled successfully.
      */
-    boolean cancel();
+    boolean cancel(Job job);
 
     /**
      * Get the results of a provider. Results may be the result from STDOUT, a
