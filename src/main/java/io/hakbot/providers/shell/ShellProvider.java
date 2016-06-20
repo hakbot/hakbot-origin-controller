@@ -75,7 +75,7 @@ public class ShellProvider extends BaseProvider {
         return job.getSuccess();
     }
 
-    public boolean cancel() {
+    public boolean cancel(Job job) {
         process.destroy();
         if (process.isAlive()) {
             process.destroyForcibly();
