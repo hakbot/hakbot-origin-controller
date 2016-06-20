@@ -98,7 +98,7 @@ public class NessusProvider extends BaseProvider {
         return true;
     }
 
-    public boolean cancel() {
+    public boolean cancel(Job job) {
         return true; //todo
     }
 
