@@ -25,6 +25,7 @@ import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
 import io.hakbot.util.PayloadUtil;
+import io.hakbot.util.UuidUtil;
 import org.apache.commons.collections.MapUtils;
 import java.util.Base64;
 import javax.xml.namespace.QName;
@@ -59,18 +60,40 @@ public class AppSpiderProvider extends BaseProvider {
     public boolean process(Job job) {
         NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
         NTOServiceSoap soap = service.getNTOServiceSoap();
-        Result result = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), null, new String(Base64.getDecoder().decode(scanConfig)), null, null);
-
-        if (result.isSuccess()) {
-            setResult(result.getData());
-        } else {
-            System.out.println(result.getErrorDescription());
+        String token = UuidUtil.stripHyphens(job.getUuid());
+        Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, new String(Base64.getDecoder().decode(scanConfig)), null, null);
+        if (!submitResult.isSuccess()) {
+            job.addMessage("Failed to execute AppSpider job");
+            job.addMessage(submitResult.getErrorDescription());
+            return false;
         }
-        return result.isSuccess();
+        boolean running = true;
+        try {
+            while (running) {
+                Result statusResult = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+                if (statusResult.getData().equalsIgnoreCase("false")) {
+                    //todo: investigate how to get scan result
+
+                    return true;
+                }
+                Thread.sleep(20 * 1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    public boolean cancel() {
-        return true; //todo
+    public boolean cancel(Job job) {
+        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
+        NTOServiceSoap soap = service.getNTOServiceSoap();
+        String token = UuidUtil.stripHyphens(job.getUuid());
+        Result running = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+        if (running.getData().equalsIgnoreCase("true")) {
+            Result cancel = soap.stopScan(remoteInstance.getUsername(), remoteInstance.getPassword(), token, false);
+            return cancel.isSuccess();
+        }
+        return false;
     }
 
     @Override
@@ -85,7 +108,7 @@ public class AppSpiderProvider extends BaseProvider {
     }
 
     public String getDescription() {
-        return "Performs dynamic analysis using AppSpider Pro. Interacts with AppSpider instances using it's SOAP-based web services interface.";
+        return "Performs dynamic analysis using AppSpider Pro. Interacts with AppSpider Pro SOAP-based WebServices.";
     }
 
     public String getResultMimeType() {
