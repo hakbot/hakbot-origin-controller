@@ -102,7 +102,6 @@ class JobExecutor implements Runnable {
                 result = provider.getResult();
                 job = pm.getObjectById(Job.class, job.getId());
             } else if (initialized && !isAvailable){
-                job.addMessage(provider.getName() + " is unavailable at this time");
                 job.setState(State.UNAVAILABLE);
                 job = pm.getObjectById(Job.class, job.getId());
             }
@@ -170,7 +169,7 @@ class JobExecutor implements Runnable {
      */
     public void cancel() {
         if (provider != null) {
-            provider.cancel();
+            provider.cancel(job);
         }
     }
 
