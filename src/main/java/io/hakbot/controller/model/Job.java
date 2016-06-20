@@ -278,7 +278,6 @@ public class Job implements Serializable {
     }
 
     public void setState(State state) {
-        addMessage("Job state changed to " + state.getValue());
         this.state = state.getValue();
     }
 
