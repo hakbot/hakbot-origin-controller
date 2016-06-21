@@ -24,11 +24,30 @@ import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
+import io.hakbot.providers.appspider.ws.SCANSTATUS2;
 import io.hakbot.util.PayloadUtil;
 import io.hakbot.util.UuidUtil;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Base64;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.util.Map;
 
 public class AppSpiderProvider extends BaseProvider {
@@ -37,7 +56,7 @@ public class AppSpiderProvider extends BaseProvider {
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
-    private static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
+    protected static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
 
     private RemoteInstance remoteInstance;
     private String scanConfig;
@@ -60,8 +79,15 @@ public class AppSpiderProvider extends BaseProvider {
     public boolean process(Job job) {
         NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
         NTOServiceSoap soap = service.getNTOServiceSoap();
+
+        // Retrieve UUID from job and use it as the AppSpider scan token
         String token = UuidUtil.stripHyphens(job.getUuid());
-        Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, new String(Base64.getDecoder().decode(scanConfig)), null, null);
+
+        // Decodes the scan config (should be XML)
+        String decodedScanConfig = new String(Base64.getDecoder().decode(scanConfig));
+
+        // Submit the scan request
+        Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, decodedScanConfig, null, null);
         if (!submitResult.isSuccess()) {
             job.addMessage("Failed to execute AppSpider job");
             job.addMessage(submitResult.getErrorDescription());
@@ -70,15 +96,45 @@ public class AppSpiderProvider extends BaseProvider {
         boolean running = true;
         try {
             while (running) {
-                Result statusResult = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
-                if (statusResult.getData().equalsIgnoreCase("false")) {
-                    //todo: investigate how to get scan result
+                // Check to see if the scan is running
+                Result runningResult = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+                if (runningResult.getData().equalsIgnoreCase("false")) {
 
+                    // Get the scan date and create the 'format' of the date that will be used in the URL
+                    SCANSTATUS2 scanStatus2 = soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+                    XMLGregorianCalendar startTime = scanStatus2.getStartTime();
+                    String dirDate =
+                                    startTime.getYear() + "_" +
+                                    String.format("%02d", startTime.getMonth()) + "_" +
+                                    String.format("%02d", startTime.getDay()) + "_" +
+                                    String.format("%02d", startTime.getHour()) + "_" +
+                                    String.format("%02d", startTime.getMinute());
+
+                    // Parse the scanConfig and retrieve the scan name
+                    String scanName = getScanName(decodedScanConfig);
+
+                    // Using the scan date, and scan config, create the URL where the report will be accessible from
+                    String reportUrl = remoteInstance.getUrl().substring(0, remoteInstance.getUrl().lastIndexOf("/")) + "/Reports/" + scanName + "/" + dirDate + "/VulnerabilitiesSummary.xml";
+
+                    // Download report
+                    Response response = Request.Get(reportUrl).execute();
+                    HttpResponse httpResponse = response.returnResponse();
+                    StatusLine statusLine = httpResponse.getStatusLine();
+                    HttpEntity entity = httpResponse.getEntity();
+                    if (httpResponse.getStatusLine().getStatusCode() >= 300) {
+                        job.addMessage("Unable to download report file. Status Code: " + statusLine.getStatusCode());
+                    }
+                    if (entity == null) {
+                        job.addMessage("Report contains no data");
+                    }
+
+                    //Save result
+                    setResult(IOUtils.toByteArray(entity.getContent()));
                     return true;
                 }
                 Thread.sleep(20 * 1000);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
         return false;
@@ -117,6 +173,18 @@ public class AppSpiderProvider extends BaseProvider {
 
     public String getResultExtension() {
         return "xml";
+    }
+
+    private String getScanName(String decodedScanConfig) {
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        InputSource source = new InputSource(new StringReader(decodedScanConfig));
+        String scanName = null;
+        try {
+            scanName = xpath.evaluate("/ScanConfig/Name", source);
+        } catch (XPathExpressionException e) {
+        }
+        return scanName;
     }
 
 }
