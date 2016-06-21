@@ -32,19 +32,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Base64;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -56,7 +51,7 @@ public class AppSpiderProvider extends BaseProvider {
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
-    protected static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
+    private static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
 
     private RemoteInstance remoteInstance;
     private String scanConfig;
