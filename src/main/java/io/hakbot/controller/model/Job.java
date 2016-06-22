@@ -30,6 +30,9 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import java.io.Serializable;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @PersistenceCapable
@@ -185,11 +188,16 @@ public class Job implements Serializable {
         if (StringUtils.isEmpty(message)) {
             return;
         }
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timestamp = formatter.format(date);
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isEmpty(getMessage())) {
             sb.append(getMessage()).append("\n");
         }
-        sb.append(message);
+        sb.append(timestamp).append(" - ").append(message);
         setMessage(sb.toString());
     }
 
@@ -278,6 +286,13 @@ public class Job implements Serializable {
     }
 
     public void setState(State state) {
+        setState(state, true);
+    }
+
+    public void setState(State state, boolean log) {
+        if ((this.getState() != state) && log) {
+            addMessage("Job state changed to " + state.getValue());
+        }
         this.state = state.getValue();
     }
 
