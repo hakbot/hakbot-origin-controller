@@ -16,59 +16,50 @@
  */
 package io.hakbot.controller.event.framework;
 
+import io.hakbot.controller.logging.Logger;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EventService {
 
-    private static EventService INSTANCE = new EventService();
-    private Map<Class<? extends Event>, Map<Subscriber, List<Filter>>> subscriptionMap = new ConcurrentHashMap<>();
+    private static final EventService instance = new EventService();
+    private static final Logger logger = Logger.getLogger(EventService.class);
+    private Map<Class<? extends Event>, ArrayList<Class<? extends Subscriber>>> subscriptionMap = new ConcurrentHashMap<>();
 
-    private EventService() {
-    }
+    private EventService() { }
 
     public static EventService getInstance() {
-        return INSTANCE;
+        return instance;
     }
 
     public void publish(Event event) {
-
-        Map<Subscriber, List<Filter>> subscription = subscriptionMap.get(event.getClass());
-
-        if (subscription != null) {
-            for (Subscriber subscriber : subscription.keySet()) {
-                for (Filter filter : subscription.get(subscriber)) {
-                    if (filter == null || filter.apply(event)) {
-                        subscriber.inform(event);
-                    }
-                }
+        ArrayList<Class<? extends Subscriber>> subscriberClasses = subscriptionMap.get(event.getClass());
+        for (Class clazz: subscriberClasses) {
+            try {
+                Subscriber subscriber = (Subscriber)clazz.newInstance();
+                subscriber.inform(event);
+            } catch (InstantiationException | IllegalAccessException e) {
+                logger.error(e.getMessage());
             }
         }
     }
 
-    public void subscribe(Class<? extends Event> eventType, Filter filter, Subscriber subscriber) {
-
+    public void subscribe(Class<? extends Event> eventType, Class<? extends Subscriber> subscriberType) {
         if (!subscriptionMap.containsKey(eventType)) {
-            subscriptionMap.put(eventType, new HashMap<>());
+            subscriptionMap.put(eventType, new ArrayList<>());
         }
 
-        Map<Subscriber, List<Filter>> subscriberListMap = subscriptionMap.get(eventType);
+        ArrayList<Class<? extends Subscriber>> subscribers = subscriptionMap.get(eventType);
 
-        if (!subscriberListMap.containsKey(subscriber)) {
-            subscriberListMap.put(subscriber, new ArrayList<>());
-        }
-
-        if (!subscriberListMap.get(subscriber).contains(filter)) {
-            subscriberListMap.get(subscriber).add(filter);
+        if (!subscribers.contains(subscriberType)) {
+            subscribers.add(subscriberType);
         }
     }
 
-    public void unsubscribe(Subscriber subscriber) {
-        for (Map<Subscriber, List<Filter>> subscriberListMap : subscriptionMap.values()) {
-            subscriberListMap.remove(subscriber);
+    public void unsubscribe(Class<? extends Subscriber> subscriberType) {
+        for (ArrayList<Class<? extends Subscriber>> list : subscriptionMap.values()) {
+            list.remove(subscriberType);
         }
     }
 

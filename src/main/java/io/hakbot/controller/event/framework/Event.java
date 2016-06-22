@@ -17,4 +17,5 @@
 package io.hakbot.controller.event.framework;
 
 public interface Event {
+
 }
