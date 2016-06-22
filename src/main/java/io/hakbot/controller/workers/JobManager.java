@@ -128,13 +128,15 @@ public class JobManager {
             logger.debug("Adding job to queue: " + job.getUuid());
         }
         if (workQueue.size() < maxQueueSize) {
-            PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
-            pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
-            job.addMessage("Job added to queue");
-            job.setState(State.IN_QUEUE);
-            job = pm.getObjectById(Job.class, job.getId());
+            if (State.UNAVAILABLE != job.getState()) {
+                PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+                pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+                job.addMessage("Job added to queue");
+                job.setState(State.IN_QUEUE);
+                job = pm.getObjectById(Job.class, job.getId());
+                pm.close();
+            }
             workQueue.add(job);
-            pm.close();
         }
     }
 
