@@ -53,7 +53,7 @@ public enum	State {
     public static State parse(String stateName) {
         State state = null; // Default
         for (State item : State.values()) {
-            if (stateName.equalsIgnoreCase(item.getValue())) {
+            if (item.getValue().equalsIgnoreCase(stateName)) {
                 state = item;
                 break;
             }
