@@ -24,7 +24,17 @@ import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.PayloadUtil;
 import org.apache.commons.collections4.MapUtils;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 public class ThreadFixPublisher extends BasePublisher {
@@ -61,18 +71,24 @@ public class ThreadFixPublisher extends BasePublisher {
             return false;
         }
 
-        //todo replace with rest reqeust - remove dependency on threadfix-cli
-        /*
-        final ThreadFixRestClientImpl client = new ThreadFixRestClientImpl(remoteInstance.getUrl(), remoteInstance.getApiKey());
-        final RestResponse<Scan> uploadResponse = client.uploadScan(appId, report.getAbsolutePath());
-        if (!uploadResponse.success) {
-            job.addMessage("Failed to upload result to ThreadFix");
-            job.addMessage(uploadResponse.message);
+        boolean success = false;
+        try {
+            Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
+            FileDataBodyPart filePart = new FileDataBodyPart("file", report);
+            FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+            FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
+            WebTarget target = client.target(remoteInstance.getUrl() + "/applications/" + appId + "/upload?apiKey=" + remoteInstance.getApiKey());
+            Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
+            success = response.getStatus() == 200;
+            if (!success) {
+                job.addMessage("Failed to upload result to ThreadFix");
+                job.addMessage(response.getStatusInfo().getReasonPhrase());
+            }
+            formDataMultiPart.close();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
-        return uploadResponse.success;
-        */
-
-        return true;
+        return success;
     }
 
     public String getName() {
