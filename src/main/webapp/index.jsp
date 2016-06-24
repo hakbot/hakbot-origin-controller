@@ -3,42 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="<c:url value="/images/favicon.png"/>">
-    <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap/css/bootstrap.min.css"/>">
-    <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap-table/bootstrap-table.min.css"/>">
-    <link rel="stylesheet" type="text/css" href="<c:url value="/assets/bootstrap-toggle/css/bootstrap-toggle.min.css"/>">
-    <link rel="stylesheet" type="text/css" href="<c:url value="/assets/fonts/opensans/opensans.css"/>">
-    <link rel="stylesheet" type="text/css" href="<c:url value="/style.css"/>">
+    <jsp:include page="WEB-INF/fragments/header.jsp"/>
     <title>Hakbot Origin Controller</title>
 </head>
 <body>
-<nav id="navbar-container" class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <div style="float:left">
-                <a href="<c:url value="/"/>"> <img src="images/hakbot-header-logo.png" style="margin-top:2px; margin-right:10px"/></a>
-            </div>
-            <div style="float:right">
-                <a class="navbar-brand" href="<c:url value="/"/>"> Origin Controller</a>
-            </div>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li id="nav-system"><a href="#" data-toggle="modal" data-target="#modalSystem"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> System</a></li>
-                <li id="nav-logout"><a href="#" onclick="logout();"><span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<jsp:include page="WEB-INF/fragments/navbar.jsp"/>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-12 main" id="main">
@@ -210,12 +179,6 @@
     </div>
 
 </div>
-
-<script type="text/javascript" src="<c:url value="/assets/jquery/jquery-2.2.3.min.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/assets/jquery/jquery.storageapi.min.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/assets/bootstrap/js/bootstrap.min.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/assets/bootstrap-table/bootstrap-table.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/assets/bootstrap-toggle/js/bootstrap-toggle.min.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/assets/functions.js"/>"></script>
+<jsp:include page="WEB-INF/fragments/footer.jsp"/>
 </body>
 </html>
