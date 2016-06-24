@@ -23,6 +23,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>ConsoleController</servlet-name>
+        <jsp-file>/console/index.jsp</jsp-file>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConsoleController</servlet-name>
+        <url-pattern>/console/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>Swagger</servlet-name>
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>

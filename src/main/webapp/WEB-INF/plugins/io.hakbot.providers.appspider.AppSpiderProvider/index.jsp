@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <jsp:include page="../../WEB-INF/fragments/header.jsp"/>
+    <jsp:include page="/WEB-INF/fragments/header.jsp"/>
     <title>Hakbot Origin Controller - AppSpider Pro</title>
 </head>
 <body>
-<jsp:include page="../../WEB-INF/fragments/navbar.jsp"/>
+<jsp:include page="/WEB-INF/fragments/navbar.jsp"/>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-12 main" id="main">
@@ -15,6 +15,6 @@
         </div>
     </div>
 </div>
-<jsp:include page="../../WEB-INF/fragments/footer.jsp"/>
+<jsp:include page="/WEB-INF/fragments/footer.jsp"/>
 </body>
 </html>
