@@ -24,16 +24,15 @@ import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.Principal;
 
 @Path("/user")
 @Api(value = "user")
-public class UserResource {
+public class UserResource extends BaseResource {
 
     @POST
     @Path("login")
@@ -54,6 +53,24 @@ public class UserResource {
         JsonWebToken jwt = new JsonWebToken(km.getSecretKey());
         String token = jwt.createToken(ldapUser);
         return Response.ok(token).build();
+    }
+
+    @GET
+    @Path("/hakmaster")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Queries if the user is a hakmaster",
+            response = Boolean.class)
+    public Response isHakmaster() {
+        boolean isHakMaster;
+        Principal principal = getPrincipal();
+        if (principal == null) {
+            // authentication was already required (if enabled)
+            isHakMaster = true;
+        } else {
+            QueryManager qm = new QueryManager();
+            isHakMaster = qm.isHakMaster((LdapUser) principal);
+        }
+        return Response.ok(isHakMaster).build();
     }
 
 }

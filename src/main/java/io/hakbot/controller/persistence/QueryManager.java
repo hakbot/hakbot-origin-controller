@@ -194,4 +194,13 @@ public class QueryManager {
         return teams.size() > 0;
     }
 
+    public boolean isHakMaster(LdapUser ldapUser) {
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(Team.class);
+        query.setFilter("(ldapUsers.contains(ldapUser) && hakmaster == true)");
+        List<Team> teams = (List<Team>)query.execute(ldapUser);
+        pm.close();
+        return teams.size() > 0;
+    }
+
 }

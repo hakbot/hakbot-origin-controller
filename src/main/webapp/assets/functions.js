@@ -27,6 +27,7 @@ var URL_LOGIN = "/user/login";
 var URL_ABOUT = "/version";
 var URL_PROVIDERS = "/providers";
 var URL_PUBLISHERS = "/publishers";
+var URL_HAKMASTER = "/user/hakmaster";
 var URL_JOB = "/job";
 var STATE_CREATED = "CREATED";
 var STATE_IN_QUEUE = "IN_QUEUE";
@@ -46,6 +47,7 @@ var about;
 var providers;
 var publishers;
 var selectedJob;
+var isHakmaster = false;
 
 
 function contextPath() {
@@ -70,7 +72,7 @@ $(document).ready(function () {
  * Initializes page by looking up about info, providers and publishers configured
  */
 function initialize() {
-    var successAbout=false, successProviders=false, successPublishers=false;
+    var successAbout=false, successProviders=false, successPublishers=false, successHakmaster=false;
     $.ajax({
         url: contextPath() + URL_ABOUT,
         contentType: CONTENT_TYPE_JSON,
@@ -104,14 +106,28 @@ function initialize() {
             successPublishers = true;
         }
     });
+    $.ajax({
+        url: contextPath() + URL_HAKMASTER,
+        contentType: CONTENT_TYPE_JSON,
+        dataType: DATA_TYPE,
+        type: METHOD_GET,
+        async: false,
+        success: function (data) {
+            isHakmaster = data;
+            successHakmaster = true;
+        }
+    });
 
     // If the page was successfully initialized, populate the system modal and refresh the jobs table
-    if (successAbout && successProviders && successPublishers) {
+    if (successAbout && successProviders && successPublishers && successHakmaster) {
         initialized = true;
         populateSystemModal();
         $('#jobsTable').bootstrapTable('refresh');
         if (!$.sessionStorage.isSet("token")) {
             $('#nav-logout').css('display', "none");
+        }
+        if (!isHakmaster) {
+            $('#nav-admin').css('display', "none");
         }
     }
 }
