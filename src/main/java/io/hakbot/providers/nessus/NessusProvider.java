@@ -26,7 +26,7 @@ import net.continuumsecurity.ClientFactory;
 import net.continuumsecurity.ReportClient;
 import net.continuumsecurity.v6.ScanClientV6;
 import net.continuumsecurity.v6.model.ExportFormat;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import javax.security.auth.login.LoginException;
 import java.io.File;

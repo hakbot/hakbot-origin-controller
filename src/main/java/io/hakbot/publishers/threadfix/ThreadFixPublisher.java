@@ -16,9 +16,6 @@
  */
 package io.hakbot.publishers.threadfix;
 
-import com.denimgroup.threadfix.data.entities.Scan;
-import com.denimgroup.threadfix.remote.ThreadFixRestClientImpl;
-import com.denimgroup.threadfix.remote.response.RestResponse;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.RemoteInstance;
@@ -26,7 +23,7 @@ import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.PayloadUtil;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import java.io.File;
 import java.util.Map;
 
@@ -63,6 +60,9 @@ public class ThreadFixPublisher extends BasePublisher {
         if (report == null) {
             return false;
         }
+
+        //todo replace with rest reqeust - remove dependency on threadfix-cli
+        /*
         final ThreadFixRestClientImpl client = new ThreadFixRestClientImpl(remoteInstance.getUrl(), remoteInstance.getApiKey());
         final RestResponse<Scan> uploadResponse = client.uploadScan(appId, report.getAbsolutePath());
         if (!uploadResponse.success) {
@@ -70,6 +70,9 @@ public class ThreadFixPublisher extends BasePublisher {
             job.addMessage(uploadResponse.message);
         }
         return uploadResponse.success;
+        */
+
+        return true;
     }
 
     public String getName() {

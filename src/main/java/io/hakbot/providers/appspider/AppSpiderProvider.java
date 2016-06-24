@@ -27,7 +27,7 @@ import io.hakbot.providers.appspider.ws.Result;
 import io.hakbot.providers.appspider.ws.SCANSTATUS2;
 import io.hakbot.util.PayloadUtil;
 import io.hakbot.util.UuidUtil;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

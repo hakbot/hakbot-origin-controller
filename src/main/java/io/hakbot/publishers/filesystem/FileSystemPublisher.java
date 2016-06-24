@@ -21,7 +21,7 @@ import io.hakbot.controller.model.Job;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.PayloadUtil;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import java.io.File;
 import java.util.Map;
 
