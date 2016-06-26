@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.StringUtils;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -33,6 +34,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 
 @PersistenceCapable
 @FetchGroups({
@@ -134,6 +136,8 @@ public class Job implements Serializable {
     @Column(name="RESULT", jdbcType="CLOB")
     private String result;
 
+    @Element(column="JOB_ID")
+    private Set<JobProperty> properties;
 
     public long getId() {
         return id;
@@ -293,6 +297,14 @@ public class Job implements Serializable {
             addMessage("Job state changed to " + state.getValue());
         }
         this.state = state.getValue();
+    }
+
+    public Set<JobProperty> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Set<JobProperty> properties) {
+        this.properties = properties;
     }
 
 }

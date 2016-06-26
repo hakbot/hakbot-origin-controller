@@ -6,6 +6,7 @@
     <persistence-unit name="HakbotOrigin">
         <class>io.hakbot.controller.model.ApiKey</class>
         <class>io.hakbot.controller.model.Job</class>
+        <class>io.hakbot.controller.model.JobProperty</class>
         <class>io.hakbot.controller.model.LdapUser</class>
         <class>io.hakbot.controller.model.Team</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
