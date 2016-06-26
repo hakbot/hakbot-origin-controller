@@ -20,6 +20,7 @@ import io.hakbot.controller.Config;
 import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobProperty;
 import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.model.Team;
@@ -97,6 +98,43 @@ public class QueryManager {
         job = pm.getObjectById(Job.class, job.getId());
         pm.close();
         return job;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<JobProperty> getJobProperties(Job job) {
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
+        List<JobProperty> result = (List<JobProperty>)query.execute(job.getId());
+        pm.close();
+        return result;
+    }
+
+    public JobProperty getJobProperty(Job job, String key) {
+        List<JobProperty> properties = getJobProperties(job);
+        for (JobProperty property: properties) {
+            if (property.getKey().equals(key)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    public JobProperty addJobProperty(Job job, String key, Object value) {
+        PersistenceManager pm = getPersistenceManager();
+        pm.currentTransaction().begin();
+        JobProperty property = getJobProperty(job, key);
+        if (property == null) {
+            property = new JobProperty(job, key, value.toString());
+            pm.makePersistent(property);
+        } else {
+            property.setJobId(job.getId());
+            property.setKey(key);
+            property.setValue(value.toString());
+        }
+        pm.currentTransaction().commit();
+        property = pm.getObjectById(JobProperty.class, property.getId());
+        pm.close();
+        return property;
     }
 
     public void deleteAllJobs(Principal principal) {

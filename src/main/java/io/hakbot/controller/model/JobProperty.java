@@ -37,6 +37,10 @@ public class JobProperty implements Serializable {
     private long id;
 
     @Persistent
+    @Column(name="JOB_ID", allowsNull="false")
+    private long jobid;
+
+    @Persistent
     @Column(name="KEY", jdbcType="VARCHAR", length=255, allowsNull="false")
     private String key;
 
@@ -44,6 +48,14 @@ public class JobProperty implements Serializable {
     @Column(name="VALUE", jdbcType="VARCHAR", length=255, allowsNull="false")
     private String value;
 
+    public JobProperty() {
+    }
+
+    public JobProperty(Job job, String key, String value) {
+        this.jobid = job.getId();
+        this.key = key;
+        this.value = value;
+    }
 
     public long getId() {
         return id;
@@ -51,6 +63,14 @@ public class JobProperty implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getJobId() {
+        return jobid;
+    }
+
+    public void setJobId(long jobid) {
+        this.jobid= jobid;
     }
 
     public String getKey() {
