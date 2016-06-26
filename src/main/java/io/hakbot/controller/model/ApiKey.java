@@ -25,11 +25,14 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Set;
 
 @PersistenceCapable
-public class ApiKey implements Principal {
+public class ApiKey implements Serializable, Principal {
+
+    private static final long serialVersionUID = -6188881997158839315L;
 
     @PrimaryKey
     @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

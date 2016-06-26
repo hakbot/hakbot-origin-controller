@@ -26,12 +26,15 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Set;
 
 @PersistenceCapable
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
-public class LdapUser implements Principal {
+public class LdapUser implements Serializable, Principal {
+
+    private static final long serialVersionUID = -4071674443468706162L;
 
     @PrimaryKey
     @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

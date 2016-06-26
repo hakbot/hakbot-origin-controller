@@ -22,10 +22,13 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import java.io.Serializable;
 import java.util.Set;
 
 @PersistenceCapable
-public class Team {
+public class Team implements Serializable {
+
+    private static final long serialVersionUID = 6173877472831531299L;
 
     @PrimaryKey
     @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
