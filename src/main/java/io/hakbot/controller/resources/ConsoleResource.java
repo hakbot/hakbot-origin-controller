@@ -20,6 +20,7 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
+import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.controller.plugin.PluginMetadata;
 import io.hakbot.controller.workers.ExpectedClassResolver;
 import javax.ws.rs.GET;
@@ -46,9 +47,9 @@ public class ConsoleResource extends BaseResource {
         List<Class> classes = resolver.getResolvedProviders();
         classes.addAll(resolver.getResolvedPubishers());
 
-        for (Class clazz: classes) {
-            PluginMetadata meta = new PluginMetadata(clazz);
-            if (meta.getClassname().equals(pluginClassname) && Console.class.isAssignableFrom(clazz)) {
+        for (Class pluginClass: classes) {
+            PluginMetadata meta = new PluginMetadata(pluginClass);
+            if (meta.getClassname().equals(pluginClassname) && ConsoleIdentifier.class.isAssignableFrom(pluginClass)) {
 
                 // Query on the specified job and determine if principal has permissions
                 QueryManager qm = new QueryManager();
@@ -58,7 +59,13 @@ public class ConsoleResource extends BaseResource {
                     // Principal has access to job
                     try {
                         Map queryParams = requestContext.getUriInfo().getQueryParameters();
-                        Console console = (Console) clazz.newInstance();
+
+                        // Lookup the corresponding console class from the plugin instance
+                        ConsoleIdentifier ci = (ConsoleIdentifier)pluginClass.newInstance();
+                        Class consoleClass = ci.getConsoleClass();
+
+                        // Execute the console sending the job and query parameters (if any) to it
+                        Console console = (Console) consoleClass.newInstance();
                         Object response = console.console(job, queryParams);
                         return Response.ok(response).build();
                     } catch (InstantiationException | IllegalAccessException e) {
