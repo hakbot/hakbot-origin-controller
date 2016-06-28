@@ -56,22 +56,32 @@ public class RemoteInstanceAutoConfig {
             logger.info("Instances were not specified. Unable to autoconfigure.");
             return instanceMap;
         }
-        for (String s: instances) {
-            s = s.trim();
-            RemoteInstance instance = new RemoteInstance();
-            instance.setAlias(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".alias")));
-            instance.setUsername(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".username")));
-            instance.setPassword(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".password")));
-            instance.setApiKey(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".apikey")));
-            instance.setToken(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".token")));
-            try {
-                instance.setURL(new URL(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + s + ".url"))));
-            } catch (MalformedURLException e) {
-                logger.error("The URL specified for the server instance is not valid. " + e.getMessage());
-            }
+        for (String instanceIdentifier: instances) {
+            instanceIdentifier = instanceIdentifier.trim();
+            RemoteInstance instance = generateInstance(pluginType, pluginId, instanceIdentifier);
             instanceMap.putIfAbsent(instance.getAlias(), instance);
         }
         return instanceMap;
+    }
+
+    public RemoteInstance resolveInstance(Plugin.Type pluginType, String pluginId, String alias) {
+        return createMap(pluginType, pluginId).get(alias);
+    }
+
+    private RemoteInstance generateInstance(Plugin.Type pluginType, String pluginId, String instanceIdentifier) {
+        String type = pluginType.name().toLowerCase();
+        RemoteInstance instance = new RemoteInstance();
+        instance.setAlias(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".alias")));
+        instance.setUsername(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".username")));
+        instance.setPassword(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".password")));
+        instance.setApiKey(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".apikey")));
+        instance.setToken(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".token")));
+        try {
+            instance.setURL(new URL(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".url"))));
+        } catch (MalformedURLException e) {
+            logger.error("The URL specified for the server instance is not valid. " + e.getMessage());
+        }
+        return instance;
     }
 
 }
