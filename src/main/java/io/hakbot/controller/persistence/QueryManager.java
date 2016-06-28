@@ -143,6 +143,10 @@ public class QueryManager {
         List<Job> result = (List<Job>) query.execute();
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
+        for (Job job: permissible) {
+            List<JobProperty> properties = getJobProperties(job);
+            query.deletePersistentAll(properties);
+        }
         query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
@@ -155,6 +159,10 @@ public class QueryManager {
         List<Job> result = (List<Job>) query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
+        for (Job job: permissible) {
+            List<JobProperty> properties = getJobProperties(job);
+            query.deletePersistentAll(properties);
+        }
         query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
@@ -167,6 +175,10 @@ public class QueryManager {
         List<Job> result = (List<Job>) query.execute(state);
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
+        for (Job job: permissible) {
+            List<JobProperty> properties = getJobProperties(job);
+            query.deletePersistentAll(properties);
+        }
         query.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
         pm.evictAll();
