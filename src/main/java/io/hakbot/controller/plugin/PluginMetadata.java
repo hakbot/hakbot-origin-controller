@@ -17,10 +17,12 @@
 package io.hakbot.controller.plugin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.hakbot.controller.logging.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class PluginMetadata {
 
     // Setup logger
@@ -52,6 +54,15 @@ public class PluginMetadata {
     @JsonProperty(value = "class")
     public String getClassname() {
         return plugin.getClass().getCanonicalName();
+    }
+
+    @JsonProperty(value = "console")
+    public String getConsoleClassname() {
+        if (ConsoleIdentifier.class.isAssignableFrom(plugin.getClass())) {
+            ConsoleIdentifier ci = (ConsoleIdentifier)plugin;
+            return ci.getConsoleClass().getCanonicalName();
+        }
+        return null;
     }
 
 }
