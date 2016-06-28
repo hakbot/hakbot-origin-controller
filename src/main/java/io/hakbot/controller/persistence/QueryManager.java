@@ -119,7 +119,7 @@ public class QueryManager {
         return null;
     }
 
-    public JobProperty addJobProperty(Job job, String key, Object value) {
+    public JobProperty setJobProperty(Job job, String key, Object value) {
         PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();
         JobProperty property = getJobProperty(job, key);
