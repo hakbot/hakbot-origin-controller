@@ -70,7 +70,7 @@ public class JobProperty implements Serializable {
     }
 
     public void setJobId(long jobid) {
-        this.jobid= jobid;
+        this.jobid = jobid;
     }
 
     public String getKey() {
