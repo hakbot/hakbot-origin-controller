@@ -18,6 +18,9 @@ package io.hakbot.providers.appspider;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.persistence.QueryManager;
+import io.hakbot.controller.plugin.Console;
+import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
@@ -45,13 +48,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.Map;
 
-public class AppSpiderProvider extends BaseProvider {
+public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
-    private static final QName serviceName = new QName("http://ntobjectives.com/webservices/", "NTOService");
+    static final QName SERVICE_NAME = new QName("http://ntobjectives.com/webservices/", "NTOService");
+    static final String PROP_INSTANCE_ALIAS = "appspider.instance.alias";
 
     private RemoteInstance remoteInstance;
     private String scanConfig;
@@ -67,12 +71,16 @@ public class AppSpiderProvider extends BaseProvider {
         if (remoteInstance == null) {
             return false;
         }
+        // Save the alias of the remote instance we're conducting the scan with
+        QueryManager qm = new QueryManager();
+        qm.setJobProperty(job, "appspider.instance.alias", remoteInstance.getAlias());
+
         scanConfig = MapUtils.getString(params, "scanConfig");
         return true;
     }
 
     public boolean process(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
+        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
 
         // Retrieve UUID from job and use it as the AppSpider scan token
@@ -136,7 +144,7 @@ public class AppSpiderProvider extends BaseProvider {
     }
 
     public boolean cancel(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
+        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         String token = UuidUtil.stripHyphens(job.getUuid());
         Result running = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
@@ -149,7 +157,7 @@ public class AppSpiderProvider extends BaseProvider {
 
     @Override
     public boolean isAvailable(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), serviceName);
+        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         return !soap.isBusy(remoteInstance.getUsername(), remoteInstance.getPassword());
     }
@@ -180,6 +188,10 @@ public class AppSpiderProvider extends BaseProvider {
         } catch (XPathExpressionException e) {
         }
         return scanName;
+    }
+
+    public Class<? extends Console> getConsoleClass() {
+        return AppSpiderConsole.class;
     }
 
 }
