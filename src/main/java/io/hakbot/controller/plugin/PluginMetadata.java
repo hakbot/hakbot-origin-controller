@@ -57,12 +57,8 @@ public class PluginMetadata {
     }
 
     @JsonProperty(value = "console")
-    public String getConsoleClassname() {
-        if (ConsoleIdentifier.class.isAssignableFrom(plugin.getClass())) {
-            ConsoleIdentifier ci = (ConsoleIdentifier)plugin;
-            return ci.getConsoleClass().getCanonicalName();
-        }
-        return null;
+    public boolean hasConsole() {
+        return ConsoleIdentifier.class.isAssignableFrom(plugin.getClass());
     }
 
 }
