@@ -172,7 +172,7 @@ public class QueryManager {
     public void deleteJobs(State state, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "state == :state");
-        List<Job> result = (List<Job>) query.execute(state);
+        List<Job> result = (List<Job>) query.execute(state.getValue());
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
