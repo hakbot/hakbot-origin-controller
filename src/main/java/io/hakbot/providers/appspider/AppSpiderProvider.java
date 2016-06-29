@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Base64;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -53,9 +52,8 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
 
-    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "appspider");
-    static final QName SERVICE_NAME = new QName("http://ntobjectives.com/webservices/", "NTOService");
-    static final String PROP_INSTANCE_ALIAS = "appspider.instance.alias";
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().
+            createMap(Type.PROVIDER, AppSpiderConstants.PLUGIN_ID);
 
     private RemoteInstance remoteInstance;
     private String scanConfig;
@@ -73,14 +71,14 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
         }
         // Save the alias of the remote instance we're conducting the scan with
         QueryManager qm = new QueryManager();
-        qm.setJobProperty(job, "appspider.instance.alias", remoteInstance.getAlias());
+        qm.setJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
 
         scanConfig = MapUtils.getString(params, "scanConfig");
         return true;
     }
 
     public boolean process(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
+        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
 
         // Retrieve UUID from job and use it as the AppSpider scan token
@@ -144,7 +142,7 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
     }
 
     public boolean cancel(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
+        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         String token = UuidUtil.stripHyphens(job.getUuid());
         Result running = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
@@ -157,7 +155,7 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
 
     @Override
     public boolean isAvailable(Job job) {
-        NTOService service = new NTOService(remoteInstance.getURL(), SERVICE_NAME);
+        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         return !soap.isBusy(remoteInstance.getUsername(), remoteInstance.getPassword());
     }

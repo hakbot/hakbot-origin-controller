@@ -25,7 +25,6 @@ import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
-import io.hakbot.providers.appspider.ws.SCANSTATUS2;
 import io.hakbot.util.UuidUtil;
 import java.util.Map;
 
@@ -38,17 +37,16 @@ public class AppSpiderConsole implements Console {
     public Object console(Job job, Map parameters) {
         // Retrieve the alias of the remote instance we're conducting the scan with
         QueryManager qm = new QueryManager();
-        String alias = qm.getJobProperty(job, AppSpiderProvider.PROP_INSTANCE_ALIAS).getValue();
+        String alias = qm.getJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS).getValue();
 
         // Resolve the remote instance via it's alias
         RemoteInstanceAutoConfig autoConfig = new RemoteInstanceAutoConfig();
-        RemoteInstance remoteInstance = autoConfig.resolveInstance(Plugin.Type.PROVIDER, "appspider", alias);
+        RemoteInstance remoteInstance = autoConfig.resolveInstance(Plugin.Type.PROVIDER, AppSpiderConstants.PLUGIN_ID, alias);
 
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderProvider.SERVICE_NAME);
+        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         String token = UuidUtil.stripHyphens(job.getUuid());
-        SCANSTATUS2 scanstatus2 = soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
-        return scanstatus2.getEventList();
+        return soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
     }
 
 }
