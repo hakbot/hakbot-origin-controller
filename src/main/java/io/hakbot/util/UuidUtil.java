@@ -16,7 +16,12 @@
  */
 package io.hakbot.util;
 
+import org.apache.commons.lang3.StringUtils;
+import java.util.regex.Pattern;
+
 public class UuidUtil {
+
+    private static final Pattern uuidPattern = Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
     private UuidUtil() { }
 
@@ -26,6 +31,10 @@ public class UuidUtil {
 
     public static String stripHyphens(String uuid) {
         return uuid.replaceAll("-", "");
+    }
+
+    public static boolean isValidUUID(String uuid) {
+        return !StringUtils.isEmpty(uuid) && uuidPattern.matcher(uuid).matches();
     }
 
 }

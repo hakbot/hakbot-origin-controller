@@ -19,9 +19,10 @@
                     <thead>
                     <tr>
                         <th data-align="center" data-field="successIcon"></th>
+                        <th data-align="center" data-field="consoleIcon"></th>
                         <th data-align="left" data-field="name">Job Name</th>
-                        <th data-align="left" data-field="provider">Provider</th>
-                        <th data-align="left" data-field="publisher">Publisher</th>
+                        <th data-align="left" data-field="providerName">Provider</th>
+                        <th data-align="left" data-field="publisherName">Publisher</th>
                         <th data-align="left" data-field="created">Created</th>
                         <th data-align="left" data-field="duration">Duration</th>
                         <th data-align="left" data-field="completed">Completed</th>
@@ -37,9 +38,9 @@
                 <div class="job-label">Name:</div>
                 <div id="details-name" class="job-data"></div>
                 <div class="job-label">Provider:</div>
-                <div id="details-provider" class="job-data"></div>
+                <div id="details-providerName" class="job-data"></div>
                 <div class="job-label">Publisher:</div>
-                <div id="details-publisher" class="job-data"></div>
+                <div id="details-publisherName" class="job-data"></div>
                 <div class="job-label">Artifacts:</div>
                 <div class="job-data">
                     <div class="btn-group btn-group-xs" role="group" aria-label="...">
@@ -78,6 +79,10 @@
                 <div class="job-label">Messages:</div>
                 <div class="job-data">
                     <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#modalTextDetail" data-modal-title="Messages" data-api="/message">View Processing Messages</button>
+                </div>
+                <div class="job-label" id="job-console-label">Console:</div>
+                <div class="job-data" id="job-console">
+                    <a type="button" class="btn btn-primary btn-xs" role="button" id="job-console-button" href="#"></a>
                 </div>
                 <div class="job-label">Created:</div>
                 <div id="details-created" class="job-data"></div>

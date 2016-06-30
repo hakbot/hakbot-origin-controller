@@ -227,6 +227,29 @@ function resolvePluginByClass(pluginType, className) {
     return null;
 }
 
+/**
+ * Resolves the name of the plugin by it's class. Used whenever the name should be
+ * used rather than the class, but name isn't available. This function performs the
+ * lookup.
+ */
+function doesPluginHaveConsole(pluginType, className) {
+    if (PLUGIN_PROVIDER == pluginType) {
+        for (var i=0; i<providers.length; i++) {
+            if (providers[i].class == className) {
+                return providers[i].console;
+            }
+        }
+    }
+    if (PLUGIN_PUBLISHER == pluginType) {
+        for (i=0; i<publishers.length; i++) {
+            if (publishers[i].class == className) {
+                return providers[i].console;
+            }
+        }
+    }
+    return false;
+}
+
 function getAppName() {
     return about.application;
 }
@@ -240,15 +263,16 @@ function getAppVersion() {
  */
 function formatJobTable(res) {
     for (var i=0; i<res.length; i++) {
-        res[i].provider = resolvePluginByClass(PLUGIN_PROVIDER, res[i].provider).name;
+        res[i].providerName = resolvePluginByClass(PLUGIN_PROVIDER, res[i].provider).name;
         if (resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher)) {
-            res[i].publisher = resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher).name;    
+            res[i].publisherName = resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher).name;
         }
         res[i].duration = getDuration(res[i].created, res[i].completed);
         res[i].created = timeConverter(res[i].created);
         res[i].started = timeConverter(res[i].started);
         res[i].completed = timeConverter(res[i].completed);
         res[i].successIcon = getSuccessIcon(res[i].success, res[i].state);
+        res[i].consoleIcon = getConsoleIcon(res[i].provider, res[i].uuid);
         res[i].successLabel = getSuccessLabel(res[i].success, res[i].state);
         res[i].stateLabel = getPrettyState(res[i].state);
     }
@@ -308,6 +332,15 @@ function getSuccessIcon(success, state) {
 }
 
 /**
+ * Creates HTML based on whether the job has a console
+ */
+function getConsoleIcon(provider, uuid) {
+    if (doesPluginHaveConsole(PLUGIN_PROVIDER, provider)) {
+        return '<a href="console/'+provider+'/'+uuid+'" title="View Console"><span class="glyphicon glyphicon-console" style="color:blue" aria-hidden="true"></span></a>';
+    }
+}
+
+/**
  * Creates TML based on the success and state of a job.
  */
 function getSuccessLabel(success, state) {
@@ -355,13 +388,12 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     $('#main').removeClass("col-sm-12");
     $('#main').removeClass("col-md-12");
     $('#main').addClass("col-sm-9");
-    //$('#main').addClass("col-md-10");
     $('#sidebar').css("display", "block");
     $('#jobsTable').bootstrapTable('resetView');
     $('#details-uuid').html(job.uuid);
     $('#details-name').html(job.name);
-    $('#details-provider').html(job.provider);
-    $('#details-publisher').html(job.publisher);
+    $('#details-providerName').html(job.providerName);
+    $('#details-publisherName').html(job.publisherName);
     $('#details-created').html(job.created);
     $('#details-started').html(job.started);
     $('#details-completed').html(job.completed);
@@ -369,6 +401,15 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
     $('#details-stateLabel').html(getPrettyState(job.state));
     $('#details-success').html(job.success.toString());
     $('#details-successLabel').html(job.successLabel);
+    if (doesPluginHaveConsole(PLUGIN_PROVIDER, job.provider)) {
+        $('#job-console').css('display', 'block');
+        $('#job-console-label').css('display', 'block');
+        $('#job-console-button').html('<span class="glyphicon glyphicon-console" style="color:white" aria-hidden="true"></span>&nbsp;&nbsp;' + job.providerName + ' Console');
+        $('#job-console-button').attr('href', "console/" + job.provider + "/" + job.uuid);
+    } else {
+        $('#job-console').css('display', 'none');
+        $('#job-console-label').css('display', 'none');
+    }
 });
 
 /**

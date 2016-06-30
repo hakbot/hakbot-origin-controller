@@ -12,6 +12,7 @@
     <div class="row">
         <div class="col-sm-12 col-md-12 main" id="main">
             <h3>AppSpider Pro console coming soon</h3>
+            Job UUID: ${param.uuid}
         </div>
     </div>
 </div>
