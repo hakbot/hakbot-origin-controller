@@ -336,7 +336,7 @@ function getSuccessIcon(success, state) {
  */
 function getConsoleIcon(provider, uuid) {
     if (doesPluginHaveConsole(PLUGIN_PROVIDER, provider)) {
-        return '<a href="console/'+provider+'/'+uuid+'" title="View Console"><span class="glyphicon glyphicon-console" style="color:blue" aria-hidden="true"></span></a>';
+        return '<a href="console/'+uuid+'" title="View Console"><span class="glyphicon glyphicon-console" style="color:blue" aria-hidden="true"></span></a>';
     }
 }
 
@@ -405,7 +405,7 @@ $('#jobsTable').on('click-row.bs.table', function (e, job, $element) {
         $('#job-console').css('display', 'block');
         $('#job-console-label').css('display', 'block');
         $('#job-console-button').html('<span class="glyphicon glyphicon-console" style="color:white" aria-hidden="true"></span>&nbsp;&nbsp;' + job.providerName + ' Console');
-        $('#job-console-button').attr('href', "console/" + job.provider + "/" + job.uuid);
+        $('#job-console-button').attr('href', "console/" + job.uuid);
     } else {
         $('#job-console').css('display', 'none');
         $('#job-console-label').css('display', 'none');
