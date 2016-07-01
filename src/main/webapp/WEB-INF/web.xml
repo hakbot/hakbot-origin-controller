@@ -24,7 +24,7 @@
 
     <servlet>
         <servlet-name>ConsoleController</servlet-name>
-        <jsp-file>/console/index.jsp</jsp-file>
+        <servlet-class>io.hakbot.controller.servlet.ConsoleControllerServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
