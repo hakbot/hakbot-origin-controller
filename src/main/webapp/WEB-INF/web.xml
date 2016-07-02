@@ -23,6 +23,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>ConsoleStaticResourceServlet</servlet-name>
+        <servlet-class>io.hakbot.controller.servlet.FileSystemResourceServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConsoleStaticResourceServlet</servlet-name>
+        <url-pattern>/console/static/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>ConsoleController</servlet-name>
         <servlet-class>io.hakbot.controller.servlet.ConsoleControllerServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
