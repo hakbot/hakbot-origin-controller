@@ -29,6 +29,7 @@ var URL_PROVIDERS = "/providers";
 var URL_PUBLISHERS = "/publishers";
 var URL_HAKMASTER = "/user/hakmaster";
 var URL_JOB = "/job";
+var URL_CONSOLE_JOB = "/console/job";
 var STATE_CREATED = "CREATED";
 var STATE_IN_QUEUE = "IN_QUEUE";
 var STATE_IN_PROGRESS = "IN_PROGRESS";
@@ -446,7 +447,7 @@ $('#modalTextDetail').on('show.bs.modal', function(e) {
         $('#decodeToggleLabel').css('display', 'none');
     }
 
-    var url = contextPath() + "/job/" + selectedJob.uuid + api;
+    var url = contextPath() + URL_JOB + "/" + selectedJob.uuid + api;
     populateModalTextarea(url);
 });
 
@@ -455,7 +456,7 @@ $('#modalTextDetail').on('show.bs.modal', function(e) {
  */
 $(function() {
     $('#decodeToggle').change(function() {
-        var url = contextPath() + "/job/" + selectedJob.uuid + "/result";
+        var url = contextPath() + URL_JOB + "/" + selectedJob.uuid + "/result";
         if ($(this).prop('checked') == true) {
             url += ("?q=2");
         }
@@ -482,7 +483,7 @@ function populateModalTextarea(url) {
  * Called when user requests to download an artifact.
  */
 function downloadJobArtifact(api) {
-    window.location = contextPath() + "/job/" + selectedJob.uuid + api;
+    window.location = contextPath() + URL_JOB + "/" + selectedJob.uuid + api;
 }
 
 /**
