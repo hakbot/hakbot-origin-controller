@@ -21,7 +21,7 @@ $appspider = function() {
     var events = [];
     var modules = [];
 
-        /**
+    /**
      * Populates the DOM with the results of the status object.
      */
     function redrawConsole() {
