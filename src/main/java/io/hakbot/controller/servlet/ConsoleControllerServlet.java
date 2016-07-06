@@ -86,6 +86,7 @@ public class ConsoleControllerServlet extends HttpServlet {
         ExpectedClassResolver resolver = new ExpectedClassResolver();
         try {
             Class pluginClass = resolver.resolveProvider(job);
+            request.setAttribute("job", job);
             String pluginPage = "/WEB-INF/plugins/" + pluginClass.getName() + "/index.jsp?uuid="+uuid;
             request.getRequestDispatcher(pluginPage).include(request, response);
             return;
