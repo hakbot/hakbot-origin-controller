@@ -36,7 +36,7 @@ $appspider = function() {
         // Update crawling status progress bar
         var crawlingProgress = $('#crawlingProgress');
         crawlingProgress.html(status.linksCrawled + "/" + (status.linksCrawled + status.linksInQueue));
-        crawlingProgress.css('width',((status.linksCrawled / status.linksCrawled + status.linksInQueue) * 100 )+ "%");
+        crawlingProgress.css('width',((status.linksCrawled / (status.linksCrawled + status.linksInQueue)) * 100 )+ "%");
         if (status.scanProgress = 100 && !status.running) {
             crawlingProgress.removeClass("progress-bar-striped");
         }
@@ -44,7 +44,7 @@ $appspider = function() {
         // Update attack status progress bar
         var attackProgress = $('#attackProgress');
         attackProgress.html(status.attacked + "/" + (status.attacked + status.attacksInQueue));
-        attackProgress.css('width',((status.attacked / status.attacked + status.attacksInQueue) * 100 )+ "%");
+        attackProgress.css('width',((status.attacked / (status.attacked + status.attacksInQueue)) * 100 )+ "%");
         if (status.scanProgress = 100 && !status.running) {
             attackProgress.removeClass("progress-bar-striped");
         }
@@ -60,7 +60,8 @@ $appspider = function() {
         $('#requests').html(status.requests);
         $('#failedRequests').html(status.failedRequests);
         $('#requestDelay').html(status.dripDelay);
-        $('#speed').html(status.networkSpeed);
+        var kbpersec = Math.round((status.networkSpeed/1000) * 100) / 100;
+        $('#speed').html(kbpersec);
         $('#responseTime').html(status.averageResponseTime);
 
         // Update event information
