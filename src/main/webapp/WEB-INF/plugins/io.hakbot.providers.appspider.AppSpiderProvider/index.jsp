@@ -126,6 +126,9 @@
 <script type="text/javascript" src="<c:url value="/console/static/io.hakbot.providers.appspider.AppSpiderProvider/functions.js"/>"></script>
 <script type="text/javascript">
     $appspider.getJobConsoleData('<c:out value="${requestScope.job.uuid}"/>');
+    setInterval(function() {
+        $appspider.getJobConsoleData('<c:out value="${requestScope.job.uuid}"/>');
+    }, 30 * 1000);
 </script>
 </body>
 </html>
