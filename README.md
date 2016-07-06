@@ -25,6 +25,7 @@ Features
 
 * Configurable queue and job engine
 * Sequential or simultaneous execution of jobs from the same provider
+* Job console to monitor status of running jobs (optional/plugin specific)
 * Configurable and enforceable authentication and authorization
 * Team permission model for managing authorization of API keys and LDAP users
 * API key support
@@ -40,6 +41,7 @@ Screenshots
 ![alt tag](doc/img/login.png)
 ![alt tag](doc/img/job-listing.png)
 ![alt tag](doc/img/job-details.png)
+![alt tag](doc/img/job-console.png)
 
 Providers
 -------------------
@@ -64,6 +66,13 @@ Publishers included are:
 * FileSystem - Saves the results to the filesystem
 * KennaSecurity - Upload the results to KennaSecurity
 * ThreadFix - Upload the results to ThreadFix for vulnerability aggregation and normalization
+
+Consoles
+-------------------
+
+A console is an optional feature of providers. A provider that also implements a console will benefit
+from the ability to monitor the status of the job as it's executing and provide the end user a way to
+view and/or interact with the running job.
 
 Use Cases
 -------------------
