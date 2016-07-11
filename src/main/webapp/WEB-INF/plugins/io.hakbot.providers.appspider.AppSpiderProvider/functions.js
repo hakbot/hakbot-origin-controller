@@ -93,6 +93,7 @@ $appspider = function() {
      * a 'status' object with all available properties.
      */
     function parseConsoleData(data) {
+        status = {};
         // data is the JSON response from the console
         status.scanProgress = data.status2.m_iScanProgress;
         status.timeRemaining = data.status2.m_szTimeRemaining;
