@@ -116,6 +116,7 @@ $appspider = function() {
         status.endTime = timeConverter(data.EndTime);
         status.elapsedTime = data.Elapsed;
 
+        events = [];
         for(var i = 0; i < data.EventList.EVENT.length; i++) {
             var objE = data.EventList.EVENT[i];
             var event = {};
@@ -128,6 +129,7 @@ $appspider = function() {
             events.push(event);
         }
 
+        modules = [];
         for(var j = 0; j < data.ModuleStatusList.MODULESTATUS.length; j++) {
             var objM = data.ModuleStatusList.MODULESTATUS[j];
             var module = {};
