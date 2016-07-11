@@ -287,6 +287,10 @@ function timeConverter(timestamp) {
     if (timestamp == null || timestamp == "" || timestamp == 0) {
         return;
     }
+    // Check to see if timestamp include milliseconds or not and if not, add them
+    if (timestamp.toString().length <= 10) {
+        timestamp = (timestamp * 1000);
+    }
     var a = new Date(timestamp);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var year = a.getFullYear();
