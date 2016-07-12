@@ -4,6 +4,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 
@@ -39,6 +42,14 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
 			}
 		}
 		throw new ScanNotFoundException("No scan with Id: " + id);
+	}
+
+	public JsonObject getScanDetails(String id) throws ScanNotFoundException {
+        int scanId = Integer.parseInt(id);
+		WebTarget scanTarget = target.path("/scans/" + scanId);
+        String response = getRequest(scanTarget, String.class);
+        JsonReader jsonReader = Json.createReader(new StringReader(response));
+        return jsonReader.readObject();
 	}
 
 	private PolicyV6 getPolicyV6ByName(String name) {

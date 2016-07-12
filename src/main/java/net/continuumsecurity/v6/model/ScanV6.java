@@ -12,6 +12,7 @@ public class ScanV6 {
 	private String	name;
 	private int		id;
 	private String	status;
+	private String details;
 
 	public void setStatus(String status) {
 		this.status = status;
@@ -38,5 +39,10 @@ public class ScanV6 {
 	@XmlElement
 	public String getStatus() {
 		return status;
+	}
+
+	@XmlElement
+	public String getDetails() {
+		return details;
 	}
 }
