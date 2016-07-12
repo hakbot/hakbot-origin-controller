@@ -18,6 +18,10 @@ package io.hakbot.providers.nessus;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobProperty;
+import io.hakbot.controller.persistence.QueryManager;
+import io.hakbot.controller.plugin.Console;
+import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
@@ -34,12 +38,12 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class NessusProvider extends BaseProvider {
+public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(NessusProvider.class);
 
-    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, "nessus");
+    private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, NessusConstants.PLUGIN_ID);
 
     private RemoteInstance remoteInstance;
     private String scanName;
@@ -64,6 +68,16 @@ public class NessusProvider extends BaseProvider {
             remoteInstance.setUsername(MapUtils.getString(params, "username"));
             remoteInstance.setPassword(MapUtils.getString(params, "password"));
             remoteInstance.setValidateCertificates(MapUtils.getBooleanValue(params, "validateCertificates"));
+            // Save the properties of the instance we're conducting the scan with
+            QueryManager qm = new QueryManager();
+            qm.setJobProperty(job, NessusConstants.PROP_SERVER_URL, remoteInstance.getUrl());
+            qm.setJobProperty(job, NessusConstants.PROP_SCAN_USERNAME, remoteInstance.getUsername());
+            qm.setJobProperty(job, NessusConstants.PROP_SCAN_PASSWORD, remoteInstance.getPassword());
+            qm.setJobProperty(job, NessusConstants.PROP_SERVER_VALIDATE_CERTS, remoteInstance.isValidateCertificates());
+        } else {
+            // Save the alias of the remote instance we're conducting the scan with
+            QueryManager qm = new QueryManager();
+            qm.setJobProperty(job, NessusConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
         }
         scanName = MapUtils.getString(params, "scanName");
         scanPolicy = MapUtils.getString(params, "scanPolicy");
@@ -76,6 +90,11 @@ public class NessusProvider extends BaseProvider {
             ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             String scanID = scan.newScan(scanName, scanPolicy, targets);
+
+            // Save the scan ID Nessus assigned to the job
+            QueryManager qm = new QueryManager();
+            qm.setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
+
             while (scan.isScanRunning(scanID)) {
                 try {
                     Thread.sleep(10000);
@@ -99,7 +118,20 @@ public class NessusProvider extends BaseProvider {
     }
 
     public boolean cancel(Job job) {
-        return true; //todo
+        try {
+            ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
+
+            QueryManager qm = new QueryManager();
+            JobProperty property = qm.getJobProperty(job, NessusConstants.PROP_SCAN_ID);
+            String scanId = property.getValue();
+
+            // todo cancel the job with the specified scanId
+        } catch (LoginException e) {
+            job.addMessage("Unable to login to Nessus");
+            return false;
+        }
+        return true;
     }
 
     public String getName() {
@@ -107,7 +139,7 @@ public class NessusProvider extends BaseProvider {
     }
 
     public String getDescription() {
-        return "Performs a Nessus scan against one or more targets. Interacts with a Nessus instance using v6 of the XML-RPC interface.";
+        return "Performs a Nessus scan against one or more targets. Interacts using the Nessus v6 API.";
     }
 
     public String getResultMimeType() {
@@ -116,6 +148,10 @@ public class NessusProvider extends BaseProvider {
 
     public String getResultExtension() {
         return "nessus";
+    }
+
+    public Class<? extends Console> getConsoleClass() {
+        return NessusConsole.class;
     }
 
 }
