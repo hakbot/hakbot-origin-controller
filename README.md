@@ -41,7 +41,9 @@ Screenshots
 ![alt tag](doc/img/login.png)
 ![alt tag](doc/img/job-listing.png)
 ![alt tag](doc/img/job-details.png)
-![alt tag](doc/img/job-console.png)
+![alt tag](doc/img/job-console-appspider.png)
+![alt tag](doc/img/job-console-nessus-hosts.png)
+![alt tag](doc/img/job-console-nessus-vulns.png)
 
 Providers
 -------------------
