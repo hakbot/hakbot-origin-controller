@@ -22,7 +22,7 @@ $nessus = function() {
     var compliance = [];   // listing of all compliance issues found in scan
     var comphosts = [];    // hosts scanned for compliance
     var hosts = [];        // hosts scanned for vulnerabilities
-    var remediations = []; // a list of recommended remediations
+    var remediations = []; // a list of recommended remediations //todo
 
     /**
      * Populates the DOM with the results
@@ -149,20 +149,6 @@ $nessus = function() {
         for(var l = 0; l < data.hosts.length; l++) {
             hosts.push(createHost(data.hosts[l]));
         }
-
-/*
-        // Sort events by timestamp
-        events.sort(function(a, b) {
-            return b.timestamp - a.timestamp; // descending order
-        });
-
-        // Sort attack modules by name
-        modules.sort(function(a, b) {
-            if(a.name < b.name) return -1;
-            if(a.name > b.name) return 1;
-            return 0;
-        });
-        */
     }
 
     function createHost(jsonFragment) {
