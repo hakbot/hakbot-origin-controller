@@ -1,0 +1,8 @@
+#vulnerabilitiesTable td + td, #complianceTable td + td {
+    width: 50%;
+    max-width: 0;
+}
+#vulnerabilitiesTable td + td + td, #complianceTable td + td + td {
+    width: 0;
+    max-width: 0;
+}

@@ -93,6 +93,18 @@
             <artifactId>jersey-media-multipart</artifactId>
             <version>2.22.2</version>
         </dependency>
+        <!-- JSON API specification and default implementaiton of JSR 353 -->
+        <dependency>
+            <groupId>javax.json</groupId>
+            <artifactId>javax.json-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <!-- JSP API's -->
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
