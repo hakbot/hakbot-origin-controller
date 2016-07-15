@@ -45,6 +45,12 @@ public class HeaderFilter implements ContainerResponseFilter {
         init();
         responseContext.getHeaders().add("X-Powered-By", appName + " v" + appVersion);
         responseContext.getHeaders().add(HttpHeaders.CACHE_CONTROL, "private, max-age=0, must-revalidate, no-cache");
+
+        // CORS Headers
+        responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET POST PUT DELETE");
+        responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
+        responseContext.getHeaders().add("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, X-Api-Key, *");
+        responseContext.getHeaders().add("Access-Control-Request-Headers", "Origin, Content-Type, Authorization, X-Api-Key, *");
     }
 
 }
