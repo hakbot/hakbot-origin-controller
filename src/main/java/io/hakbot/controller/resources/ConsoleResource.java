@@ -23,6 +23,11 @@ import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.controller.workers.ExpectedClassResolver;
 import io.hakbot.controller.workers.ExpectedClassResolverException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -32,6 +37,9 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 @Path("/console")
+@Api(value = "console", authorizations = {
+        @Authorization(value="X-Api-Key")
+})
 public class ConsoleResource extends BaseResource {
 
     private static final Logger logger = Logger.getLogger(ConsoleResource.class);
@@ -39,7 +47,14 @@ public class ConsoleResource extends BaseResource {
     @GET
     @Path("job/{job}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConsole(@PathParam("job") String jobUuid) {
+    @ApiOperation(
+            value = "Returns job console data",
+            notes = "Returns plugin-specific console data for the specified job. The syntax and format of the response will vary based on the console.",
+            response = JsonObject.class
+    )
+    public Response getConsole(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("job") String jobUuid) {
 
         // Query on the specified job and determine if principal has permissions
         QueryManager qm = new QueryManager();

@@ -31,15 +31,18 @@ import java.util.List;
 
 @Path("/publishers")
 @Api(value = "publishers", authorizations = {
-        @Authorization(value="api_key")
+        @Authorization(value="X-Api-Key")
 })
 public class PublishersResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Returns all publishers",
+    @ApiOperation(
+            value = "Returns all publishers",
+            notes = "Returns an array of all enabled publishers. Publishers not enabled are omitted.",
             response = PluginMetadata.class,
-            responseContainer = "List")
+            responseContainer = "List"
+    )
     public Response getAll() {
         List<PluginMetadata> list = new ArrayList<>();
         ExpectedClassResolver resolver = new ExpectedClassResolver();

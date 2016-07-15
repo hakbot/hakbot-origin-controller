@@ -31,15 +31,18 @@ import java.util.List;
 
 @Path("/providers")
 @Api(value = "providers", authorizations = {
-        @Authorization(value="api_key")
+        @Authorization(value="X-Api-Key")
 })
 public class ProvidersResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Returns all providers",
+    @ApiOperation(
+            value = "Returns all providers",
+            notes = "Returns an array of all enabled providers. Providers not enabled are omitted.",
             response = PluginMetadata.class,
-            responseContainer = "List")
+            responseContainer = "List"
+    )
     public Response getAll() {
         List<PluginMetadata> list = new ArrayList<>();
         ExpectedClassResolver resolver = new ExpectedClassResolver();

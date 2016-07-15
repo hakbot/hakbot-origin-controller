@@ -23,6 +23,7 @@ import io.hakbot.controller.workers.State;
 import io.hakbot.util.JsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import java.security.Principal;
 import java.util.Base64;
@@ -41,18 +42,20 @@ import javax.ws.rs.core.Response;
 
 @Path("/job")
 @Api(value = "job", authorizations = {
-        @Authorization(value="api_key")
+        @Authorization(value="X-Api-Key")
 })
 public class JobResource extends BaseResource {
 
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Returns all job",
+    @ApiOperation(
+            value = "Returns all job",
             notes = "Returns a list of all jobs ordered by the time the job was created.",
             response = Job.class,
-            responseContainer = "List")
-    public Response getAllJobs(@QueryParam("order") String order) {
+            responseContainer = "List"
+    )
+    public Response getAllJobs() {
         QueryManager qm = new QueryManager();
         return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, getPrincipal())).build();
     }
@@ -60,10 +63,14 @@ public class JobResource extends BaseResource {
     @GET
     @Path("{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Returns a specific job",
+    @ApiOperation(
+            value = "Returns a specific job",
             notes = "Returns a specific job by it's UUID.",
-            response = Job.class)
-    public Response getJobByUuid(@PathParam("uuid") String uuid) {
+            response = Job.class
+    )
+    public Response getJobByUuid(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
         Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL, getPrincipal());
         if (job == null) {
@@ -76,9 +83,14 @@ public class JobResource extends BaseResource {
     @GET
     @Path("{uuid}/message")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Returns the messages produced by the job",
-            notes = "The UUID of the job")
-    public Response getJobMessage(@PathParam("uuid") String uuid) {
+    @ApiOperation(
+            value = "Returns the messages produced by the job",
+            notes = "Returns the messages produced by the job. Depending on the plugin, the amount of messages produced may be large",
+            response = String.class
+    )
+    public Response getJobMessage(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
         return Response.ok(qm.getJob(uuid, Job.FetchGroup.MESSAGE, getPrincipal()).getMessage()).build();
     }
@@ -86,10 +98,15 @@ public class JobResource extends BaseResource {
     @GET
     @Path("{uuid}/payload/provider")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
-    @ApiOperation(value = "Returns the provider payload of the job",
-            notes = "The UUID of the job")
-    public Response getJobProviderPayload(@PathParam("uuid") String uuid,
-                                          @DefaultValue("0") @QueryParam("q") int q) {
+    @ApiOperation(
+            value = "Returns the provider payload of the job",
+            notes = "Returns the provider payload of the job. The payload may be quite large and contain Base64 encoded parameters. The format and syntax of the payload is plugin specific."
+    )
+    public Response getJobProviderPayload(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid,
+            @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
+            @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD, getPrincipal()).getProviderPayload();
         if (q == 0) {
@@ -105,10 +122,15 @@ public class JobResource extends BaseResource {
     @GET
     @Path("{uuid}/payload/publisher")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
-    @ApiOperation(value = "Returns the publisher payload of the job",
-            notes = "The UUID of the job")
-    public Response getJobPublisherPayload(@PathParam("uuid") String uuid,
-                                           @DefaultValue("0") @QueryParam("q") int q) {
+    @ApiOperation(
+            value = "Returns the publisher payload of the job",
+            notes = "Returns the publisher payload of the job. The payload may be quite large and contain Base64 encoded parameters. The format and syntax of the payload is plugin specific."
+    )
+    public Response getJobPublisherPayload(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid,
+            @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
+            @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD, getPrincipal()).getPublisherPayload();
         if (q == 0) {
@@ -124,10 +146,15 @@ public class JobResource extends BaseResource {
     @GET
     @Path("{uuid}/result")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
-    @ApiOperation(value = "Returns the result produced by the job",
-            notes = "The UUID of the job")
-    public Response getJobResult(@PathParam("uuid") String uuid,
-                                 @DefaultValue("0") @QueryParam("q") int q) {
+    @ApiOperation(
+            value = "Returns the result produced by the job",
+            notes = "Returns the result of the job. The result may be quite large and will typically be Base64 encoded when viewed, or automatically Base64 decoded when downloaded."
+    )
+    public Response getJobResult(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid,
+            @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1,2" )
+            @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.RESULT, getPrincipal()).getResult();
         if (q == 0) {
@@ -145,10 +172,11 @@ public class JobResource extends BaseResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Creates a new job",
-            notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
+    @ApiOperation(
+            value = "Creates a new job",
+            notes = "Returns the job after creating it. The UUID can be used to later query on the job. The format of this request will vary largely on the plugins used.",
             response = Job.class)
-    public Response addJob(String jsonString) {
+    public Response addJob(String jsonString) { //todo make this more self-documenting - create a object reporesenting the jsonString
         JsonObject json = JsonUtil.toJsonObject(jsonString);
 
         // Check that the root json object has a name property
@@ -212,7 +240,9 @@ public class JobResource extends BaseResource {
     @Path("/uuid/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Deletes a specific job")
-    public Response purgeByUuid(@PathParam("uuid") String uuid) {
+    public Response purgeByUuid(
+            @ApiParam(value = "The UUID of the job", required = true)
+            @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
         qm.deleteJob(uuid, getPrincipal());
         return Response.ok().build();
@@ -221,9 +251,12 @@ public class JobResource extends BaseResource {
     @DELETE
     @Path("/state/{state}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Purges all jobs with a specific state from the database",
-                notes = "A supported state is required.")
-    public Response purge(@PathParam("state") State state) {
+    @ApiOperation(
+            value = "Purges all jobs with a specific state from the database",
+            notes = "A supported state is required.")
+    public Response purge(
+            @ApiParam(value = "The job state", required = true)
+            @PathParam("state") State state) {
         QueryManager qm = new QueryManager();
         qm.deleteJobs(state, getPrincipal());
         return Response.ok().build();

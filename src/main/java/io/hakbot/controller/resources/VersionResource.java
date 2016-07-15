@@ -18,6 +18,8 @@ package io.hakbot.controller.resources;
 
 import io.hakbot.controller.auth.AuthenticationNotRequired;
 import io.hakbot.controller.model.About;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,9 +29,15 @@ import javax.ws.rs.core.Response;
 
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "version")
 public class VersionResource {
 
     @GET
+    @ApiOperation(
+            value = "Returns application version information",
+            notes = "Returns a simple json object containing the name of the application and the version",
+            response = About.class
+    )
     @AuthenticationNotRequired
     public Response getVersion() {
         return Response.ok(new GenericEntity<About>(new About()) {}).build();

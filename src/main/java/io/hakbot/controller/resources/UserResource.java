@@ -24,6 +24,7 @@ import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,7 +41,11 @@ public class UserResource extends BaseResource {
     @POST
     @Path("login")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Login")
+    @ApiOperation(
+            value = "Assert login credentials",
+            notes = "Upon a successful login, a JSON Web Token will be returned in the response body. This functionality requires authentication to be enabled on Origin Controller.",
+            response = String.class
+    )
     @AuthenticationNotRequired
     public Response validateCredentials(@FormParam("username") String username, @FormParam("password") String password) {
 
@@ -61,8 +66,14 @@ public class UserResource extends BaseResource {
     @GET
     @Path("/hakmaster")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Queries if the user is a hakmaster",
-            response = Boolean.class)
+    @ApiOperation(
+            value = "Queries if the user is a hakmaster",
+            notes = "Determines if the user making the request is a hakmaster (aka: superuser or administrator of Origin Controller)",
+            response = Boolean.class,
+            authorizations = {
+                    @Authorization(value="X-Api-Key")
+            }
+    )
     public Response isHakmaster() {
         boolean isHakMaster;
         Principal principal = getPrincipal();

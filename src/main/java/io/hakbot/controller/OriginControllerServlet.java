@@ -61,6 +61,7 @@ public final class OriginControllerServlet extends ServletContainer {
         Info info = new Info()
                 .title(Config.getInstance().getProperty(ConfigItem.APPLICATION_NAME) + " API")
                 .version(Config.getInstance().getProperty(ConfigItem.APPLICATION_VERSION))
+                .description("Vendor-Neutral Security Tool Automation Controller")
                 .license(new License()
                         .name("GPL v3.0")
                         .url("http://www.gnu.org/licenses/gpl-3.0.txt"));
