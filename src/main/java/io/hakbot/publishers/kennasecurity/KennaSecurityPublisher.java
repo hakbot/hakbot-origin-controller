@@ -22,11 +22,13 @@ import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
-import io.hakbot.util.PayloadUtil;
+import io.hakbot.util.JsonUtil;
 import org.apache.commons.collections4.MapUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -49,8 +51,8 @@ public class KennaSecurityPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
-        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));
         if (remoteInstance == null) {
             job.addMessage("KennaSecurity instance cannot be found or is not defined.");
             return false;

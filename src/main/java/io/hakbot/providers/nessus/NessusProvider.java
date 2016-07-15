@@ -25,13 +25,13 @@ import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
-import io.hakbot.util.PayloadUtil;
+import io.hakbot.util.JsonUtil;
 import net.continuumsecurity.ClientFactory;
 import net.continuumsecurity.ReportClient;
 import net.continuumsecurity.v6.ScanClientV6;
 import net.continuumsecurity.v6.model.ExportFormat;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
+import javax.json.JsonObject;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
@@ -52,22 +52,22 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
 
     @Override
     public boolean initialize(Job job) {
-        Map<String, String> params = PayloadUtil.toParameters(job.getProviderPayload());
-        if (!PayloadUtil.requiredParams(params, "scanName", "scanPolicy", "targets")) {
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        if (!JsonUtil.requiredParams(payload, "scanName", "scanPolicy", "targets")) {
             job.addMessage("Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
             return false;
         }
-        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             remoteInstance = new RemoteInstance();
-            if (!PayloadUtil.requiredParams(params, "nessusUrl", "username", "password")) {
+            if (!JsonUtil.requiredParams(payload, "nessusUrl", "username", "password")) {
                 job.addMessage("Invalid request. Expected parameters: [nessusUrl], [username], [password]");
                 return false;
             }
-            remoteInstance.setUrl(MapUtils.getString(params, "nessusUrl"));
-            remoteInstance.setUsername(MapUtils.getString(params, "username"));
-            remoteInstance.setPassword(MapUtils.getString(params, "password"));
-            remoteInstance.setValidateCertificates(MapUtils.getBooleanValue(params, "validateCertificates"));
+            remoteInstance.setUrl(JsonUtil.getString(payload, "nessusUrl"));
+            remoteInstance.setUsername(JsonUtil.getString(payload, "username"));
+            remoteInstance.setPassword(JsonUtil.getString(payload, "password"));
+            remoteInstance.setValidateCertificates(JsonUtil.getBoolean(payload, "validateCertificates"));
             // Save the properties of the instance we're conducting the scan with
             QueryManager qm = new QueryManager();
             qm.setJobProperty(job, NessusConstants.PROP_SERVER_URL, remoteInstance.getUrl());
@@ -79,9 +79,9 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
             QueryManager qm = new QueryManager();
             qm.setJobProperty(job, NessusConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
         }
-        scanName = MapUtils.getString(params, "scanName");
-        scanPolicy = MapUtils.getString(params, "scanPolicy");
-        targets = MapUtils.getString(params, "targets");
+        scanName = JsonUtil.getString(payload, "scanName");
+        scanPolicy = JsonUtil.getString(payload, "scanPolicy");
+        targets = JsonUtil.getString(payload, "targets");
         return true;
     }
 

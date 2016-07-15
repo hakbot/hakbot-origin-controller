@@ -22,10 +22,9 @@ import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
-import io.hakbot.util.PayloadUtil;
-import org.apache.commons.collections4.MapUtils;
+import io.hakbot.util.JsonUtil;
+import javax.json.JsonObject;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 public class RemoteFileSystemPublisher extends BasePublisher {
@@ -41,8 +40,8 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
-        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             job.addMessage("RemoteFileSystem instance cannot be found or is not defined.");
             return false;

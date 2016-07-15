@@ -28,9 +28,8 @@ import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
 import io.hakbot.providers.appspider.ws.SCANSTATUS2;
-import io.hakbot.util.PayloadUtil;
+import io.hakbot.util.JsonUtil;
 import io.hakbot.util.UuidUtil;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -41,6 +40,7 @@ import org.xml.sax.InputSource;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Base64;
+import javax.json.JsonObject;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -60,12 +60,12 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
 
     @Override
     public boolean initialize(Job job) {
-        Map<String, String> params = PayloadUtil.toParameters(job.getProviderPayload());
-        if (!PayloadUtil.requiredParams(params, "instance", "scanConfig")) {
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        if (!JsonUtil.requiredParams(payload, "instance", "scanConfig")) {
             job.addMessage("Invalid request. Expected parameters: [instance], [config]");
             return false;
         }
-        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             return false;
         }
@@ -73,7 +73,7 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
         QueryManager qm = new QueryManager();
         qm.setJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
 
-        scanConfig = MapUtils.getString(params, "scanConfig");
+        scanConfig = JsonUtil.getString(payload, "scanConfig");
         return true;
     }
 

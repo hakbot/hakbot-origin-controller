@@ -20,10 +20,10 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
-import io.hakbot.util.PayloadUtil;
-import org.apache.commons.collections4.MapUtils;
+import io.hakbot.util.JsonUtil;
+
+import javax.json.JsonObject;
 import java.io.File;
-import java.util.Map;
 
 public class FileSystemPublisher extends BasePublisher {
 
@@ -35,12 +35,13 @@ public class FileSystemPublisher extends BasePublisher {
     @Override
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
-        Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
-        if (!PayloadUtil.requiredParams(params, "publishPath")) {
+
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        if (!JsonUtil.requiredParams(payload, "publishPath")) {
             job.addMessage("Invalid request. Expected parameter: [publishPath]");
             return false;
         }
-        publishPath = MapUtils.getString(params, "publishPath");
+        publishPath = JsonUtil.getString(payload, "publishPath");
         if (publishPath.startsWith("~" + File.separator)) {
             publishPath = System.getProperty("user.home") + publishPath.substring(1);
         }

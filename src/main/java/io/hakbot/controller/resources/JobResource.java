@@ -20,11 +20,13 @@ import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
+import io.hakbot.util.JsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import java.security.Principal;
 import java.util.Base64;
+import javax.json.JsonObject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -146,17 +148,54 @@ public class JobResource extends BaseResource {
     @ApiOperation(value = "Creates a new job",
             notes = "Returns the job after creating it. The UUID can be used to later query on the job.",
             response = Job.class)
-    public Response addJob(Job jsonJob) {
-        if (jsonJob.getProvider() == null || jsonJob.getProviderPayload() == null || jsonJob.getName() == null) {
+    public Response addJob(String jsonString) {
+        JsonObject json = JsonUtil.toJsonObject(jsonString);
+
+        // Check that the root json object has a name property
+        String name = JsonUtil.getString(json, "name");
+        if (name == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Principal principal = getPrincipal();
-        if (principal != null) {
-            ApiKey apiKey = (ApiKey)principal;
-            jsonJob.setStartedByApiKeyId(apiKey.getId());
+
+        // Check for and obtain the provider object
+        JsonObject provider = JsonUtil.getJsonChildObject(json, "provider");
+        String providerClass = JsonUtil.getString(provider, "class");
+        if (provider == null || !JsonUtil.requiredParams(provider, "class", "payload")) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
+
+        // Check for and obtain the payload object inside the provider
+        JsonObject providerPayload = JsonUtil.getJsonChildObject(provider, "payload");
+        if (providerPayload == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        // Check for and obtain the optional publisher object
+        JsonObject publisher = JsonUtil.getJsonChildObject(json, "publisher");
+        String publisherClass = JsonUtil.getString(publisher, "class");
+        if (publisher != null && !JsonUtil.requiredParams(publisher, "class", "payload")) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        // Check for and obtain the publisher payload if an optional publisher was specified
+        JsonObject publisherPayload = null;
+        if (publisher != null) {
+            publisherPayload = JsonUtil.getJsonChildObject(publisher, "payload");
+            if (publisherPayload == null) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        }
+
+        // Retrieve the optional principal for the API key that initiated this request
+        Principal principal = getPrincipal();
+        ApiKey apiKey = null;
+        if (principal != null) {
+            apiKey = (ApiKey)principal;
+        }
+
         QueryManager qm = new QueryManager();
-        Job job = qm.createJob(jsonJob);
+        Job job = qm.createJob(name, providerClass, JsonUtil.toJsonString(providerPayload),
+                publisherClass, JsonUtil.toJsonString(publisherPayload), apiKey);
         return Response.ok(job).build();
     }
 

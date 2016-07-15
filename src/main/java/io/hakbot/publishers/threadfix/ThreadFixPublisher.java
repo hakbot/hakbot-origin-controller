@@ -22,12 +22,11 @@ import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
-import io.hakbot.util.PayloadUtil;
-import org.apache.commons.collections4.MapUtils;
+import io.hakbot.util.JsonUtil;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -51,17 +50,17 @@ public class ThreadFixPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        Map<String, String> params = PayloadUtil.toParameters(job.getPublisherPayload());
-        if (!PayloadUtil.requiredParams(params, "appId")) {
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        if (!JsonUtil.requiredParams(payload, "appId")) {
             job.addMessage("Invalid request. Expected parameter: [appId]");
             return false;
         }
-        remoteInstance = instanceMap.get(MapUtils.getString(params, "instance"));
+        remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             job.addMessage("ThreadFix remote instance cannot be found or is not defined.");
             return false;
         }
-        appId = MapUtils.getString(params, "appId");
+        appId = JsonUtil.getString(payload, "appId");
         return true;
     }
 

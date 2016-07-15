@@ -20,23 +20,35 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.workers.JobException;
 import io.hakbot.providers.BaseProvider;
+import io.hakbot.util.JsonUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import javax.json.JsonObject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
 public class ShellProvider extends BaseProvider {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(ShellProvider.class);
     private Process process;
+    private String command;
+
+    public boolean initialize(Job job) {
+        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        if (!JsonUtil.requiredParams(payload, "command")) {
+            job.addMessage("Invalid request. Expected parameters: [command]");
+            return false;
+        }
+        command = JsonUtil.getString(payload, "command");
+        return true;
+    }
 
     public boolean process(Job job) {
         InputStream inputStream = null;
         job.setSuccess(false);
         try {
-            ProcessBuilder pb = new ProcessBuilder(job.getProviderPayload().split(" "));
+            ProcessBuilder pb = new ProcessBuilder(command.split(" "));
             process = pb.start();
             int exitCode = process.waitFor();
             byte[] stdout = IOUtils.toByteArray(process.getInputStream());
@@ -54,25 +66,23 @@ public class ShellProvider extends BaseProvider {
                 }
                 throw new JobException(exitCode);
             }
+            return true;
         } catch (IOException | InterruptedException e) {
             String message = "Could not execute job.";
             logger.error(message);
             logger.error(e.getMessage());
             job.addMessage(message);
+            job.addMessage(e.getMessage());
         } catch (JobException e) {
             String message = "Job terminated abnormally. Exit code: " + e.getExitCode();
             logger.error(message);
             logger.error(e.getMessage());
             job.addMessage(message);
+            job.addMessage(e.getMessage());
         } finally {
             IOUtils.closeQuietly(inputStream);
-            job.setCompleted(new Date());
         }
-        if (job.getMessage() == null) {
-            job.addMessage("Job execution successful");
-            job.setSuccess(true);
-        }
-        return job.getSuccess();
+        return false;
     }
 
     public boolean cancel(Job job) {

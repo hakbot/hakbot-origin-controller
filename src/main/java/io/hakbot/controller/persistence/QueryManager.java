@@ -80,18 +80,20 @@ public class QueryManager {
         return permissible.size() == 0 ? null : permissible.get(0);
     }
 
-    public Job createJob(Job transientJob) {
+    public Job createJob(String name, String provider, String providerPayload, String publisher, String publisherPayload, ApiKey apiKey) {
         PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();
         Job job = new Job();
-        job.setName(transientJob.getName());
-        job.setProvider(transientJob.getProvider());
-        job.setPublisher(transientJob.getPublisher());
-        job.setProviderPayload(transientJob.getProviderPayload());
-        job.setPublisherPayload(transientJob.getPublisherPayload());
+        job.setName(name);
+        job.setProvider(provider);
+        job.setPublisher(publisher);
+        job.setProviderPayload(providerPayload);
+        job.setPublisherPayload(publisherPayload);
         job.setCreated(new Date());
         job.setState(State.CREATED);
-        job.setStartedByApiKeyId(transientJob.getStartedByApiKeyId());
+        if (apiKey != null) {
+            job.setStartedByApiKeyId(apiKey.getId());
+        }
         job.setUuid(UUID.randomUUID().toString());
         pm.makePersistent(job);
         pm.currentTransaction().commit();
