@@ -27,7 +27,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import java.security.Principal;
 import java.util.Base64;
-import javax.json.JsonObject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -176,42 +175,11 @@ public class JobResource extends BaseResource {
             value = "Creates a new job",
             notes = "Returns the job after creating it. The UUID can be used to later query on the job. The format of this request will vary largely on the plugins used.",
             response = Job.class)
-    public Response addJob(String jsonString) { //todo make this more self-documenting - create a object reporesenting the jsonString
-        JsonObject json = JsonUtil.toJsonObject(jsonString);
+    public Response addJob(JobRequest jobRequest) {
 
-        // Check that the root json object has a name property
-        String name = JsonUtil.getString(json, "name");
-        if (name == null) {
+        if (jobRequest.getName() == null || jobRequest.getProvider() == null ||
+                jobRequest.getProvider().getClassname() == null || jobRequest.getProvider().getPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        // Check for and obtain the provider object
-        JsonObject provider = JsonUtil.getJsonChildObject(json, "provider");
-        String providerClass = JsonUtil.getString(provider, "class");
-        if (provider == null || !JsonUtil.requiredParams(provider, "class", "payload")) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        // Check for and obtain the payload object inside the provider
-        JsonObject providerPayload = JsonUtil.getJsonChildObject(provider, "payload");
-        if (providerPayload == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        // Check for and obtain the optional publisher object
-        JsonObject publisher = JsonUtil.getJsonChildObject(json, "publisher");
-        String publisherClass = JsonUtil.getString(publisher, "class");
-        if (publisher != null && !JsonUtil.requiredParams(publisher, "class", "payload")) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        // Check for and obtain the publisher payload if an optional publisher was specified
-        JsonObject publisherPayload = null;
-        if (publisher != null) {
-            publisherPayload = JsonUtil.getJsonChildObject(publisher, "payload");
-            if (publisherPayload == null) {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
         }
 
         // Retrieve the optional principal for the API key that initiated this request
@@ -221,9 +189,14 @@ public class JobResource extends BaseResource {
             apiKey = (ApiKey)principal;
         }
 
+        String name = jobRequest.getName();
+        String providerClass = jobRequest.getProvider().getClassname();
+        String providerPayload = JsonUtil.jsonStringFromObject(jobRequest.getProvider().getPayload());
+        String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher().getClassname() : null;
+        String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher().getPayload()) : null;
+
         QueryManager qm = new QueryManager();
-        Job job = qm.createJob(name, providerClass, JsonUtil.toJsonString(providerPayload),
-                publisherClass, JsonUtil.toJsonString(publisherPayload), apiKey);
+        Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
         return Response.ok(job).build();
     }
 

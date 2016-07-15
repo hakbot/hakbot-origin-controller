@@ -16,6 +16,8 @@
  */
 package io.hakbot.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -94,6 +96,19 @@ public class JsonUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Takes in an object such as a map, list, array, etc and creates a json string from it.
+     * Returns null if there was an error in processing the object.
+     */
+    public static String jsonStringFromObject(Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            // Throw it away
+        }
+        return null;
     }
 
 }
