@@ -60,11 +60,11 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             remoteInstance = new RemoteInstance();
-            if (!JsonUtil.requiredParams(payload, "nessusUrl", "username", "password")) {
-                job.addMessage("Invalid request. Expected parameters: [nessusUrl], [username], [password]");
+            if (!JsonUtil.requiredParams(payload, "url", "username", "password")) {
+                job.addMessage("Invalid request. Expected parameters: [url], [username], [password]");
                 return false;
             }
-            remoteInstance.setUrl(JsonUtil.getString(payload, "nessusUrl"));
+            remoteInstance.setUrl(JsonUtil.getString(payload, "url"));
             remoteInstance.setUsername(JsonUtil.getString(payload, "username"));
             remoteInstance.setPassword(JsonUtil.getString(payload, "password"));
             remoteInstance.setValidateCertificates(JsonUtil.getBoolean(payload, "validateCertificates"));
