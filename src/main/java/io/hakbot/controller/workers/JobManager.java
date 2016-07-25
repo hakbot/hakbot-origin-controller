@@ -134,6 +134,7 @@ public class JobManager {
                 job = pm.getObjectById(Job.class, job.getId());
                 job.addMessage("Job added to queue");
                 job.setState(State.IN_QUEUE);
+                job = pm.getObjectById(Job.class, job.getId());
                 pm.close();
             }
             workQueue.add(job);
