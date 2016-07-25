@@ -70,6 +70,18 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
+    public List<Job> getJobs(String pluginClass, State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
+        PersistenceManager pm = getPersistenceManager();
+        pm.getFetchPlan().addGroup(fetchGroup.getName());
+        Query query = pm.newQuery(Job.class, "providerClass == :pluginClass && state == :state");
+        query.setOrdering("created " + order.name());
+        List<Job> result = (List<Job>)query.execute(pluginClass, state.getValue());
+        List<Job> permissible = getPermissible(result, principal);
+        pm.close();
+        return permissible;
+    }
+
+    @SuppressWarnings("unchecked")
     public Job getJob(String uuid, Job.FetchGroup fetchGroup, Principal principal) {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
