@@ -117,9 +117,14 @@ public class QueryManager {
     @SuppressWarnings("unchecked")
     public List<JobProperty> getJobProperties(Job job) {
         PersistenceManager pm = getPersistenceManager();
+        List<JobProperty> result = getJobProperties(pm, job);
+        pm.close();
+        return result;
+    }
+
+    private List<JobProperty> getJobProperties(PersistenceManager pm, Job job) {
         Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
         List<JobProperty> result = (List<JobProperty>)query.execute(job.getId());
-        pm.close();
         return result;
     }
 
@@ -158,12 +163,11 @@ public class QueryManager {
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
-            query.deletePersistentAll(properties);
+            List<JobProperty> properties = getJobProperties(pm, job);
+            pm.deletePersistentAll(properties);
         }
-        query.deletePersistentAll(permissible);
+        pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.evictAll();
         pm.close();
     }
 
@@ -174,12 +178,11 @@ public class QueryManager {
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
-            query.deletePersistentAll(properties);
+            List<JobProperty> properties = getJobProperties(pm, job);
+            pm.deletePersistentAll(properties);
         }
-        query.deletePersistentAll(permissible);
+        pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.evictAll();
         pm.close();
     }
 
@@ -190,12 +193,11 @@ public class QueryManager {
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
-            query.deletePersistentAll(properties);
+            List<JobProperty> properties = getJobProperties(pm, job);
+            pm.deletePersistentAll(properties);
         }
-        query.deletePersistentAll(permissible);
+        pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.evictAll();
         pm.close();
     }
 
