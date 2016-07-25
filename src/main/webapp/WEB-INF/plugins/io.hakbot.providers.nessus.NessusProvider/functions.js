@@ -89,9 +89,9 @@ $nessus = function() {
         var percentWarning = (warning/(failed+warning+passed))*100;
         var percentPassed = (passed/(failed+warning+passed))*100;
         var block = '<h4>' + hostname + '</h4><div class="progress">';
-        block += '<div class="progress-bar severity-failed" data-toggle="tooltip" data-placement="top" title="Failed: ' + failed + ' (' + Math.round(percentFailed*10)/10 + '%)" style="width:' + percentFailed+ '%">' + failed + '</div>';
-        block += '<div class="progress-bar severity-warning" data-toggle="tooltip" data-placement="top" title="Warning: ' + warning + ' (' + Math.round(percentWarning*10)/10 + '%)" style="width:' + percentWarning + '%">' + warning + '</div>';
-        block += '<div class="progress-bar severity-passed" data-toggle="tooltip" data-placement="top" title="Passed: ' + passed + ' (' + Math.round(percentPassed*10)/10 + '%)" style="width:' + percentPassed + '%">' + passed + '</div>';
+        block += '<div class="progress-bar status-failed" data-toggle="tooltip" data-placement="top" title="Failed: ' + failed + ' (' + Math.round(percentFailed*10)/10 + '%)" style="width:' + percentFailed+ '%">' + failed + '</div>';
+        block += '<div class="progress-bar status-warning" data-toggle="tooltip" data-placement="top" title="Warning: ' + warning + ' (' + Math.round(percentWarning*10)/10 + '%)" style="width:' + percentWarning + '%">' + warning + '</div>';
+        block += '<div class="progress-bar status-passed" data-toggle="tooltip" data-placement="top" title="Passed: ' + passed + ' (' + Math.round(percentPassed*10)/10 + '%)" style="width:' + percentPassed + '%">' + passed + '</div>';
         block += '</div>';
         return block;
     }
