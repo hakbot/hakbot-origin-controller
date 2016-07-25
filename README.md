@@ -3,9 +3,7 @@
 Hakbot Origin Controller
 =====================================
 
-A minimalistic pipeline controller that provides the queuing and processing of jobs over JSON.
-
-**This project is under heavy development and may be unstable. Use at your own risk.**
+A minimalistic job controller for use in Continuous Security and Continuous Delivery environments that provides a simple, standardized method for automating security tools. The result of which which can optionally be published to various security dashboards for increased visibility.
 
 Background
 -------------------
@@ -144,6 +142,11 @@ Within this directory will be individual directories for each Hakbot component, 
 The origin-controller directory will contain log files, the embedded H2 database, as well as keys used during
 normal operation, such as validating JWT tokens. It is essential that best practices are followed to secure the
 .hakbot directory structure if jobs contain sensitive information.
+
+Wiki
+-------------------
+
+Please consult the [wiki](https://github.com/hakbot/hakbot-origin-controller/wiki) for additional documentation and examples.
 
 Copyright & License
 -------------------
