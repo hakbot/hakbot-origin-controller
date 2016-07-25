@@ -2,7 +2,7 @@
 <configuration scan="true">
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${user.home}/.hakbot/origin-controller/origin-controller.log</file>
+        <file>~/.hakbot/origin-controller/origin-controller.log</file>
         <encoder>
             <pattern>%date %level [%logger{5}] %msg%n</pattern>
         </encoder>
