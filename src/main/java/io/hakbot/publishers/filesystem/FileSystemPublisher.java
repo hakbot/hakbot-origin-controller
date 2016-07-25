@@ -36,7 +36,7 @@ public class FileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         if (!JsonUtil.requiredParams(payload, "publishPath")) {
             job.addMessage("Invalid request. Expected parameter: [publishPath]");
             return false;

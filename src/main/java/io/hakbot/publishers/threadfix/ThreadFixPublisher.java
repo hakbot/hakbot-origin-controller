@@ -50,7 +50,7 @@ public class ThreadFixPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         if (!JsonUtil.requiredParams(payload, "appId")) {
             job.addMessage("Invalid request. Expected parameter: [appId]");
             return false;

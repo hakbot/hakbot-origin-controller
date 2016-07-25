@@ -51,7 +51,7 @@ public class KennaSecurityPublisher extends BasePublisher {
     public boolean initialize(Job job, Provider provider) {
         super.initialize(job, provider);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));
         if (remoteInstance == null) {
             job.addMessage("KennaSecurity instance cannot be found or is not defined.");
