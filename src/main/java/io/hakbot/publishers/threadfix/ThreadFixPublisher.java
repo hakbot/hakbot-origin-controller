@@ -44,7 +44,7 @@ public class ThreadFixPublisher extends BasePublisher {
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PUBLISHER, "threadfix");
 
     private RemoteInstance remoteInstance;
-    private String appId;
+    private int appId;
 
     @Override
     public boolean initialize(Job job, Provider provider) {
@@ -60,7 +60,7 @@ public class ThreadFixPublisher extends BasePublisher {
             job.addMessage("ThreadFix remote instance cannot be found or is not defined.");
             return false;
         }
-        appId = JsonUtil.getString(payload, "appId");
+        appId = JsonUtil.getInt(payload, "appId");
         return true;
     }
 
