@@ -93,7 +93,6 @@ $appspider = function() {
      * a 'status' object with all available properties.
      */
     function parseConsoleData(data) {
-        status = {};
         // data is the JSON response from the console
         status.scanProgress = data.status2.m_iScanProgress;
         status.timeRemaining = data.status2.m_szTimeRemaining;
@@ -117,7 +116,7 @@ $appspider = function() {
         status.endTime = timeConverter(data.EndTime);
         status.elapsedTime = data.Elapsed;
 
-        events = [];
+        events.length = 0; // Empties array by setting length to 0. Keeps references to object in-tact.
         for(var i = 0; i < data.EventList.EVENT.length; i++) {
             var objE = data.EventList.EVENT[i];
             var event = {};
@@ -130,7 +129,7 @@ $appspider = function() {
             events.push(event);
         }
 
-        modules = [];
+        modules.length = 0; // Empties array by setting length to 0. Keeps references to object in-tact.
         for(var j = 0; j < data.ModuleStatusList.MODULESTATUS.length; j++) {
             var objM = data.ModuleStatusList.MODULESTATUS[j];
             var module = {};
