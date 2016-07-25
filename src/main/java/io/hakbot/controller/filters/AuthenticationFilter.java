@@ -39,6 +39,11 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         if (requestContext instanceof ContainerRequest) {
             ContainerRequest request = (ContainerRequest) requestContext;
 
+            // Bypass authentication for swagger
+            if (request.getRequestUri().getPath().contains("/api/swagger")) {
+                return;
+            }
+
             Principal principal = null;
 
             ApiKeyAuthService apiKeyAuthService = new ApiKeyAuthService(request);
