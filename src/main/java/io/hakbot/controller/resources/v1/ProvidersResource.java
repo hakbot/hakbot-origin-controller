@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.resources.v1;
 
 import io.hakbot.controller.plugin.PluginMetadata;
 import io.hakbot.controller.workers.ExpectedClassResolver;
@@ -29,24 +29,24 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path("/publishers")
-@Api(value = "publishers", authorizations = {
+@Path("/v1/providers")
+@Api(value = "providers", authorizations = {
         @Authorization(value="X-Api-Key")
 })
-public class PublishersResource {
+public class ProvidersResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
-            value = "Returns all publishers",
-            notes = "Returns an array of all enabled publishers. Publishers not enabled are omitted.",
+            value = "Returns all providers",
+            notes = "Returns an array of all enabled providers. Providers not enabled are omitted.",
             response = PluginMetadata.class,
             responseContainer = "List"
     )
     public Response getAll() {
         List<PluginMetadata> list = new ArrayList<>();
         ExpectedClassResolver resolver = new ExpectedClassResolver();
-        List<Class> classes = resolver.getResolvedPubishers();
+        List<Class> classes = resolver.getResolvedProviders();
         for (Class clazz: classes) {
             PluginMetadata meta = new PluginMetadata(clazz);
             list.add(meta);

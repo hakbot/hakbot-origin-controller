@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.resources.v1;
 
 import io.hakbot.controller.auth.AuthenticationNotRequired;
 import io.hakbot.controller.auth.JsonWebToken;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 
-@Path("/user")
+@Path("/v1/user")
 @Api(value = "user")
 public class UserResource extends BaseResource {
 

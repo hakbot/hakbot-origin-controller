@@ -131,9 +131,9 @@ public class JobManager {
             if (State.UNAVAILABLE != job.getState()) {
                 PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
                 pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+                job = pm.getObjectById(Job.class, job.getId());
                 job.addMessage("Job added to queue");
                 job.setState(State.IN_QUEUE);
-                job = pm.getObjectById(Job.class, job.getId());
                 pm.close();
             }
             workQueue.add(job);
@@ -149,6 +149,7 @@ public class JobManager {
     public synchronized void cancel(Job job) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+        job = pm.getObjectById(Job.class, job.getId());
         if (logger.isDebugEnabled()) {
             logger.debug("Canceling job: " + job.getUuid());
         }
@@ -170,7 +171,7 @@ public class JobManager {
             }
         }
         job.setState(State.CANCELED);
-        job = pm.getObjectById(Job.class, job.getId());
+        pm.close();
     }
 
     /**
@@ -291,12 +292,31 @@ public class JobManager {
      */
     private class JobCleanupTask extends TimerTask {
         public synchronized void run() {
-            for (JobExecutor executor: executors) {
+            for (JobExecutor executor : executors) {
                 // Check to see if the executor job is still executing
                 if (!executor.isExecuting()) {
                     // Execution has completed. Remove reference
                     executors.remove(executor);
                 }
+            }
+            // Search for and cancel all jobs marked IN_PROGRESS but aren't actually executing (interrupted)
+            QueryManager qm = new QueryManager();
+            List<Job> allJobs = qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, systemAccount);
+            for (Job job : allJobs) {
+                //if (job != "origin") { //todo
+                boolean executing = false;
+                for (JobExecutor executor : executors) {
+                    executing = job.getUuid().equals(executor.getJob().getUuid());
+                }
+                if (!executing) {
+                    PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+                    job = pm.getObjectById(Job.class, job.getId());
+                    pm.currentTransaction().begin();
+                    job.setState(State.COMPLETED);
+                    pm.currentTransaction().commit();
+                    pm.close();
+                }
+                //}
             }
         }
     }

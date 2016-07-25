@@ -21,6 +21,7 @@ import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.Plugin;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +51,14 @@ public class ExpectedClassResolver {
      * in order to be resolved. If plugin is not whitelisted, an ExpectedClassResolverException
      * is thrown.
      */
-    private Class resolveClass(Plugin.Type type, Job job) throws ClassNotFoundException, ExpectedClassResolverException {
+    private Class resolveClass(Plugin.Type type, String pluginClass) throws ClassNotFoundException, ExpectedClassResolverException {
         if (type.equals(Plugin.Type.PROVIDER)) {
-            if (providersConfigured.contains(job.getProvider())) {
-                return Class.forName(job.getProvider(), false, this.getClass().getClassLoader());
+            if (providersConfigured.contains(pluginClass)) {
+                return Class.forName(pluginClass, false, this.getClass().getClassLoader());
             }
         } else {
-            if (publishersConfigured.contains(job.getPublisher())) {
-                return Class.forName(job.getPublisher(), false, this.getClass().getClassLoader());
+            if (publishersConfigured.contains(pluginClass)) {
+                return Class.forName(pluginClass, false, this.getClass().getClassLoader());
             }
         }
         throw new ExpectedClassResolverException();
@@ -69,7 +70,7 @@ public class ExpectedClassResolver {
      * is thrown.
      */
     public Class resolveProvider(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
-        return resolveClass(Plugin.Type.PROVIDER, job);
+        return resolveClass(Plugin.Type.PROVIDER, job.getProvider());
     }
 
     /**
@@ -78,7 +79,7 @@ public class ExpectedClassResolver {
      * is thrown.
      */
     public Class resolvePublisher(Job job) throws ClassNotFoundException, ExpectedClassResolverException {
-        return resolveClass(Plugin.Type.PUBLISHER, job);
+        return resolveClass(Plugin.Type.PUBLISHER, job.getPublisher());
     }
 
     private List<Class> autoResolve(List<Class> resolveList, List<String> classNames) {
@@ -101,6 +102,13 @@ public class ExpectedClassResolver {
 
     public List<Class> getResolvedPubishers() {
         return autoResolve(resolvedPublishers, publishersConfigured);
+    }
+
+    public boolean isClassAllowed(String pluginClass) {
+        if (StringUtils.isEmpty(pluginClass)) {
+            return true;
+        }
+        return (providersConfigured.contains(pluginClass) || publishersConfigured.contains(pluginClass));
     }
 
 }

@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "version")
-public class VersionResource {
+public final class VersionResource {
 
     @GET
     @ApiOperation(

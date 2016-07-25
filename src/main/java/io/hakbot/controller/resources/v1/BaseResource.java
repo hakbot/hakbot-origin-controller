@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.resources.v1;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;

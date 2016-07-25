@@ -56,8 +56,8 @@ class JobExecutor implements Runnable {
             if (job.getUuid() == null || job.getProviderPayload() == null) {
                 PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
                 pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
-                job.setState(State.CANCELED);
                 job = pm.getObjectById(Job.class, job.getId());
+                job.setState(State.CANCELED);
                 pm.close();
                 return;
             }
@@ -79,6 +79,7 @@ class JobExecutor implements Runnable {
         String result = null;
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+        job = pm.getObjectById(Job.class, job.getId());
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolveProvider(job);
@@ -86,7 +87,6 @@ class JobExecutor implements Runnable {
             Constructor<?> constructor = clazz.getConstructor();
             this.provider = (Provider) constructor.newInstance();
             initialized = provider.initialize(job);
-            job = pm.getObjectById(Job.class, job.getId());
             if (initialized) {
                 job.addMessage("Initialized " + provider.getName());
                 isAvailable = provider.isAvailable(job);
@@ -131,6 +131,7 @@ class JobExecutor implements Runnable {
         boolean initialized, success = false;
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         pm.getFetchPlan().addGroup(Job.FetchGroup.ALL.getName());
+        job = pm.getObjectById(Job.class, job.getId());
         try {
             ExpectedClassResolver resolver = new ExpectedClassResolver();
             Class clazz = resolver.resolvePublisher(job);

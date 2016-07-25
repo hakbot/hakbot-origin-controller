@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.resources.v1;
 
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
@@ -39,7 +39,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/job")
+@Path("/v1/job")
 @Api(value = "job", authorizations = {
         @Authorization(value="X-Api-Key")
 })
@@ -108,6 +108,9 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD, getPrincipal()).getProviderPayload();
+        if (payload == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -132,6 +135,9 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD, getPrincipal()).getPublisherPayload();
+        if (payload == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){
@@ -156,6 +162,9 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.RESULT, getPrincipal()).getResult();
+        if (payload == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         if (q == 0) {
             return Response.ok(payload, MediaType.TEXT_PLAIN).build();
         } else if (q == 1){

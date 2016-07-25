@@ -19,6 +19,7 @@ package io.hakbot.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.StringReader;
@@ -31,11 +32,19 @@ public class JsonUtil {
     private JsonUtil() { }
 
     /**
-     * Creates a JsonObject (a Map implementation) from a decoded payload
+     * Creates a JsonObject (a Map implementation) from a json-formatted string
      */
-    public static JsonObject toJsonObject(String decodedPayload) {
-        JsonReader jsonReader = Json.createReader(new StringReader(decodedPayload));
+    public static JsonObject toJsonObject(String jsonString) {
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
         return jsonReader.readObject();
+    }
+
+    /**
+     * Creates a JsonArray from a json-formatted string
+     */
+    public static JsonArray toJsonArray(String jsonString) {
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        return jsonReader.readArray();
     }
 
     /**

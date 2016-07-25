@@ -14,44 +14,57 @@
  * You should have received a copy of the GNU General Public License along with
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
-package io.hakbot.controller.resources;
+package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.plugin.PluginMetadata;
+import io.hakbot.controller.model.Job;
+import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.ExpectedClassResolver;
+import io.hakbot.controller.workers.ExpectedClassResolverException;
+import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 
-@Path("/providers")
-@Api(value = "providers", authorizations = {
+@Path("/v1/orbit")
+@Api(value = "orbit", authorizations = {
         @Authorization(value="X-Api-Key")
 })
-public class ProvidersResource {
+public class RemoteJobResource extends BaseResource {
+
 
     @GET
+    @Path("/pickup/{class}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
-            value = "Returns all providers",
-            notes = "Returns an array of all enabled providers. Providers not enabled are omitted.",
-            response = PluginMetadata.class,
-            responseContainer = "List"
+            value = "Returns jobs by class name",
+            notes = "Returns jobs by class name",
+            response = Job.class
     )
-    public Response getAll() {
-        List<PluginMetadata> list = new ArrayList<>();
+    public Response getJobByClass(
+            @ApiParam(value = "The name of the class", required = true)
+            @PathParam("class") String classname) {
+
         ExpectedClassResolver resolver = new ExpectedClassResolver();
-        List<Class> classes = resolver.getResolvedProviders();
-        for (Class clazz: classes) {
-            PluginMetadata meta = new PluginMetadata(clazz);
-            list.add(meta);
+        if (!resolver.isClassAllowed(classname)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        return Response.ok(list).build();
+
+        QueryManager qm = new QueryManager();
+        List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, Job.FetchGroup.ALL, getPrincipal());
+        if (jobs.size() > 0) {
+            return Response.ok(jobs.get(0)).build();
+        } else {
+            return Response.ok().build();
+        }
+
     }
 
 }

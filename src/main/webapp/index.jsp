@@ -13,7 +13,7 @@
         <div class="col-sm-12 col-md-12 main" id="main">
             <div class="row placeholders">
                 <table id="jobsTable" class="table table-hover table-striped" data-toggle="table"
-                       data-url="<c:url value="/api/job"/>" data-response-handler="formatJobTable"
+                       data-url="<c:url value="/api/v1/job"/>" data-response-handler="formatJobTable"
                        data-show-refresh="true" data-show-columns="true" data-search="true"
                        data-click-to-select="true" data-height="100%">
                     <thead>
