@@ -97,4 +97,12 @@ public final class Config {
         return properties.getProperty(key);
     }
 
+    public static boolean isUnitTestsEnabled() {
+        return Boolean.valueOf(System.getProperty("hakbot.unittests.enabled", "false"));
+    }
+
+    public static void enableUnitTests() {
+        System.setProperty("hakbot.unittests.enabled", "true");
+    }
+
 }
