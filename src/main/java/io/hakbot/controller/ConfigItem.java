@@ -34,6 +34,9 @@ public enum	ConfigItem {
     MAX_JOB_SIZE("max.job.size"),
     MAX_QUEUE_SIZE("max.queue.size"),
 
+    DATABASE_MODE("database.mode"),
+    DATABASE_PORT("database.port"),
+
     PROVIDERS_ENALBED("providers.enabled"),
     PUBLISHERS_ENABLED("publishers.enabled"),
 
