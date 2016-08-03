@@ -42,7 +42,7 @@ public class JwtAuthService implements AuthService {
             boolean isValid = jwt.validateToken(bearer);
             if (isValid) {
                 QueryManager queryManager = new QueryManager();
-                if (jwt.getSubject() == null) return null;
+                if (jwt.getSubject() == null || jwt.getExpiration() == null) return null;
                 return queryManager.getLdapUser(jwt.getSubject().toString());
             }
         }
