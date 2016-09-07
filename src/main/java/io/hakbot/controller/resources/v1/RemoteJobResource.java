@@ -19,7 +19,6 @@ package io.hakbot.controller.resources.v1;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.ExpectedClassResolver;
-import io.hakbot.controller.workers.ExpectedClassResolverException;
 import io.hakbot.controller.workers.State;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
