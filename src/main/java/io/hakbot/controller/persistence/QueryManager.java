@@ -122,10 +122,10 @@ public class QueryManager {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private List<JobProperty> getJobProperties(PersistenceManager pm, Job job) {
         Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
-        List<JobProperty> result = (List<JobProperty>)query.execute(job.getId());
-        return result;
+        return (List<JobProperty>)query.execute(job.getId());
     }
 
     public JobProperty getJobProperty(Job job, String key) {
@@ -156,6 +156,7 @@ public class QueryManager {
         return property;
     }
 
+    @SuppressWarnings("unchecked")
     public void deleteAllJobs(Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class);
@@ -171,6 +172,7 @@ public class QueryManager {
         pm.close();
     }
 
+    @SuppressWarnings("unchecked")
     public void deleteJob(String uuid, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
@@ -186,6 +188,7 @@ public class QueryManager {
         pm.close();
     }
 
+    @SuppressWarnings("unchecked")
     public void deleteJobs(State state, Principal principal) {
         PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "state == :state");
@@ -260,6 +263,7 @@ public class QueryManager {
         return teams.size() > 0;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean isHakMaster(LdapUser ldapUser) {
         PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(Team.class);
