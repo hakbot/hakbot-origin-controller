@@ -37,19 +37,19 @@
         <div class="col-sm-9 col-md-9 main">
             <h4>Overall Progress</h4>
             <div class="progress">
-                <div id="percentComplete" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0%">
+                <div id="percentComplete" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0">
                 </div>
             </div>
 
             <h4>Crawling Progress</h4>
             <div class="progress">
-                <div id="crawlingProgress" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0%">
+                <div id="crawlingProgress" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0">
                 </div>
             </div>
 
             <h4>Attack Progress</h4>
             <div class="progress">
-                <div id="attackProgress" class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0%">
+                <div id="attackProgress" class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em; width:0">
                 </div>
             </div>
         </div>
