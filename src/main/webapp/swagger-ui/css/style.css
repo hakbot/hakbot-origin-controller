@@ -49,7 +49,7 @@ h1 {
 }
 .swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {
   color: #525252;
-  padding-left: 0px;
+  padding-left: 0;
   display: block;
   clear: none;
   float: left;
