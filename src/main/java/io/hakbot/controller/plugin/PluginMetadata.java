@@ -36,6 +36,7 @@ public class PluginMetadata {
 
     private void init(Class clazz) {
         try {
+            @SuppressWarnings("unchecked")
             Constructor<?> constructor = clazz.getConstructor();
             this.plugin = (Plugin) constructor.newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
