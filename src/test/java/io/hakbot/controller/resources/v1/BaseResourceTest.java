@@ -73,6 +73,7 @@ public class BaseResourceTest extends JerseyTest {
         Config.enableUnitTests();
     }
 
+    @Override
     protected URI getBaseUri() {
         return UriBuilder.fromUri("http://0.0.0.0/").port(getPort()).build();
     }
