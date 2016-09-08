@@ -32,11 +32,14 @@ import io.hakbot.providers.shell.ShellProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.spi.TestContainer;
 import org.junit.After;
 import org.junit.Before;
 import javax.jdo.PersistenceManager;
 import javax.jdo.datastore.JDOConnection;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Date;
@@ -68,6 +71,10 @@ public class BaseResourceTest extends JerseyTest {
 
     public BaseResourceTest() {
         Config.enableUnitTests();
+    }
+
+    protected URI getBaseUri() {
+        return UriBuilder.fromUri("http://0.0.0.0/").port(getPort()).build();
     }
 
     private String createJsonWebToken(LdapUser ldapUser) {
