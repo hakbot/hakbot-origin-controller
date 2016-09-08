@@ -1,14 +1,3 @@
 language: java
 jdk: oraclejdk8
-sudo: false
-
-cache:
-  directories:
-  - ~/.m2
-
-branches:
-  only:
-    - master
-
 install:
-  -
