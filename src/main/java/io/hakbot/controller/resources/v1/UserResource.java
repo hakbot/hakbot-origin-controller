@@ -32,7 +32,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.Principal;
+import java.util.List;
 
 @Path("/v1/user")
 @Api(value = "user")
@@ -74,17 +74,38 @@ public class UserResource extends BaseResource {
                     @Authorization(value="X-Api-Key")
             }
     )
-    public Response isHakmaster() {
-        boolean isHakMaster;
-        Principal principal = getPrincipal();
-        if (principal == null) {
-            // authentication was already required (if enabled)
-            isHakMaster = true;
-        } else {
-            QueryManager qm = new QueryManager();
-            isHakMaster = qm.isHakMaster((LdapUser) principal);
+    public Response getIsHakmaster() {
+        return Response.ok(isHakmaster()).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Returns a list of all users",
+            notes = "Requires hakmaster permission.",
+            response = LdapUser.class,
+            responseContainer = "List"
+    )
+    public Response getUsers() {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
         }
-        return Response.ok(isHakMaster).build();
+        QueryManager qm = new QueryManager();
+        List<LdapUser> users = qm.getLdapUsers();
+        return Response.ok(users).build();
+    }
+
+    @GET
+    @Path("/self")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Returns information about the current logged in user.",
+            response = LdapUser.class
+    )
+    public Response getSelf() {
+        QueryManager qm = new QueryManager();
+        LdapUser user = qm.getLdapUser(getPrincipal().getName());
+        return Response.ok(user).build();
     }
 
 }

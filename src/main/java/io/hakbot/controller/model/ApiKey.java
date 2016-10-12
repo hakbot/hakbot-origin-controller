@@ -47,6 +47,7 @@ public class ApiKey implements Serializable, Principal {
     @Persistent(table="APIKEYS_TEAMS")
     @Join(column="APIKEY_ID")
     @Element(column="TEAM_ID")
+    @JsonIgnore
     private Set<Team> teams;
 
     public long getId() {
@@ -65,6 +66,12 @@ public class ApiKey implements Serializable, Principal {
         this.key = key;
     }
 
+    /**
+     * Do not use - only here to satisfy Principal implementation requirement
+     * @deprecated use {@link LdapUser#getUsername()}
+     */
+    @Deprecated
+    @JsonIgnore
     public String getName() {
         return getKey();
     }

@@ -18,6 +18,8 @@ package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.FetchGroup;
+import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -26,9 +28,29 @@ import java.io.Serializable;
 import java.util.Set;
 
 @PersistenceCapable
+@FetchGroups({
+        @FetchGroup(name="all", members={
+                @Persistent(name="name"),
+                @Persistent(name="hakmaster"),
+                @Persistent(name="apiKeys"),
+                @Persistent(name="ldapUsers")})
+})
 public class Team implements Serializable {
 
     private static final long serialVersionUID = 6173877472831531299L;
+
+    public enum FetchGroup {
+        ALL("all");
+
+        private String fetchGroupName;
+        FetchGroup(String fetchGroupName) {
+            this.fetchGroupName = fetchGroupName;
+        }
+
+        public String getName() {
+            return fetchGroupName;
+        }
+    }
 
     @PrimaryKey
     @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

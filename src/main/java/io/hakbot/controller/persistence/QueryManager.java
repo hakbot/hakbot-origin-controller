@@ -222,6 +222,25 @@ public class QueryManager {
         return result.size() == 0 ? null : result.get(0);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<LdapUser> getLdapUsers() {
+        PersistenceManager pm = getPersistenceManager();
+        Query query = pm.newQuery(LdapUser.class);
+        List<LdapUser> result = (List<LdapUser>)query.execute();
+        pm.close();
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Team> getTeams() {
+        PersistenceManager pm = getPersistenceManager();
+        pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
+        Query query = pm.newQuery(Team.class);
+        List<Team> result = (List<Team>)query.execute();
+        pm.close();
+        return result;
+    }
+
     private List<Job> getPermissible(List<Job> result, Principal principal) {
         List<Job> permissible = new ArrayList<>();
         for (Job job: result) {

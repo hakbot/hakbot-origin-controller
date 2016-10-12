@@ -16,6 +16,8 @@
  */
 package io.hakbot.controller.resources.v1;
 
+import io.hakbot.controller.model.LdapUser;
+import io.hakbot.controller.persistence.QueryManager;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import java.security.Principal;
@@ -37,6 +39,23 @@ abstract class BaseResource {
         } else {
             return null;
         }
+    }
+
+    protected boolean isLdapUser() {
+        return (getPrincipal() instanceof LdapUser);
+    }
+
+    protected boolean isHakmaster() {
+        boolean isHakMaster;
+        Principal principal = getPrincipal();
+        if (principal == null) {
+            // authentication was already required (if enabled)
+            isHakMaster = true;
+        } else {
+            QueryManager qm = new QueryManager();
+            isHakMaster = qm.isHakMaster((LdapUser) principal);
+        }
+        return isHakMaster;
     }
 
 }

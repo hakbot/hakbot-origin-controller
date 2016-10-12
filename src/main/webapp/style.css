@@ -240,6 +240,35 @@ h4 {
     color: #fff;
     background-color: #555;
 }
+.panel-default.tight, .panel-body.tight {
+    padding: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+.detail-table thead > tr > th.detail,
+.detail-table tbody > tr:not(.detail-view) > td:first-of-type {
+    display: none;
+}
+
+.detail-table thead > tr > th:nth-child(2),
+.detail-table tbody > tr:not(.detail-view) > td:nth-child(2) {
+    border-left: none!important;
+}
+.detail-view {
+    background-color: rgba(239, 239, 239, 1);
+}
+.table-hover > tbody > tr.detail-view:hover > td, .select-row > td {
+    background-color: rgba(239, 239, 239, 0);
+}
+.spacer-horizontal-10 {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+#inputTeamMembers {
+    max-height: 200px;
+    overflow-y: scroll;
+}
 .severity-critical, .status-failed {
     background: #d43f3a none;
 }

@@ -93,6 +93,7 @@ public class LdapUser implements Serializable, Principal {
      * @deprecated use {@link LdapUser#getUsername()}
      */
     @Deprecated
+    @JsonIgnore
     public String getName() {
         return getUsername();
     }
