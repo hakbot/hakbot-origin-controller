@@ -1,4 +1,22 @@
 language: java
 jdk: oraclejdk8
+
+env:
+  global:
+   - secure: "socti10Z3w7sscDxKOEKaWk/QyBl1KKiAE7mWYeYmY3iSFA90WVtNbnqacltWx/wA9D1R/VvTvZoM2Vpgm+ApjdUvVzFtfId5kzzSUikiV6rG8GrWE9Pw33jpJxVslPe1GY02vSQ4tjXUtuDFv50CHIRcOLqKokv2o+Ob/djUQ+d7PtQiluHggEWPeNCMZ8bQDij1A/oEpxIGNjmdmfyAC8svotOEYWsYWc51F6sCGBZGtkiAcm36Voj4wGgwU8O/l3YBg+XvLc7e4IFNA7SnVJdOgrzlDGCLFnlrTFs2k0xl1kr90IqAyUEBou2pZGF5Ec+4fegyHPGTXnJsu1XOIB1wIsk/bd+fR/fmqaV2MMvIKWd2/ptkRH9KWu5cePmy6tGTEZglHLkIJ5fAZNqhw1ZGa0lDudPnQ8xZ3ufXkYdWEfaLHYnb5O1RvR+4Xd5Xrs7Le/hDqs3q7MHGQiWleQ1DJLfQB/lg3n0To4WtBQR0TzlpolRKegL0CksYtVJU1dOMudlv/N0dpncE0DO6QyVCWZmfd7uW0Ld7NagT9+34fLkv2fLn6WnbSFTyF8Nqd1AkWzs8gTxvFTcMItcBhXzB+PDhOgrfKB4fdPZcwMfig8hZcFYNSvMpPjWuJhOR5pU5WpMB5Uvl1+PTo6UXhZ1U7L9K3kr6lM9I4j5tS4="
+
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: "hakbot/hakbot-origin-controller"
+      description: "Build submitted via Travis CI"
+    notification_email: steve@springett.us
+    build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
+
 script: mvn clean package -DskipTests=true
 install:
