@@ -8,7 +8,7 @@
     <packaging>war</packaging>
 
     <name>Hakbot Origin Controller</name>
-    <description>A Java Servlet incorporating a simple JSON API for the controlling of jobs</description>
+    <description>Vendor-Neutral Security Tool Automation Controller (over REST)</description>
     <inceptionYear>2016</inceptionYear>
 
     <developers>
