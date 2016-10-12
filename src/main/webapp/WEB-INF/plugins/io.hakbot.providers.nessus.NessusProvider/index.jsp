@@ -1,5 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="e" uri="https://www.owasp.org/index.php/OWASP_Java_Encoder_Project" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-12 main" id="main">
-            <h3><c:out value="${requestScope.job.name}"/><span style="float:right">Nessus</span></h3>
+            <h3><e:forHtml value="${requestScope.job.name}"/><span style="float:right">Nessus</span></h3>
             <div class="btn-group btn-breadcrumb">
                 <a href="#hosts" class="btn btn-default" data-toggle="tab">Hosts <span id="hostsBadge" class="badge"></span></a>
                 <a href="#vulnerabilities" class="btn btn-default" data-toggle="tab">Vulnerabilities <span id="vulnerabilitiesBadge" class="badge"></span></a>
@@ -104,9 +105,9 @@
 <jsp:include page="/WEB-INF/fragments/footer.jsp"/>
 <script type="text/javascript" src="<c:url value="/console/static/io.hakbot.providers.nessus.NessusProvider/functions.js"/>"></script>
 <script type="text/javascript">
-    $nessus.getJobConsoleData('<c:out value="${requestScope.job.uuid}"/>');
+    $nessus.getJobConsoleData('<e:forJavaScript value="${requestScope.job.uuid}"/>');
     //setInterval(function() {
-    //    $nessus.getJobConsoleData('<c:out value="${requestScope.job.uuid}"/>');
+    //    $nessus.getJobConsoleData('<e:forJavaScript value="${requestScope.job.uuid}"/>');
     //}, 30 * 1000);
 </script>
 </body>
