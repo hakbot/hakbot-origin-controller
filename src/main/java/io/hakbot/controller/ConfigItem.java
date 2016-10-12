@@ -26,6 +26,7 @@ public enum	ConfigItem {
 
     APPLICATION_NAME("application.name"),
     APPLICATION_VERSION("application.version"),
+    APPLICATION_TIMESTAMP("application.timestamp"),
 
     QUEUE_CHECK_INTERVAL("queue.check.interval"),
     JOB_CLEANUP_INTERVAL("job.cleanup.interval"),

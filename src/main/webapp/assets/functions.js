@@ -497,6 +497,7 @@ function downloadJobArtifact(api) {
 function populateSystemModal() {
     $('#systemAppName').html(about.application);
     $('#systemAppVersion').html(about.version);
+    $('#systemAppTimestamp').html(about.timestamp);
 
     for (var i = 0; i < providers.length; i++) {
         $('#providersTab').append('<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">' + providers[i].name + '</h3></div><div class="panel-body">' + providers[i].description + '<br/>Class: <strong>' + providers[i].class + '</strong></div></div>');

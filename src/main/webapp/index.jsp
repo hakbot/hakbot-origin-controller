@@ -144,7 +144,7 @@
                             </div>
                             <div style="margin-left:30px; display:inline-block">
                                 <h3 id="systemAppName"></h3>
-                                <div id="systemAppVersion"></div>
+                                <div><strong id="systemAppVersion"></strong> (built on: <span id="systemAppTimestamp"></span>)</div>
                                 <div><a href="http://hakbot.io/">Website</a> - <a href="https://github.com/hakbot">GitHub</a></div>
                             </div>
                         </div>
