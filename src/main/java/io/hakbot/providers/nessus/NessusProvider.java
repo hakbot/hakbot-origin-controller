@@ -95,13 +95,20 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
             QueryManager qm = new QueryManager();
             qm.setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
 
-            while (scan.isScanRunning(scanID)) {
+            boolean isRunning = scan.isScanRunning(scanID);
+            while (isRunning) {
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage());
                 }
+                // Need to reinitialize the scan object as login tokens on log-running scans will expire.
+                scan.logout(); // Be nice to Nessus
+                scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+                scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
+                isRunning = scan.isScanRunning(scanID);
             }
+
             ReportClient reportClient = ClientFactory.createReportClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             reportClient.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             File report = scan.download(Integer.parseInt(scanID), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")));
