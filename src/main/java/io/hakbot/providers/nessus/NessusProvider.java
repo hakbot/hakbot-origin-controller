@@ -103,7 +103,6 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
                     logger.error(e.getMessage());
                 }
                 // Need to reinitialize the scan object as login tokens on log-running scans will expire.
-                scan.logout(); // Be nice to Nessus
                 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
                 scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
                 isRunning = scan.isScanRunning(scanID);
