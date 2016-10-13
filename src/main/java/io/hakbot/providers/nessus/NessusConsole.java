@@ -73,6 +73,7 @@ public class NessusConsole implements Console {
             ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(serverUrl, 6, !validateCerts);
             scan.login(username, password);
             JsonObject details = scan.getScanDetails(property.getValue());
+            scan.logout();
             return details.toString();
         } catch (LoginException e) {
             logger.error(e.getMessage());
