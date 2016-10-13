@@ -68,36 +68,42 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Scan Details</h3>
                 </div>
-                <table class="table">
-                    <tr>
-                        <td>Name:</td>
-                        <td id="scanName"></td>
-                    </tr>
-                    <tr>
-                        <td>Status:</td>
-                        <td id="status"></td>
-                    </tr>
-                    <tr>
-                        <td>Policy:</td>
-                        <td id="policy"></td>
-                    </tr>
-                    <tr>
-                        <td>Scanner:</td>
-                        <td id="scanner"></td>
-                    </tr>
-                    <tr>
-                        <td>Start:</td>
-                        <td id="start"></td>
-                    </tr>
-                    <tr>
-                        <td>End:</td>
-                        <td id="end"></td>
-                    </tr>
-                    <tr>
-                        <td>Elapsed:</td>
-                        <td id="elapsed"></td>
-                    </tr>
-                </table>
+                <div class="bootstrap-table">
+                    <div class="fixed-table-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td>Name:</td>
+                                <td id="scanName"></td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td id="status"></td>
+                            </tr>
+                            <tr>
+                                <td>Policy:</td>
+                                <td id="policy"></td>
+                            </tr>
+                            <tr>
+                                <td>Scanner:</td>
+                                <td id="scanner"></td>
+                            </tr>
+                            <tr>
+                                <td>Start:</td>
+                                <td id="start"></td>
+                            </tr>
+                            <tr>
+                                <td>End:</td>
+                                <td id="end"></td>
+                            </tr>
+                            <tr>
+                                <td>Elapsed:</td>
+                                <td id="elapsed"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -106,9 +112,9 @@
 <script type="text/javascript" src="<c:url value="/console/static/io.hakbot.providers.nessus.NessusProvider/functions.js"/>"></script>
 <script type="text/javascript">
     $nessus.getJobConsoleData('<e:forJavaScript value="${requestScope.job.uuid}"/>');
-    //setInterval(function() {
-    //    $nessus.getJobConsoleData('<e:forJavaScript value="${requestScope.job.uuid}"/>');
-    //}, 30 * 1000);
+    setInterval(function() {
+        $nessus.getJobConsoleData('<e:forJavaScript value="${requestScope.job.uuid}"/>');
+    }, 30 * 1000);
 </script>
 </body>
 </html>
