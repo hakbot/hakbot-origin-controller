@@ -44,6 +44,16 @@ public class ProvidersResourceTest extends BaseResourceTest {
                 Assert.assertEquals("Shell", jsonObject.getString("name"));
                 Assert.assertEquals(false, jsonObject.getBoolean("console"));
                 Assert.assertEquals("Executes a shell command or script and captures the output from STDOUT/STDERR.", jsonObject.getString("description"));
+            } else if ("io.hakbot.providers.appspider.AppSpiderProvider".equals(jsonObject.getString("class"))) {
+                matched = true;
+                Assert.assertEquals("AppSpider Pro", jsonObject.getString("name"));
+                Assert.assertEquals(true, jsonObject.getBoolean("console"));
+                Assert.assertEquals("Performs dynamic analysis using AppSpider Pro. Interacts with AppSpider Pro SOAP-based WebServices.", jsonObject.getString("description"));
+            } else if ("io.hakbot.providers.nessus.NessusProvider".equals(jsonObject.getString("class"))) {
+                matched = true;
+                Assert.assertEquals("Nessus", jsonObject.getString("name"));
+                Assert.assertEquals(true, jsonObject.getBoolean("console"));
+                Assert.assertEquals("Performs a Nessus scan against one or more targets. Interacts using the Nessus v6 API.", jsonObject.getString("description"));
             }
         }
         Assert.assertEquals(true, matched);
