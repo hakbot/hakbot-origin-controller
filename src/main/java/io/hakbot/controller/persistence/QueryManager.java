@@ -226,6 +226,7 @@ public class QueryManager {
     public List<LdapUser> getLdapUsers() {
         PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(LdapUser.class);
+        query.setOrdering("username " + OrderDirection.ASC.name());
         List<LdapUser> result = (List<LdapUser>)query.execute();
         pm.close();
         return result;
@@ -236,6 +237,7 @@ public class QueryManager {
         PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
         Query query = pm.newQuery(Team.class);
+        query.setOrdering("name " + OrderDirection.ASC.name());
         List<Team> result = (List<Team>)query.execute();
         pm.close();
         return result;
