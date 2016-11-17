@@ -52,8 +52,7 @@ var isHakmaster = false;
 
 
 function contextPath() {
-    //return $.cookie("CONTEXTPATH");
-    return "/api";
+    return $('meta[name=api-path]').attr("content");
 }
 
 /**
@@ -121,6 +120,9 @@ function initialize() {
 
     // If the page was successfully initialized, populate the system modal and refresh the jobs table
     if (successAbout && successProviders && successPublishers && successHakmaster) {
+        $('#loader').css('display', 'none');
+        $('#navbar-container').css('display', 'block');
+        $('#main').css('display', 'block');
         initialized = true;
         populateSystemModal();
         $('#jobsTable').bootstrapTable('refresh');
@@ -145,8 +147,6 @@ $.ajaxSetup({
     },
     statusCode: {
         200: function(){
-            $('#navbar-container').css('display', 'block');
-            $('#main').css('display', 'block');
             $('#modal-login').modal('hide');
         },
         401: function(){

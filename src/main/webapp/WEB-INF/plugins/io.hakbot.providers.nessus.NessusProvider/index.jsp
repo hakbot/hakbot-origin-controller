@@ -107,6 +107,7 @@
             </div>
         </div>
     </div>
+    <jsp:include page="/WEB-INF/fragments/common-modals.jsp"/>
 </div>
 <jsp:include page="/WEB-INF/fragments/footer.jsp"/>
 <script type="text/javascript" src="<c:url value="/console/static/io.hakbot.providers.nessus.NessusProvider/functions.js"/>"></script>
