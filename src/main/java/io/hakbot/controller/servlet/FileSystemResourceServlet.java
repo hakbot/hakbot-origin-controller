@@ -47,13 +47,21 @@ public class FileSystemResourceServlet extends StaticResourceServlet {
         }
 
         ServletContext context = request.getServletContext();
-        String pluginPath = context.getRealPath("/WEB-INF/plugins/");
+        File pluginPath = new File(context.getRealPath("/WEB-INF/plugins/")).getAbsoluteFile();
 
         String name = "";
         try {
             name = URLDecoder.decode(pathInfo.substring(1), StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             logger.error(e.getMessage());
+        }
+        try {
+            if (!isInSubDirectory(pluginPath, new File(name).getCanonicalFile())) {
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return null;
         }
         final File file = new File(pluginPath, name);
 
@@ -75,6 +83,10 @@ public class FileSystemResourceServlet extends StaticResourceServlet {
                 return file.length();
             }
         };
+    }
+
+    private static boolean isInSubDirectory(File dir, File file) {
+        return file != null && (file.equals(dir) || isInSubDirectory(dir, file.getParentFile()));
     }
 
 }
