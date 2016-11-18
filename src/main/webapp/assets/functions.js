@@ -186,11 +186,13 @@ function submitLogin() {
                 $('#navbar-container').css('display', 'block');
                 $('#main').css('display', 'block');
                 $('#modal-login').modal('hide');
+                $('#invalid-credentials').css('display', 'none');
                 initialize();
             },
             401: function(){
                 $("#username").val("");
                 $("#password").val("");
+                $('#invalid-credentials').css('display', 'block');
             }
         }
     });

@@ -63,6 +63,9 @@
                         <img src="<c:url value="/images/hakbot-header-logo.png"/>"/> Hakbot Origin Controller
                     </div>
                     <div class="modal-body login-modal-body">
+                        <div class="alert alert-danger" id="invalid-credentials" style="display:none">
+                            Invalid username or password.
+                        </div>
                         <form id="login-form" role="form" action="" method="post" class="login-form" autocomplete="off">
                             <div class="form-group">
                                 <label class="sr-only" for="username">Username</label>
