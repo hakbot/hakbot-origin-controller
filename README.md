@@ -108,13 +108,28 @@ publish to CDNs or asset management applications.
 Compiling
 -------------------
 
-> $ mvn clean package
+```shell
+mvn clean package
+```
 
-Installing
+Deploying With Servlet Container
 -------------------
 
 The Hakbot Origin Controller can be deployed to any Servlet 3 compatible container including Tomcat and Jetty.
 Simply copy origin-controller.war to the webapps directory and restart the servlet engine.
+
+Deploying With Docker
+-------------------
+
+The easiest way to get Hakbot Origin Controller setup is to automatically create and deploy a Docker container.
+This can be accomplished by first compiling the software, then by executing Docker-specific commands. 
+
+```shell
+mvn clean package
+docker build -f src/main/docker/Dockerfile -t hakbot .
+docker run -p 8080:8080 -t hakbot
+```
+ 
 
 Configuration
 -------------------
