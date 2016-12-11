@@ -7,9 +7,11 @@
     <listener>
         <listener-class>io.hakbot.controller.persistence.LocalPersistenceInitializer</listener-class>
     </listener>
-
     <listener>
         <listener-class>io.hakbot.controller.persistence.LocalPersistenceManagerFactory</listener-class>
+    </listener>
+    <listener>
+        <listener-class>io.hakbot.controller.event.EventSubsystemInitializer</listener-class>
     </listener>
 
     <servlet>
