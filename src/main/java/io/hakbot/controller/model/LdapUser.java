@@ -17,7 +17,7 @@
 package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -31,7 +31,7 @@ import java.security.Principal;
 import java.util.Set;
 
 @PersistenceCapable
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LdapUser implements Serializable, Principal {
 
     private static final long serialVersionUID = -4071674443468706162L;

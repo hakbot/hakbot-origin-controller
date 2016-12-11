@@ -17,7 +17,7 @@
 package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -26,7 +26,7 @@ import javax.jdo.annotations.PrimaryKey;
 import java.io.Serializable;
 
 @PersistenceCapable
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JobProperty implements Serializable {
 
     private static final long serialVersionUID = 1904518074832824057L;

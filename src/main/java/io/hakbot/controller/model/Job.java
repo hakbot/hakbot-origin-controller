@@ -17,7 +17,7 @@
 package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.StringUtils;
 import javax.jdo.annotations.Column;
@@ -46,7 +46,7 @@ import java.util.Date;
                 @Persistent(name="publisherPayload"),
                 @Persistent(name="result")})
 })
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Job implements Serializable {
 
     private static final long serialVersionUID = 4247510467373253623L;
