@@ -17,7 +17,6 @@
 package io.hakbot.controller.workers;
 
 import io.hakbot.controller.Config;
-import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.persistence.LocalPersistenceManagerFactory;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
@@ -74,13 +73,13 @@ public class JobManager {
     private JobManager() {
         logger.info("Initializing JobManager");
 
-        maxJobSize = Config.getInstance().getPropertyAsInt(ConfigItem.MAX_JOB_SIZE);
-        maxQueueSize = Config.getInstance().getPropertyAsInt(ConfigItem.MAX_QUEUE_SIZE);
+        maxJobSize = Config.getInstance().getPropertyAsInt(Config.Key.MAX_JOB_SIZE);
+        maxQueueSize = Config.getInstance().getPropertyAsInt(Config.Key.MAX_QUEUE_SIZE);
 
-        int queueCheckInterval = Config.getInstance().getPropertyAsInt(ConfigItem.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
-        int jobCleanupInterval = Config.getInstance().getPropertyAsInt(ConfigItem.JOB_CLEANUP_INTERVAL) * 1000; // in Seconds
-        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(ConfigItem.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
-        this.jobPruneInterval = Config.getInstance().getPropertyAsLong(ConfigItem.JOB_PRUNE_INTERVAL) * 86400000; // in Days
+        int queueCheckInterval = Config.getInstance().getPropertyAsInt(Config.Key.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
+        int jobCleanupInterval = Config.getInstance().getPropertyAsInt(Config.Key.JOB_CLEANUP_INTERVAL) * 1000; // in Seconds
+        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(Config.Key.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
+        this.jobPruneInterval = Config.getInstance().getPropertyAsLong(Config.Key.JOB_PRUNE_INTERVAL) * 86400000; // in Days
 
         if (logger.isDebugEnabled()) {
             logger.debug("Max Job Size: " + maxJobSize);

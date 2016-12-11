@@ -17,7 +17,7 @@
 package io.hakbot.controller.filters;
 
 import io.hakbot.controller.Config;
-import io.hakbot.controller.ConfigItem;
+
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -33,10 +33,10 @@ public class HeaderFilter implements ContainerResponseFilter {
 
     private void init() {
         if (appName == null) {
-            appName = Config.getInstance().getProperty(ConfigItem.APPLICATION_NAME);
+            appName = Config.getInstance().getProperty(Config.Key.APPLICATION_NAME);
         }
         if (appVersion == null) {
-            appVersion = Config.getInstance().getProperty(ConfigItem.APPLICATION_VERSION);
+            appVersion = Config.getInstance().getProperty(Config.Key.APPLICATION_VERSION);
         }
     }
 

@@ -32,6 +32,37 @@ public final class Config {
 
 
     /**
+     * Provides a statically typed way to specify the named pairs in a property
+     * file. All names which have a corresponding value in the property file
+     * should be added to the enum.
+     */
+    public enum	Key {
+        APPLICATION_NAME         ("application.name"),
+        APPLICATION_VERSION      ("application.version"),
+        APPLICATION_TIMESTAMP    ("application.timestamp"),
+        QUEUE_CHECK_INTERVAL     ("queue.check.interval"),
+        JOB_CLEANUP_INTERVAL     ("job.cleanup.interval"),
+        JOB_PRUNE_INTERVAL       ("job.prune.interval"),
+        JOB_PRUNE_CHECK_INTERVAL ("job.prune.check.interval"),
+        MAX_JOB_SIZE             ("max.job.size"),
+        MAX_QUEUE_SIZE           ("max.queue.size"),
+        DATABASE_MODE            ("database.mode"),
+        DATABASE_PORT            ("database.port"),
+        PROVIDERS_ENALBED        ("providers.enabled"),
+        PUBLISHERS_ENABLED       ("publishers.enabled"),
+        ENFORCE_AUTHENTICATION   ("enforce.authentication"),
+        ENFORCE_AUTHORIZATION    ("enforce.authorization"),
+        LDAP_SERVER_URL          ("ldap.server.url"),
+        LDAP_DOMAIN              ("ldap.domain"),
+        GZIP_COMPRESSION_ENABLED ("proto.gzip.enabled");
+
+        String propertyName;
+        private Key(String item) {
+            this.propertyName = item;
+        }
+    }
+
+    /**
      * Returns an instance of the Config object
      * @return a Config object
      */
@@ -63,34 +94,34 @@ public final class Config {
     }
 
     /**
-     * Return the configured value for the specified ConfigItem
-     * @param item The ConfigItem to return the configuration for
+     * Return the configured value for the specified Key
+     * @param key The Key to return the configuration for
      * @return a String of the value of the configuration
      */
-    public String getProperty(ConfigItem item) {
-        return properties.getProperty(item.propertyName);
+    public String getProperty(Key key) {
+        return properties.getProperty(key.propertyName);
     }
 
-    public int getPropertyAsInt(ConfigItem item) {
+    public int getPropertyAsInt(Key key) {
         try {
-            return Integer.parseInt(getProperty(item));
+            return Integer.parseInt(getProperty(key));
         } catch (NumberFormatException e) {
-            logger.error("Error parsing number from property: " + item.name());
+            logger.error("Error parsing number from property: " + key.name());
             throw e;
         }
     }
 
-    public long getPropertyAsLong(ConfigItem item) {
+    public long getPropertyAsLong(Key key) {
         try {
-            return Long.parseLong(getProperty(item));
+            return Long.parseLong(getProperty(key));
         } catch (NumberFormatException e) {
-            logger.error("Error parsing number from property: " + item.name());
+            logger.error("Error parsing number from property: " + key.name());
             throw e;
         }
     }
 
-    public boolean getPropertyAsBoolean(ConfigItem item) {
-        return "true".equalsIgnoreCase(getProperty(item));
+    public boolean getPropertyAsBoolean(Key key) {
+        return "true".equalsIgnoreCase(getProperty(key));
     }
 
     public String getProperty(String key) {

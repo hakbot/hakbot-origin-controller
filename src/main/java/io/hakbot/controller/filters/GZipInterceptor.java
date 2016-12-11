@@ -17,7 +17,6 @@
 package io.hakbot.controller.filters;
 
 import io.hakbot.controller.Config;
-import io.hakbot.controller.ConfigItem;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.Provider;
@@ -33,7 +32,7 @@ import java.util.zip.GZIPOutputStream;
 @Provider
 public class GZipInterceptor implements ReaderInterceptor, WriterInterceptor {
 
-    private static final boolean enabled = Config.getInstance().getPropertyAsBoolean(ConfigItem.GZIP_COMPRESSION_ENABLED);
+    private static final boolean enabled = Config.getInstance().getPropertyAsBoolean(Config.Key.GZIP_COMPRESSION_ENABLED);
 
     @Override
     public Object aroundReadFrom(ReaderInterceptorContext context) throws IOException, WebApplicationException {

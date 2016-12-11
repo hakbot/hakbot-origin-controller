@@ -17,7 +17,6 @@
 package io.hakbot.controller.persistence;
 
 import io.hakbot.controller.Config;
-import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobProperty;
@@ -35,7 +34,7 @@ import java.util.UUID;
 
 public class QueryManager {
 
-    private static final boolean ENFORCE_AUTHORIZATION = Config.getInstance().getPropertyAsBoolean(ConfigItem.ENFORCE_AUTHORIZATION);
+    private static final boolean ENFORCE_AUTHORIZATION = Config.getInstance().getPropertyAsBoolean(Config.Key.ENFORCE_AUTHORIZATION);
 
     public enum OrderDirection {
         ASC, DESC

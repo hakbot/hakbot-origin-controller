@@ -17,7 +17,6 @@
 package io.hakbot.controller.filters;
 
 import io.hakbot.controller.Config;
-import io.hakbot.controller.ConfigItem;
 import io.hakbot.controller.auth.AuthenticationNotRequired;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
@@ -28,7 +27,7 @@ import java.lang.reflect.Method;
 @Provider
 public class AuthenticationFeature implements DynamicFeature {
 
-    private static final boolean ENFORCE_AUTHENTICATION = Config.getInstance().getPropertyAsBoolean(ConfigItem.ENFORCE_AUTHENTICATION);
+    private static final boolean ENFORCE_AUTHENTICATION = Config.getInstance().getPropertyAsBoolean(Config.Key.ENFORCE_AUTHENTICATION);
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
