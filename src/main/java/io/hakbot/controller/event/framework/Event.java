@@ -16,6 +16,10 @@
  */
 package io.hakbot.controller.event.framework;
 
+/**
+ * The Event interface simply defines a 'type'. All Events should implement this
+ * interface.
+ */
 public interface Event {
 
 }

@@ -16,6 +16,10 @@
  */
 package io.hakbot.controller.event.framework;
 
+/**
+ * All subscribers need to implement this interface. Subscribers are informed
+ * of events they are subscribed to via the inform method.
+ */
 public interface Subscriber {
 
     void inform(Event event);
