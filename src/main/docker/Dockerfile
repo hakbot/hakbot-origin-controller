@@ -1,4 +1,4 @@
-FROM tomcat:8.0-jre8
+FROM tomcat:8.0-jre8-alpine
 MAINTAINER Hakbot.io
 
 # Remove Tomcat default deployed webapps
