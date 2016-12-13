@@ -44,7 +44,7 @@ public class ApiKey implements Serializable, Principal {
     @Column(name="APIKEY", jdbcType="VARCHAR", length=32, allowsNull="false")
     private String key;
 
-    @Persistent(table="APIKEYS_TEAMS")
+    @Persistent(table="APIKEYS_TEAMS", defaultFetchGroup="true")
     @Join(column="APIKEY_ID")
     @Element(column="TEAM_ID")
     @JsonIgnore

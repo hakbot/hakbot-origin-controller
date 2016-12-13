@@ -276,21 +276,29 @@ public class QueryManager {
     private boolean hasPermission(Job job, LdapUser ldapUser) {
         PersistenceManager pm = getPersistenceManager();
         ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
-        Query query = pm.newQuery(Team.class);
-        query.setFilter("(ldapUsers.contains(ldapUser) && apiKeys.contains(apiKey)) || (ldapUsers.contains(ldapUser) && hakmaster == true)");
-        List<Team> teams = (List<Team>)query.execute(ldapUser);
-        pm.close();
-        return teams.size() > 0;
+        ArrayList<Long> list = new ArrayList<>();
+        for (Team team: apiKey.getTeams()) {
+            list.add(team.getId());
+        }
+        for (Team team: ldapUser.getTeams()) {
+            if (team.isHakmaster()) {
+                return true;
+            }
+            if (list.contains(team.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
     public boolean isHakMaster(LdapUser ldapUser) {
-        PersistenceManager pm = getPersistenceManager();
-        Query query = pm.newQuery(Team.class);
-        query.setFilter("(ldapUsers.contains(ldapUser) && hakmaster == true)");
-        List<Team> teams = (List<Team>)query.execute(ldapUser);
-        pm.close();
-        return teams.size() > 0;
+        for (Team team: ldapUser.getTeams()) {
+            if (team.isHakmaster()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

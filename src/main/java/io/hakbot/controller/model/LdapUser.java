@@ -51,7 +51,7 @@ public class LdapUser implements Serializable, Principal {
     @Column(name="DN", jdbcType="VARCHAR", length=255, allowsNull="false")
     private String dn;
 
-    @Persistent(table="LDAPUSERS_TEAMS")
+    @Persistent(table="LDAPUSERS_TEAMS", defaultFetchGroup="true")
     @Join(column="LDAPUSER_ID")
     @Element(column="TEAM_ID")
     private Set<Team> teams;
