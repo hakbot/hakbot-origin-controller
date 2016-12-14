@@ -21,7 +21,6 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.Plugin;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,5 +108,4 @@ public class ExpectedClassResolver {
         }
         return (providersConfigured.contains(pluginClass) || publishersConfigured.contains(pluginClass));
     }
-
 }
