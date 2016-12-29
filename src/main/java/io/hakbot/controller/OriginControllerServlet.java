@@ -18,7 +18,6 @@ package io.hakbot.controller;
 
 import io.hakbot.controller.auth.KeyManager;
 import io.hakbot.controller.logging.Logger;
-import io.hakbot.controller.workers.JobManager;
 import io.swagger.jaxrs.config.SwaggerContextService;
 import io.swagger.models.Info;
 import io.swagger.models.License;
@@ -36,10 +35,8 @@ import java.security.NoSuchAlgorithmException;
 /**
  * The OriginControllerServlet is the main servlet which extends
  * the Jersey ServletContainer. It is responsible for setting up
- * the runtime environment by initializing the
- * {@link JobManager JobManager}
- * and setting the path to properties files used for
- * {@link Config Config}(uration).
+ * the runtime environment by setting the path to properties
+ * files used for {@link Config Config}(uration).
  */
 public final class OriginControllerServlet extends ServletContainer {
 
@@ -48,15 +45,13 @@ public final class OriginControllerServlet extends ServletContainer {
 
     /**
      * Overrides the servlet init method and loads sets the InputStream necessary
-     * to load application.properties and creates the first instance of
-     * {@link JobManager JobManager} thus starting
-     * its scheduled tasks.
+     * to load application.properties.
      * @throws ServletException
      */
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(ServletConfig servletConfig) throws ServletException {
         logger.info("Starting " + Config.getInstance().getProperty(Config.Key.APPLICATION_NAME));
-        super.init(config);
+        super.init(servletConfig);
 
         Info info = new Info()
                 .title(Config.getInstance().getProperty(Config.Key.APPLICATION_NAME) + " API")
@@ -66,9 +61,12 @@ public final class OriginControllerServlet extends ServletContainer {
                         .name("GPL v3.0")
                         .url("http://www.gnu.org/licenses/gpl-3.0.txt"));
 
-        Swagger swagger = new Swagger().info(info);
-        swagger.securityDefinition("X-Api-Key", new ApiKeyAuthDefinition("X-Api-Key", In.HEADER));
-        new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
+        Swagger swagger = new Swagger()
+                .info(info)
+                .basePath(servletConfig.getServletContext().getContextPath() + "/api")
+                .securityDefinition("X-Api-Key", new ApiKeyAuthDefinition("X-Api-Key", In.HEADER));
+
+        new SwaggerContextService().initConfig(swagger).initScanner();
 
         KeyManager keyManager = KeyManager.getInstance();
         if (!keyManager.keyPairExists()) {
@@ -95,8 +93,6 @@ public final class OriginControllerServlet extends ServletContainer {
                 logger.error(e.getMessage());
             }
         }
-
-        JobManager.getInstance(); // starts the JobManager
     }
 
     /**
