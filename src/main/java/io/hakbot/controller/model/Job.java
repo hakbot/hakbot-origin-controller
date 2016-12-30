@@ -223,7 +223,11 @@ public class Job implements Serializable {
     }
 
     public void setCreated(Date created) {
-        this.created = new Date(created.getTime());
+        if (created == null) {
+            this.created = null;
+        } else {
+            this.created = new Date(created.getTime());
+        }
     }
 
     public Date getStarted() {
@@ -234,7 +238,11 @@ public class Job implements Serializable {
     }
 
     public void setStarted(Date started) {
-        this.started = new Date(started.getTime());
+        if (started == null) {
+            this.started = null;
+        } else {
+            this.started = new Date(started.getTime());
+        }
     }
 
     public Date getCompleted() {
@@ -245,7 +253,11 @@ public class Job implements Serializable {
     }
 
     public void setCompleted(Date completed) {
-        this.completed = new Date(completed.getTime());
+        if (completed == null) {
+            this.completed = null;
+        } else {
+            this.completed = new Date(completed.getTime());
+        }
     }
 
     public Long getDuration() {
