@@ -65,8 +65,8 @@ public class LocalPersistenceInitializer implements ServletContextListener {
     }
 
     private void stopDbServer() {
-        logger.info("Shutting down database service");
         if (dbServer != null) {
+            logger.info("Shutting down database service");
             dbServer.stop();
             dbServer.shutdown();
         }
