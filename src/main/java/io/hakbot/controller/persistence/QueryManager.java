@@ -40,59 +40,45 @@ public class QueryManager {
         ASC, DESC
     }
 
-    private PersistenceManager getPersistenceManager() {
-        return LocalPersistenceManagerFactory.createPersistenceManager();
-    }
+    private PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class);
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>) query.execute();
-        List<Job> permissible = getPermissible(result, principal);
-        pm.close();
-        return permissible;
+        return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "state == :state");
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute(state.getValue());
-        List<Job> permissible = getPermissible(result, principal);
-        pm.close();
-        return permissible;
+        return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(String pluginClass, State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "providerClass == :pluginClass && state == :state");
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute(pluginClass, state.getValue());
-        List<Job> permissible = getPermissible(result, principal);
-        pm.close();
-        return permissible;
+        return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public Job getJob(String uuid, Job.FetchGroup fetchGroup, Principal principal) {
-        PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(fetchGroup.getName());
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
         List<Job> result = (List<Job>)query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
-        pm.close();
         return permissible.size() == 0 ? null : permissible.get(0);
     }
 
     public Job createJob(String name, String provider, String providerPayload, String publisher, String publisherPayload, ApiKey apiKey) {
-        PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();
         Job job = new Job();
         job.setName(name);
@@ -108,21 +94,30 @@ public class QueryManager {
         job.setUuid(UUID.randomUUID().toString());
         pm.makePersistent(job);
         pm.currentTransaction().commit();
-        job = pm.getObjectById(Job.class, job.getId());
-        pm.close();
-        return job;
+        return pm.getObjectById(Job.class, job.getId());
+    }
+
+    public Job updateJob(Job transientJob) {
+        Job job = getJob(transientJob.getUuid(), Job.FetchGroup.ALL, new SystemAccount());
+        pm.currentTransaction().begin();
+        job.setCompleted(transientJob.getCompleted());
+        job.setCreated(transientJob.getCreated());
+        job.setMessage(transientJob.getMessage());
+        job.setName(transientJob.getName());
+        job.setProvider(transientJob.getProvider());
+        job.setPublisher(transientJob.getPublisher());
+        job.setProviderPayload(transientJob.getProviderPayload());
+        job.setPublisherPayload(transientJob.getPublisherPayload());
+        job.setResult(transientJob.getResult());
+        job.setStarted(transientJob.getStarted());
+        job.setStartedByApiKeyId(transientJob.getStartedByApiKeyId());
+        job.setState(transientJob.getState());
+        pm.currentTransaction().commit();
+        return pm.getObjectById(Job.class, job.getId());
     }
 
     @SuppressWarnings("unchecked")
-    public List<JobProperty> getJobProperties(Job job) {
-        PersistenceManager pm = getPersistenceManager();
-        List<JobProperty> result = getJobProperties(pm, job);
-        pm.close();
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<JobProperty> getJobProperties(PersistenceManager pm, Job job) {
+    private List<JobProperty> getJobProperties(Job job) {
         Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
         return (List<JobProperty>)query.execute(job.getId());
     }
@@ -138,7 +133,6 @@ public class QueryManager {
     }
 
     public JobProperty setJobProperty(Job job, String key, Object value) {
-        PersistenceManager pm = getPersistenceManager();
         pm.currentTransaction().begin();
         JobProperty property = getJobProperty(job, key);
         if (property == null) {
@@ -151,95 +145,78 @@ public class QueryManager {
         }
         pm.currentTransaction().commit();
         property = pm.getObjectById(JobProperty.class, property.getId());
-        pm.close();
         return property;
     }
 
     @SuppressWarnings("unchecked")
     public void deleteAllJobs(Principal principal) {
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class);
         List<Job> result = (List<Job>) query.execute();
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(pm, job);
+            List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.close();
     }
 
     @SuppressWarnings("unchecked")
     public void deleteJob(String uuid, Principal principal) {
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
         List<Job> result = (List<Job>) query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(pm, job);
+            List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.close();
     }
 
     @SuppressWarnings("unchecked")
     public void deleteJobs(State state, Principal principal) {
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
         Query query = pm.newQuery(Job.class, "state == :state");
         List<Job> result = (List<Job>) query.execute(state.getValue());
         List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(pm, job);
+            List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
         pm.currentTransaction().commit();
-        pm.close();
     }
 
     @SuppressWarnings("unchecked")
     public ApiKey getApiKey(String key) {
-        PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(ApiKey.class, "key == :key");
         List<ApiKey> result = (List<ApiKey>)query.execute (key);
-        pm.close();
         return result.size() == 0 ? null : result.get(0);
     }
 
     @SuppressWarnings("unchecked")
     public LdapUser getLdapUser(String username) {
-        PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(LdapUser.class, "username == :username");
         List<LdapUser> result = (List<LdapUser>)query.execute(username);
-        pm.close();
         return result.size() == 0 ? null : result.get(0);
     }
 
     @SuppressWarnings("unchecked")
     public List<LdapUser> getLdapUsers() {
-        PersistenceManager pm = getPersistenceManager();
         Query query = pm.newQuery(LdapUser.class);
         query.setOrdering("username " + OrderDirection.ASC.name());
-        List<LdapUser> result = (List<LdapUser>)query.execute();
-        pm.close();
-        return result;
+        return (List<LdapUser>)query.execute();
     }
 
     @SuppressWarnings("unchecked")
     public List<Team> getTeams() {
-        PersistenceManager pm = getPersistenceManager();
         pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
         Query query = pm.newQuery(Team.class);
         query.setOrdering("name " + OrderDirection.ASC.name());
-        List<Team> result = (List<Team>)query.execute();
-        pm.close();
-        return result;
+        return (List<Team>)query.execute();
     }
 
     private List<Job> getPermissible(List<Job> result, Principal principal) {
@@ -274,7 +251,6 @@ public class QueryManager {
 
     @SuppressWarnings("unchecked")
     private boolean hasPermission(Job job, LdapUser ldapUser) {
-        PersistenceManager pm = getPersistenceManager();
         ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
         ArrayList<Long> list = new ArrayList<>();
         for (Team team: apiKey.getTeams()) {
@@ -301,4 +277,23 @@ public class QueryManager {
         return false;
     }
 
+    public <T>T getObjectById (Class<T> clazz, Object key) {
+        return pm.getObjectById(clazz, key);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T>T getObjectByUuid(Class<T> clazz, String uuid) {
+        Query query = pm.newQuery(clazz, "uuid == :uuid");
+        List<T> result = (List<T>)query.execute(uuid);
+        return result.size() == 0 ? null : result.get(0);
+    }
+
+    public void close() {
+        pm.close();
+    }
+
+    protected void finalize() throws Throwable {
+        close();
+        super.finalize();
+    }
 }

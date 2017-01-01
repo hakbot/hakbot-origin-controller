@@ -16,6 +16,8 @@
  */
 package io.hakbot.controller.resources.v1;
 
+import io.hakbot.controller.event.JobUpdateEvent;
+import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
@@ -27,6 +29,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import java.security.Principal;
 import java.util.Base64;
+import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -56,7 +59,9 @@ public class JobResource extends BaseResource {
     )
     public Response getAllJobs() {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, getPrincipal())).build();
+        List<Job> jobs = qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, getPrincipal());
+        qm.close();
+        return Response.ok(jobs).build();
     }
 
     @GET
@@ -72,6 +77,7 @@ public class JobResource extends BaseResource {
             @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
         Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL, getPrincipal());
+        qm.close();
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
@@ -91,7 +97,9 @@ public class JobResource extends BaseResource {
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
-        return Response.ok(qm.getJob(uuid, Job.FetchGroup.MESSAGE, getPrincipal()).getMessage()).build();
+        String message = qm.getJob(uuid, Job.FetchGroup.MESSAGE, getPrincipal()).getMessage();
+        qm.close();
+        return Response.ok(message).build();
     }
 
     @GET
@@ -108,6 +116,7 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PROVIDER_PAYLOAD, getPrincipal()).getProviderPayload();
+        qm.close();
         if (payload == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -135,6 +144,7 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.PUBLISHER_PAYLOAD, getPrincipal()).getPublisherPayload();
+        qm.close();
         if (payload == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -162,6 +172,7 @@ public class JobResource extends BaseResource {
             @DefaultValue("0") @QueryParam("q") int q) {
         QueryManager qm = new QueryManager();
         String payload = qm.getJob(uuid, Job.FetchGroup.RESULT, getPrincipal()).getResult();
+        qm.close();
         if (payload == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -206,6 +217,9 @@ public class JobResource extends BaseResource {
 
         QueryManager qm = new QueryManager();
         Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
+        qm.close();
+        // At this point, the job has a state of CREATED, which is what we want our response to be.
+        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
         return Response.ok(job).build();
     }
 
@@ -215,6 +229,7 @@ public class JobResource extends BaseResource {
     public Response purgeAll() {
         QueryManager qm = new QueryManager();
         qm.deleteAllJobs(getPrincipal());
+        qm.close();
         return Response.ok().build();
     }
 
@@ -227,6 +242,7 @@ public class JobResource extends BaseResource {
             @PathParam("uuid") String uuid) {
         QueryManager qm = new QueryManager();
         qm.deleteJob(uuid, getPrincipal());
+        qm.close();
         return Response.ok().build();
     }
 
@@ -241,6 +257,7 @@ public class JobResource extends BaseResource {
             @PathParam("state") State state) {
         QueryManager qm = new QueryManager();
         qm.deleteJobs(state, getPrincipal());
+        qm.close();
         return Response.ok().build();
     }
 

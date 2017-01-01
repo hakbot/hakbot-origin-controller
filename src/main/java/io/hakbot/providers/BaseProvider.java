@@ -17,9 +17,10 @@
 package io.hakbot.providers;
 
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.plugin.BasePlugin;
 import java.util.Base64;
 
-public abstract class BaseProvider implements Provider {
+public abstract class BaseProvider extends BasePlugin implements Provider {
 
     private String result;
 

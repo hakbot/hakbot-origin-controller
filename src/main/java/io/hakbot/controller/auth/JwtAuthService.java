@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller.auth;
 
+import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.persistence.QueryManager;
 import org.glassfish.jersey.server.ContainerRequest;
 import javax.naming.AuthenticationException;
@@ -41,9 +42,11 @@ public class JwtAuthService implements AuthService {
             JsonWebToken jwt = new JsonWebToken(keyManager.getSecretKey());
             boolean isValid = jwt.validateToken(bearer);
             if (isValid) {
-                QueryManager queryManager = new QueryManager();
+                QueryManager qm = new QueryManager();
                 if (jwt.getSubject() == null || jwt.getExpiration() == null) return null;
-                return queryManager.getLdapUser(jwt.getSubject().toString());
+                LdapUser ldapUser = qm.getLdapUser(jwt.getSubject().toString());
+                qm.close();
+                return ldapUser;
             }
         }
         return null;

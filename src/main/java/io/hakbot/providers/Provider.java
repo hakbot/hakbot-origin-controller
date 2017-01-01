@@ -36,11 +36,6 @@ public interface Provider extends Plugin {
     boolean isAvailable(Job job);
 
     /**
-     * Process the job. Returns true if the job was successful, false if not.
-     */
-    boolean process(Job job);
-
-    /**
      * Determines if the job can be canceled or not. This may be a feature or
      * limitation of the provider.
      */

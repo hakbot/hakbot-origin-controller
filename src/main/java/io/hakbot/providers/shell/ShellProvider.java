@@ -19,7 +19,9 @@ package io.hakbot.providers.shell;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.workers.JobException;
+import io.hakbot.controller.workers.State;
 import io.hakbot.providers.BaseProvider;
+import io.hakbot.providers.SynchronousProvider;
 import io.hakbot.util.JsonUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +29,7 @@ import javax.json.JsonObject;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ShellProvider extends BaseProvider {
+public class ShellProvider extends BaseProvider implements SynchronousProvider {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(ShellProvider.class);
@@ -37,7 +39,7 @@ public class ShellProvider extends BaseProvider {
     public boolean initialize(Job job) {
         JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
         if (!JsonUtil.requiredParams(payload, "command")) {
-            job.addMessage("Invalid request. Expected parameters: [command]");
+            addProcessingMessage(job, "Invalid request. Expected parameters: [command]");
             return false;
         }
         command = JsonUtil.getString(payload, "command");
@@ -46,13 +48,15 @@ public class ShellProvider extends BaseProvider {
 
     public boolean process(Job job) {
         InputStream inputStream = null;
-        job.setSuccess(false);
+        InputStream errorStream = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(command.split(" "));
             process = pb.start();
             int exitCode = process.waitFor();
-            byte[] stdout = IOUtils.toByteArray(process.getInputStream());
-            byte[] stderr = IOUtils.toByteArray(process.getErrorStream());
+            inputStream = process.getInputStream();
+            errorStream = process.getErrorStream();
+            byte[] stdout = IOUtils.toByteArray(inputStream);
+            byte[] stderr = IOUtils.toByteArray(errorStream);
             if (logger.isDebugEnabled()) {
                 logger.debug("STDOUT:");
                 logger.debug(new String(stdout));
@@ -62,30 +66,26 @@ public class ShellProvider extends BaseProvider {
             super.setResult(stdout);
             if (exitCode != 0) {
                 if (StringUtils.isEmpty(super.getResult())) {
-                    super.setResult(stderr);
+                    setResult(stderr);
                 }
                 throw new JobException(exitCode);
             }
             return true;
         } catch (IOException | InterruptedException e) {
-            String message = "Could not execute job.";
-            logger.error(message);
-            logger.error(e.getMessage());
-            job.addMessage(message);
-            job.addMessage(e.getMessage());
+            addProcessingMessage(job, "Could not execute job.");
+            addProcessingMessage(job, e.getMessage());
         } catch (JobException e) {
-            String message = "Job terminated abnormally. Exit code: " + e.getExitCode();
-            logger.error(message);
-            logger.error(e.getMessage());
-            job.addMessage(message);
-            job.addMessage(e.getMessage());
+            addProcessingMessage(job, "Job terminated abnormally. Exit code: " + e.getExitCode());
+            addProcessingMessage(job, e.getMessage());
         } finally {
             IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(errorStream);
         }
         return false;
     }
 
     public boolean cancel(Job job) {
+        updateState(job, State.CANCELED);
         process.destroy();
         if (process.isAlive()) {
             process.destroyForcibly();

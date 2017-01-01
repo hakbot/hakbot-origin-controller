@@ -22,6 +22,8 @@ import io.hakbot.controller.model.JobProperty;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.ConsoleIdentifier;
+import io.hakbot.controller.workers.State;
+import io.hakbot.providers.AsynchronousProvider;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
@@ -38,7 +40,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
+public class NessusProvider extends BaseProvider implements AsynchronousProvider, ConsoleIdentifier {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(NessusProvider.class);
@@ -54,14 +56,14 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
     public boolean initialize(Job job) {
         JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
         if (!JsonUtil.requiredParams(payload, "scanName", "scanPolicy", "targets")) {
-            job.addMessage("Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
+            addProcessingMessage(job, "Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
             return false;
         }
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             remoteInstance = new RemoteInstance();
             if (!JsonUtil.requiredParams(payload, "url", "username", "password")) {
-                job.addMessage("Invalid request. Expected parameters: [url], [username], [password]");
+                addProcessingMessage(job, "Invalid request. Expected parameters: [url], [username], [password]");
                 return false;
             }
             remoteInstance.setUrl(JsonUtil.getString(payload, "url"));
@@ -74,10 +76,12 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
             qm.setJobProperty(job, NessusConstants.PROP_SCAN_USERNAME, remoteInstance.getUsername());
             qm.setJobProperty(job, NessusConstants.PROP_SCAN_PASSWORD, remoteInstance.getPassword());
             qm.setJobProperty(job, NessusConstants.PROP_SERVER_VALIDATE_CERTS, remoteInstance.isValidateCertificates());
+            qm.close();
         } else {
             // Save the alias of the remote instance we're conducting the scan with
             QueryManager qm = new QueryManager();
             qm.setJobProperty(job, NessusConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
+            qm.close();
         }
         scanName = JsonUtil.getString(payload, "scanName");
         scanPolicy = JsonUtil.getString(payload, "scanPolicy");
@@ -85,7 +89,7 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
         return true;
     }
 
-    public boolean process(Job job) {
+    public void process(Job job) {
         try {
             ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
@@ -94,6 +98,7 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
             // Save the scan ID Nessus assigned to the job
             QueryManager qm = new QueryManager();
             qm.setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
+            qm.close();
 
             boolean isRunning = scan.isScanRunning(scanID);
             while (isRunning) {
@@ -114,16 +119,21 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
             super.setResult(FileUtils.readFileToByteArray(report));
             report.delete();
         } catch (LoginException e) {
-            job.addMessage("Unable to login to Nessus");
-            return false;
+            addProcessingMessage(job, "Unable to login to Nessus");
+            updateState(job, State.FAILED);
         } catch (IOException e) {
-            job.addMessage("IOException - Possibly due to downloading report");
-            return false;
+            addProcessingMessage(job, "IOException - Possibly due to downloading report");
+            updateState(job, State.FAILED);
         }
-        return true;
+        updateState(job, State.COMPLETED);
+    }
+
+    public boolean isRunning(Job job) {
+        return true; //todo
     }
 
     public boolean cancel(Job job) {
+        updateState(job, State.CANCELED);
         try {
             ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
@@ -134,7 +144,7 @@ public class NessusProvider extends BaseProvider implements ConsoleIdentifier {
 
             // todo cancel the job with the specified scanId
         } catch (LoginException e) {
-            job.addMessage("Unable to login to Nessus");
+            addProcessingMessage(job,"Unable to login to Nessus");
             return false;
         }
         return true;

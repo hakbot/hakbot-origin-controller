@@ -18,6 +18,7 @@ package io.hakbot.publishers;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.plugin.BasePlugin;
 import io.hakbot.providers.Provider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 
-public abstract class BasePublisher implements Publisher {
+public abstract class BasePublisher extends BasePlugin implements Publisher {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(BasePublisher.class);
@@ -67,11 +68,11 @@ public abstract class BasePublisher implements Publisher {
         File result = new File(directory, filename).getAbsoluteFile();
         try {
             FileUtils.writeByteArrayToFile(result, getResult());
-            job.addMessage("Result written to: " + result.getPath());
+            addProcessingMessage(job, "Result written to: " + result.getPath());
         } catch (IOException e) {
             logger.error("Unable to write result from job: " + job.getUuid());
             logger.error(e.getMessage());
-            job.addMessage(e.getMessage());
+            addProcessingMessage(job, e.getMessage());
             return null;
         }
         return result;

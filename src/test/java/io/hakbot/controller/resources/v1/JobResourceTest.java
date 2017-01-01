@@ -48,7 +48,6 @@ public class JobResourceTest extends BaseResourceTest {
         Assert.assertEquals("io.hakbot.providers.shell.ShellProvider", jsonResponse.getString("provider"));
         Assert.assertTrue(jsonResponse.getInt("created") > 0);
         Assert.assertEquals("CREATED", jsonResponse.getString("state"));
-        Assert.assertEquals(false, jsonResponse.getBoolean("success"));
         Assert.assertTrue(jsonResponse.getInt("startedByApiKeyId") > 0);
     }
 

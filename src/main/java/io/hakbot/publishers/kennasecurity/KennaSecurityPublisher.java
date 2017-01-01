@@ -54,7 +54,7 @@ public class KennaSecurityPublisher extends BasePublisher {
         JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));
         if (remoteInstance == null) {
-            job.addMessage("KennaSecurity instance cannot be found or is not defined.");
+            addProcessingMessage(job, "KennaSecurity instance cannot be found or is not defined.");
             return false;
         }
         return true;
@@ -76,8 +76,8 @@ public class KennaSecurityPublisher extends BasePublisher {
             Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
             success = response.getStatus() == 200;
             if (!success) {
-                job.addMessage("Failed to upload result to KennaSecurity");
-                job.addMessage(response.getStatusInfo().getReasonPhrase());
+                addProcessingMessage(job, "Failed to upload result to KennaSecurity");
+                addProcessingMessage(job, response.getStatusInfo().getReasonPhrase());
             }
             formDataMultiPart.close();
         } catch (IOException e) {

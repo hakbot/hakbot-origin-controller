@@ -21,7 +21,6 @@ import io.hakbot.controller.model.Job;
 import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.JsonUtil;
-
 import javax.json.JsonObject;
 import java.io.File;
 
@@ -38,7 +37,7 @@ public class FileSystemPublisher extends BasePublisher {
 
         JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         if (!JsonUtil.requiredParams(payload, "publishPath")) {
-            job.addMessage("Invalid request. Expected parameter: [publishPath]");
+            addProcessingMessage(job, "Invalid request. Expected parameter: [publishPath]");
             return false;
         }
         publishPath = JsonUtil.getString(payload, "publishPath");
@@ -51,13 +50,13 @@ public class FileSystemPublisher extends BasePublisher {
     public boolean publish(Job job) {
         File path = new File(publishPath).getAbsoluteFile();
         if (!path.exists()) {
-            job.addMessage("Specified publishPath does not exist.");
+            addProcessingMessage(job, "Specified publishPath does not exist.");
             return false;
         } else if (!path.isDirectory()) {
-            job.addMessage("Specified publishPath is not a valid directory.");
+            addProcessingMessage(job, "Specified publishPath is not a valid directory.");
             return false;
         } else if (!path.canWrite()) {
-            job.addMessage("Cannot write to the specified publishPath.");
+            addProcessingMessage(job, "Cannot write to the specified publishPath.");
             return false;
         }
         File report = getResult(path);

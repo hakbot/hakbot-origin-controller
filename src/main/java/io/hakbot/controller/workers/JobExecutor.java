@@ -65,15 +65,15 @@ class JobExecutor implements Runnable {
                 logger.info("Job: " + job.getUuid() + " is being executed.");
             }
 
-            executeProvider();
+            //executeProvider();
             if (!StringUtils.isEmpty(job.getPublisher()) && job.getState() == State.COMPLETED) {
-                executePublisher();
+                //executePublisher();
             }
         } finally {
             isExecuting = false;
         }
     }
-
+/*
     private void executeProvider() {
         boolean initialized, isAvailable = false, success = false;
         String result = null;
@@ -98,7 +98,7 @@ class JobExecutor implements Runnable {
             if (initialized && isAvailable) {
                 job.setState(State.IN_PROGRESS);
                 job.setStarted(new Date());
-                success = provider.process(job);
+                //success = provider.process(job);
                 result = provider.getResult();
                 job = pm.getObjectById(Job.class, job.getId());
             } else if (initialized && !isAvailable){
@@ -164,7 +164,7 @@ class JobExecutor implements Runnable {
             pm.close();
         }
     }
-
+*/
     /**
      * Cancels the job
      */

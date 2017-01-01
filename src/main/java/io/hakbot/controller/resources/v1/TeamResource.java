@@ -45,6 +45,7 @@ public class TeamResource extends BaseResource {
         }
         QueryManager qm = new QueryManager();
         List<Team> teams = qm.getTeams();
+        qm.close();
         return Response.ok(teams).build();
     }
 

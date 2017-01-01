@@ -19,7 +19,6 @@ package io.hakbot.controller.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.hakbot.controller.workers.State;
-import org.apache.commons.lang3.StringUtils;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
@@ -30,8 +29,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 @PersistenceCapable
@@ -126,10 +123,6 @@ public class Job implements Serializable {
     @Column(name="STATE", jdbcType="VARCHAR", length=20, allowsNull="false")
     private String state;
 
-    @Persistent
-    @Column(name="SUCCESS", jdbcType="BOOLEAN")
-    private boolean success;
-
     @Persistent(defaultFetchGroup="false")
     @Column(name="RESULT", jdbcType="CLOB")
     private String result;
@@ -180,23 +173,6 @@ public class Job implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public void addMessage(String message) {
-        if (StringUtils.isEmpty(message)) {
-            return;
-        }
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String timestamp = formatter.format(date);
-        StringBuilder sb = new StringBuilder();
-        if (!StringUtils.isEmpty(getMessage())) {
-            sb.append(getMessage()).append("\n");
-        }
-        sb.append(timestamp).append(" - ").append(message);
-        setMessage(sb.toString());
     }
 
     public String getProviderPayload() {
@@ -267,14 +243,6 @@ public class Job implements Serializable {
         return null;
     }
 
-    public boolean getSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
     public String getResult() {
         return result;
     }
@@ -296,13 +264,6 @@ public class Job implements Serializable {
     }
 
     public void setState(State state) {
-        setState(state, true);
-    }
-
-    public void setState(State state, boolean log) {
-        if ((this.getState() != state) && log) {
-            addMessage("Job state changed to " + state.getValue());
-        }
         this.state = state.getValue();
     }
 

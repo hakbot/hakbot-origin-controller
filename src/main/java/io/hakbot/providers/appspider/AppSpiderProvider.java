@@ -21,6 +21,8 @@ import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.ConsoleIdentifier;
+import io.hakbot.controller.workers.State;
+import io.hakbot.providers.AsynchronousProvider;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
@@ -47,7 +49,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.Map;
 
-public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier {
+public class AppSpiderProvider extends BaseProvider implements AsynchronousProvider, ConsoleIdentifier {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
@@ -62,7 +64,7 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
     public boolean initialize(Job job) {
         JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
         if (!JsonUtil.requiredParams(payload, "instance", "scanConfig")) {
-            job.addMessage("Invalid request. Expected parameters: [instance], [config]");
+            addProcessingMessage(job, "Invalid request. Expected parameters: [instance], [config]");
             return false;
         }
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
@@ -72,12 +74,13 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
         // Save the alias of the remote instance we're conducting the scan with
         QueryManager qm = new QueryManager();
         qm.setJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
+        qm.close();
 
         scanConfig = JsonUtil.getString(payload, "scanConfig");
         return true;
     }
 
-    public boolean process(Job job) {
+    public void process(Job job) {
         NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
 
@@ -90,9 +93,9 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
         // Submit the scan request
         Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, decodedScanConfig, null, null);
         if (!submitResult.isSuccess()) {
-            job.addMessage("Failed to execute AppSpider job");
-            job.addMessage(submitResult.getErrorDescription());
-            return false;
+            addProcessingMessage(job, "Failed to execute AppSpider job");
+            addProcessingMessage(job, submitResult.getErrorDescription());
+            updateState(job, State.FAILED);
         }
         boolean running = true;
         try {
@@ -123,25 +126,30 @@ public class AppSpiderProvider extends BaseProvider implements ConsoleIdentifier
                     StatusLine statusLine = httpResponse.getStatusLine();
                     HttpEntity entity = httpResponse.getEntity();
                     if (httpResponse.getStatusLine().getStatusCode() >= 300) {
-                        job.addMessage("Unable to download report file. Status Code: " + statusLine.getStatusCode());
+                        addProcessingMessage(job, "Unable to download report file. Status Code: " + statusLine.getStatusCode());
                     }
                     if (entity == null) {
-                        job.addMessage("Report contains no data");
+                        addProcessingMessage(job, "Report contains no data");
                     }
 
                     //Save result
                     setResult(IOUtils.toByteArray(entity.getContent()));
-                    return true;
+                    updateState(job, State.COMPLETED);
                 }
                 Thread.sleep(20 * 1000);
             }
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-        return false;
+        updateState(job, State.FAILED);
+    }
+
+    public boolean isRunning(Job job) {
+        return true; //todo
     }
 
     public boolean cancel(Job job) {
+        updateState(job, State.CANCELED);
         NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
         NTOServiceSoap soap = service.getNTOServiceSoap();
         String token = UuidUtil.stripHyphens(job.getUuid());

@@ -40,11 +40,11 @@ public final class Config {
         APPLICATION_NAME         ("application.name"),
         APPLICATION_VERSION      ("application.version"),
         APPLICATION_TIMESTAMP    ("application.timestamp"),
+        CORE_MULTIPLIER          ("core.multiplier"),
         QUEUE_CHECK_INTERVAL     ("queue.check.interval"),
-        JOB_CLEANUP_INTERVAL     ("job.cleanup.interval"),
         JOB_PRUNE_INTERVAL       ("job.prune.interval"),
         JOB_PRUNE_CHECK_INTERVAL ("job.prune.check.interval"),
-        MAX_JOB_SIZE             ("max.job.size"),
+        //MAX_JOB_SIZE             ("max.job.size"),
         MAX_QUEUE_SIZE           ("max.queue.size"),
         DATABASE_MODE            ("database.mode"),
         DATABASE_PORT            ("database.port"),
@@ -126,6 +126,16 @@ public final class Config {
 
     public String getProperty(String key) {
         return properties.getProperty(key);
+    }
+
+    public int determineNumberOfThreads() {
+        int cores = Runtime.getRuntime().availableProcessors();
+        int multiplier = getPropertyAsInt(Key.CORE_MULTIPLIER);
+        if (multiplier > 0) {
+            return cores * multiplier;
+        } else {
+            return cores;
+        }
     }
 
     public static boolean isUnitTestsEnabled() {

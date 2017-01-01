@@ -57,6 +57,7 @@ public class UserResource extends BaseResource {
 
         QueryManager qm = new QueryManager();
         LdapUser ldapUser = qm.getLdapUser(username);
+        qm.close();
         KeyManager km = KeyManager.getInstance();
         JsonWebToken jwt = new JsonWebToken(km.getSecretKey());
         String token = jwt.createToken(ldapUser);
@@ -92,6 +93,7 @@ public class UserResource extends BaseResource {
         }
         QueryManager qm = new QueryManager();
         List<LdapUser> users = qm.getLdapUsers();
+        qm.close();
         return Response.ok(users).build();
     }
 
@@ -105,6 +107,7 @@ public class UserResource extends BaseResource {
     public Response getSelf() {
         QueryManager qm = new QueryManager();
         LdapUser user = qm.getLdapUser(getPrincipal().getName());
+        qm.close();
         return Response.ok(user).build();
     }
 

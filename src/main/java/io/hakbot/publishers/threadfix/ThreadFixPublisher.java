@@ -52,12 +52,12 @@ public class ThreadFixPublisher extends BasePublisher {
 
         JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         if (!JsonUtil.requiredParams(payload, "appId")) {
-            job.addMessage("Invalid request. Expected parameter: [appId]");
+            addProcessingMessage(job, "Invalid request. Expected parameter: [appId]");
             return false;
         }
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
-            job.addMessage("ThreadFix remote instance cannot be found or is not defined.");
+            addProcessingMessage(job, "ThreadFix remote instance cannot be found or is not defined.");
             return false;
         }
         appId = JsonUtil.getInt(payload, "appId");
@@ -80,8 +80,8 @@ public class ThreadFixPublisher extends BasePublisher {
             Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
             success = response.getStatus() == 200;
             if (!success) {
-                job.addMessage("Failed to upload result to ThreadFix");
-                job.addMessage(response.getStatusInfo().getReasonPhrase());
+                addProcessingMessage(job, "Failed to upload result to ThreadFix");
+                addProcessingMessage(job, response.getStatusInfo().getReasonPhrase());
             }
             formDataMultiPart.close();
         } catch (IOException e) {

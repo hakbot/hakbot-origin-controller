@@ -38,7 +38,6 @@ import java.util.List;
 })
 public class RemoteJobResource extends BaseResource {
 
-
     @GET
     @Path("/pickup/{class}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -58,6 +57,7 @@ public class RemoteJobResource extends BaseResource {
 
         QueryManager qm = new QueryManager();
         List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, Job.FetchGroup.ALL, getPrincipal());
+        qm.close();
         if (jobs.size() > 0) {
             return Response.ok(jobs.get(0)).build();
         } else {

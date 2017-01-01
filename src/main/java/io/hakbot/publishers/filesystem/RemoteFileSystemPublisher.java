@@ -43,7 +43,7 @@ public class RemoteFileSystemPublisher extends BasePublisher {
         JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
-            job.addMessage("RemoteFileSystem instance cannot be found or is not defined.");
+            addProcessingMessage(job, "RemoteFileSystem instance cannot be found or is not defined.");
             return false;
         }
         return true;
