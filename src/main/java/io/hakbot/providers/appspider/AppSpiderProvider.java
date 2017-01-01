@@ -18,7 +18,6 @@ package io.hakbot.providers.appspider;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.controller.workers.State;
@@ -72,9 +71,7 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
             return false;
         }
         // Save the alias of the remote instance we're conducting the scan with
-        QueryManager qm = new QueryManager();
-        qm.setJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
-        qm.close();
+        setJobProperty(job, AppSpiderConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
 
         scanConfig = JsonUtil.getString(payload, "scanConfig");
         return true;

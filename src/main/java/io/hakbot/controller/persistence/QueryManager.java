@@ -117,7 +117,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    private List<JobProperty> getJobProperties(Job job) {
+    public List<JobProperty> getJobProperties(Job job) {
         Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
         return (List<JobProperty>)query.execute(job.getId());
     }

@@ -18,8 +18,6 @@ package io.hakbot.providers.nessus;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.model.JobProperty;
-import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.ConsoleIdentifier;
 import io.hakbot.controller.workers.State;
@@ -38,6 +36,7 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 public class NessusProvider extends BaseProvider implements AsynchronousProvider, ConsoleIdentifier {
@@ -71,17 +70,15 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             remoteInstance.setPassword(JsonUtil.getString(payload, "password"));
             remoteInstance.setValidateCertificates(JsonUtil.getBoolean(payload, "validateCertificates"));
             // Save the properties of the instance we're conducting the scan with
-            QueryManager qm = new QueryManager();
-            qm.setJobProperty(job, NessusConstants.PROP_SERVER_URL, remoteInstance.getUrl());
-            qm.setJobProperty(job, NessusConstants.PROP_SCAN_USERNAME, remoteInstance.getUsername());
-            qm.setJobProperty(job, NessusConstants.PROP_SCAN_PASSWORD, remoteInstance.getPassword());
-            qm.setJobProperty(job, NessusConstants.PROP_SERVER_VALIDATE_CERTS, remoteInstance.isValidateCertificates());
-            qm.close();
+            setJobProperties(job, new HashMap<String, Object>() {{
+                put(NessusConstants.PROP_SERVER_URL, remoteInstance.getUrl());
+                put(NessusConstants.PROP_SCAN_USERNAME, remoteInstance.getUsername());
+                put(NessusConstants.PROP_SCAN_PASSWORD, remoteInstance.getPassword());
+                put(NessusConstants.PROP_SERVER_VALIDATE_CERTS, remoteInstance.isValidateCertificates());
+            }});
         } else {
             // Save the alias of the remote instance we're conducting the scan with
-            QueryManager qm = new QueryManager();
-            qm.setJobProperty(job, NessusConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
-            qm.close();
+            setJobProperty(job, NessusConstants.PROP_INSTANCE_ALIAS, remoteInstance.getAlias());
         }
         scanName = JsonUtil.getString(payload, "scanName");
         scanPolicy = JsonUtil.getString(payload, "scanPolicy");
@@ -96,9 +93,7 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             String scanID = scan.newScan(scanName, scanPolicy, targets);
 
             // Save the scan ID Nessus assigned to the job
-            QueryManager qm = new QueryManager();
-            qm.setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
-            qm.close();
+            setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
 
             boolean isRunning = scan.isScanRunning(scanID);
             while (isRunning) {
@@ -138,9 +133,7 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
 
-            QueryManager qm = new QueryManager();
-            JobProperty property = qm.getJobProperty(job, NessusConstants.PROP_SCAN_ID);
-            String scanId = property.getValue();
+            String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
 
             // todo cancel the job with the specified scanId
         } catch (LoginException e) {
