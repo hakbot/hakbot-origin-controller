@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller.event.framework;
 
+import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.logging.Logger;
 import java.util.ArrayList;
 import java.util.Map;
@@ -31,10 +32,11 @@ public abstract class BaseEventService {
 
     private Logger logger = Logger.getLogger(BaseEventService.class);
     private Map<Class<? extends Event>, ArrayList<Class<? extends Subscriber>>> subscriptionMap = new ConcurrentHashMap<>();
-    private ExecutorService executor = Executors.newFixedThreadPool(1);
+    private ExecutorService ftexecutor = Executors.newFixedThreadPool(1);
+    private ExecutorService stexecutor = Executors.newSingleThreadExecutor();
 
     void setExecutorService(ExecutorService executor) {
-        this.executor = executor;
+        this.ftexecutor = executor;
     }
 
     void setLogger(Logger logger) {
@@ -51,7 +53,12 @@ public abstract class BaseEventService {
         ArrayList<Class<? extends Subscriber>> subscriberClasses = subscriptionMap.get(event.getClass());
         for (Class clazz: subscriberClasses) {
             logger.debug("Alerting subscriber " + clazz.getName());
-            executor.submit(() -> {
+
+            // We don't want database update events to have to wait in the same queue as job processing events
+            // Eventually make this configurable.
+            ExecutorService executorService = event.getClass()==JobUpdateEvent.class ? stexecutor : ftexecutor;
+
+            executorService.submit(() -> {
                 try {
                     Subscriber subscriber = (Subscriber)clazz.newInstance();
                     subscriber.inform(event);
@@ -96,7 +103,8 @@ public abstract class BaseEventService {
      */
     public void shutdown() {
         logger.info("Shutting down EventService");
-        executor.shutdownNow();
+        ftexecutor.shutdownNow();
+        stexecutor.shutdownNow();
     }
 
 }
