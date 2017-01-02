@@ -116,6 +116,12 @@ public class QueryManager {
         return pm.getObjectById(Job.class, job.getId());
     }
 
+    public long getUnprocessedJobCount() {
+        Query query = pm.newQuery(Job.class, "state == :created || state == :unavailable || state == :inQueue || state == :inProgress");
+        query.setResult("count(id)");
+        return (Long)query.executeWithArray(State.CREATED.getValue(), State.UNAVAILABLE.getValue(), State.IN_QUEUE.getValue(), State.IN_PROGRESS.getValue());
+    }
+
     @SuppressWarnings("unchecked")
     public List<JobProperty> getJobProperties(Job job) {
         Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");

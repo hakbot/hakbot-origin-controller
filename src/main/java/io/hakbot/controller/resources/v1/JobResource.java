@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller.resources.v1;
 
+import io.hakbot.controller.Config;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.model.ApiKey;
@@ -48,6 +49,7 @@ import javax.ws.rs.core.Response;
 })
 public class JobResource extends BaseResource {
 
+    private static final int MAX_QUEUE_SIZE = Config.getInstance().getPropertyAsInt(Config.Key.MAX_QUEUE_SIZE);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -196,10 +198,13 @@ public class JobResource extends BaseResource {
             notes = "Returns the job after creating it. The UUID can be used to later query on the job. The format of this request will vary largely on the plugins used.",
             response = Job.class)
     public Response addJob(JobRequest jobRequest) {
-
         if (jobRequest.getName() == null || jobRequest.getProvider() == null ||
                 jobRequest.getProvider().getClassname() == null || jobRequest.getProvider().getPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        QueryManager qm = new QueryManager();
+        if (qm.getUnprocessedJobCount() > MAX_QUEUE_SIZE) {
+            return Response.ok("Queue limit reached. The server is not accepting new jobs. This could be due to a large number of unprocessed jobs or a small limit on the queue. Try again later.").status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
 
         // Retrieve the optional principal for the API key that initiated this request
@@ -215,7 +220,6 @@ public class JobResource extends BaseResource {
         String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher().getClassname() : null;
         String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher().getPayload()) : null;
 
-        QueryManager qm = new QueryManager();
         Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
         qm.close();
         // At this point, the job has a state of CREATED, which is what we want our response to be.
