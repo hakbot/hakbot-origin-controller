@@ -57,7 +57,7 @@ public class JobPublishWorker implements Subscriber {
                 Constructor<?> con = clazz.getConstructor();
                 Publisher publisher = (Publisher)con.newInstance();
 
-                initialized = publisher.initialize(job, null); //todo: remove provider in near future
+                initialized = publisher.initialize(job);
                 if (initialized) {
                     EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
                     boolean success = publisher.publish(job);

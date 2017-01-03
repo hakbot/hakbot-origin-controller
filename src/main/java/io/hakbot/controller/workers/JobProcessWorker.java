@@ -17,7 +17,6 @@
 package io.hakbot.controller.workers;
 
 import io.hakbot.controller.event.JobProcessEvent;
-import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
 import io.hakbot.controller.event.framework.EventService;
@@ -29,7 +28,6 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.providers.AsynchronousProvider;
 import io.hakbot.providers.Provider;
 import io.hakbot.providers.SynchronousProvider;
-import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 
 /**
@@ -85,10 +83,6 @@ public class JobProcessWorker implements Subscriber {
                         String result = provider.getResult();
                         if (success) {
                             EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED).result(result));
-                            // Check if a publisher was defined in the job definition and if so, send event
-                            if (!StringUtils.isEmpty(job.getPublisher())) {
-                                EventService.getInstance().publish(new JobPublishEvent(job.getUuid()).result(result));
-                            }
                         } else {
                             EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).result(result));
                         }

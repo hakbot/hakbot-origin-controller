@@ -18,7 +18,6 @@ package io.hakbot.publishers;
 
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.Plugin;
-import io.hakbot.providers.Provider;
 
 public interface Publisher extends Plugin {
 
@@ -26,15 +25,11 @@ public interface Publisher extends Plugin {
      * This method is called prior to any other method and is intended to initialize
      * the instance of the publisher.
      */
-    boolean initialize(Job job, Provider provider);
+    boolean initialize(Job job);
 
     /**
      * Publishes the results from a job. Returns true if the publish was successful, false if not.
      */
     boolean publish(Job job);
 
-    /**
-     * Returns the provider that generated the results about to be published.
-     */
-    Provider getProvider();
 }

@@ -16,8 +16,10 @@
  */
 package io.hakbot.controller.workers;
 
+import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
+import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.event.framework.Subscriber;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
@@ -63,6 +65,11 @@ public class JobUpdateLogger implements Subscriber {
                     job.setResult(event.getResult());
                 }
                 qm.updateJob(job);
+
+                // Job has been updated, now check if a publisher was defined and if so, send event.
+                if (event.getState() == State.COMPLETED && !StringUtils.isEmpty(job.getPublisher())) {
+                    EventService.getInstance().publish(new JobPublishEvent(job.getUuid()).result(event.getResult()));
+                }
             }
             qm.close();
         }

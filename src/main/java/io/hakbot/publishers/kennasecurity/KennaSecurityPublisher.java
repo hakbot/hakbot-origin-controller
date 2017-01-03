@@ -20,14 +20,12 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
-import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.JsonUtil;
 import org.apache.commons.collections4.MapUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-
 import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -48,8 +46,8 @@ public class KennaSecurityPublisher extends BasePublisher {
     private RemoteInstance remoteInstance;
 
     @Override
-    public boolean initialize(Job job, Provider provider) {
-        super.initialize(job, provider);
+    public boolean initialize(Job job) {
+        super.initialize(job);
 
         JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
         remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));

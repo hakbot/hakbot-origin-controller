@@ -20,7 +20,6 @@ import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
-import io.hakbot.providers.Provider;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.JsonUtil;
 import javax.json.JsonObject;
@@ -37,8 +36,8 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     private RemoteInstance remoteInstance;
 
     @Override
-    public boolean initialize(Job job, Provider provider) {
-        super.initialize(job, provider);
+    public boolean initialize(Job job) {
+        super.initialize(job);
 
         JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));

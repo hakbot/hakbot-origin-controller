@@ -19,11 +19,15 @@ package io.hakbot.publishers;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.BasePlugin;
+import io.hakbot.controller.workers.ExpectedClassResolver;
+import io.hakbot.controller.workers.ExpectedClassResolverException;
 import io.hakbot.providers.Provider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Base64;
 
 public abstract class BasePublisher extends BasePlugin implements Publisher {
@@ -32,16 +36,14 @@ public abstract class BasePublisher extends BasePlugin implements Publisher {
     private static final Logger logger = Logger.getLogger(BasePublisher.class);
 
     private Job job;
-    private Provider provider;
 
     /**
      * This method is called prior to any other method and is intended to initialize
      * the instance of the publisher. This method can be overwritten if initialization
      * of the publisher is necessary.
      */
-    public boolean initialize(Job job, Provider provider) {
+    public boolean initialize(Job job) {
         this.job = job;
-        this.provider = provider;
         return true;
     }
 
@@ -52,30 +54,32 @@ public abstract class BasePublisher extends BasePlugin implements Publisher {
         return Base64.getDecoder().decode(job.getResult());
     }
 
-    /**
-     * Returns the provider that generated the results about to be published.
-     */
-    public Provider getProvider() {
-        return provider;
-    }
-
     public File getResult(File directory) {
         String filename = job.getUuid();
-        if (!StringUtils.isEmpty(provider.getResultExtension())) {
-            filename = filename + "." + provider.getResultExtension();
-        }
 
-        File result = new File(directory, filename).getAbsoluteFile();
         try {
+            ExpectedClassResolver resolver = new ExpectedClassResolver();
+            Class clazz = resolver.resolveProvider(job);
+            @SuppressWarnings("unchecked")
+            Constructor<?> con = clazz.getConstructor();
+            Provider provider = (Provider)con.newInstance();
+
+            if (!StringUtils.isEmpty(provider.getResultExtension())) {
+                filename = filename + "." + provider.getResultExtension();
+            }
+
+            File result = new File(directory, filename).getAbsoluteFile();
+
             FileUtils.writeByteArrayToFile(result, getResult());
             addProcessingMessage(job, "Result written to: " + result.getPath());
-        } catch (IOException e) {
+            return result;
+        } catch (ClassNotFoundException | ExpectedClassResolverException | NoSuchMethodException |
+                InstantiationException | InvocationTargetException | IllegalAccessException |  IOException e) {
             logger.error("Unable to write result from job: " + job.getUuid());
             logger.error(e.getMessage());
             addProcessingMessage(job, e.getMessage());
-            return null;
         }
-        return result;
+        return null;
     }
 
 }
