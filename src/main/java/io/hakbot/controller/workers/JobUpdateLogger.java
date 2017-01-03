@@ -52,6 +52,9 @@ public class JobUpdateLogger implements Subscriber {
                         job.setCreated(new Date());
                     }
                 }
+                if (event.getResult() != null) {
+                    job.setResult(event.getResult());
+                }
                 qm.updateJob(job);
             }
             qm.close();

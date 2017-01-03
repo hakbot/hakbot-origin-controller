@@ -20,6 +20,7 @@ import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.workers.JobManager;
 import io.hakbot.controller.workers.JobProcessWorker;
 import io.hakbot.controller.workers.JobProgressCheckWorker;
+import io.hakbot.controller.workers.JobPublishWorker;
 import io.hakbot.controller.workers.JobUpdateLogger;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -35,6 +36,7 @@ public class EventSubsystemInitializer implements ServletContextListener {
 
         eventService.subscribe(JobProcessEvent.class, JobProcessWorker.class);
         eventService.subscribe(JobProgressCheckEvent.class, JobProgressCheckWorker.class);
+        eventService.subscribe(JobPublishEvent.class, JobPublishWorker.class);
         eventService.subscribe(JobUpdateEvent.class, JobUpdateLogger.class);
     }
 
@@ -43,6 +45,7 @@ public class EventSubsystemInitializer implements ServletContextListener {
 
         eventService.unsubscribe(JobProcessWorker.class);
         eventService.unsubscribe(JobProgressCheckWorker.class);
+        eventService.unsubscribe(JobPublishWorker.class);
         eventService.unsubscribe(JobUpdateLogger.class);
         eventService.shutdown();
     }

@@ -16,41 +16,19 @@
  */
 package io.hakbot.controller.event;
 
-import io.hakbot.controller.workers.State;
+public class JobPublishEvent extends BaseJobEvent {
 
-public class JobUpdateEvent extends BaseJobEvent {
-
-    private String message;
-    private State state;
     private String result;
 
-    public JobUpdateEvent(String jobUuid) {
+    public JobPublishEvent(String jobUuid) {
         super(jobUuid);
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public State getState() {
-        return state;
     }
 
     public String getResult() {
         return result;
     }
 
-    public JobUpdateEvent message(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public JobUpdateEvent state(State state) {
-        this.state = state;
-        return this;
-    }
-
-    public JobUpdateEvent result(String result) {
+    public JobPublishEvent result(String result) {
         this.result = result;
         return this;
     }
