@@ -18,6 +18,13 @@ package io.hakbot.controller.event;
 
 import io.hakbot.controller.workers.State;
 
+/**
+ * This event is called when updates to the Job object are required during
+ * job execution. This event handles the updating of state, processing
+ * messages, and results.
+ *
+ * @see io.hakbot.controller.workers.JobUpdateLogger
+ */
 public class JobUpdateEvent extends BaseJobEvent {
 
     private String message;

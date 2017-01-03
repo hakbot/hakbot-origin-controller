@@ -16,6 +16,12 @@
  */
 package io.hakbot.controller.event;
 
+/**
+ * This event is called when an asynchronously processed job is in need of
+ * a status update.
+ *
+ * @see io.hakbot.controller.workers.JobProgressCheckWorker
+ */
 public class JobProgressCheckEvent extends BaseJobEvent {
 
     public JobProgressCheckEvent(String jobUuid) {

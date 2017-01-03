@@ -28,6 +28,14 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.providers.AsynchronousProvider;
 import java.lang.reflect.Constructor;
 
+/**
+ * The JobProgressCheckWorker is a Subscriber, that when a JobProgressCheckWorker
+ * event is fired, will check on the status of the job. This class is designed to
+ * work with AsynchronousProviders only. There is no need to check progress of
+ * synchronous providers.
+ *
+ * @see JobProgressCheckEvent
+ */
 public class JobProgressCheckWorker implements Subscriber {
 
     private static final Logger logger = Logger.getLogger(JobProgressCheckWorker.class);

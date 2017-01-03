@@ -16,6 +16,11 @@
  */
 package io.hakbot.controller.event;
 
+/**
+ * This event is called when a completed job needs publishing.
+ *
+ * @see io.hakbot.controller.workers.JobPublishWorker
+ */
 public class JobPublishEvent extends BaseJobEvent {
 
     private String result;

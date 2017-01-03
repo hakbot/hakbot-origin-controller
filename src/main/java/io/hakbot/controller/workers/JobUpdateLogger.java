@@ -27,6 +27,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * The JobUpdateLogger is a Subscriber, that when a JobUpdateEvent is fired,
+ * will update specific aspects of a job including job state, processing
+ * messages, and the automatic updating of various timestamps.
+ *
+ * @see JobUpdateEvent
+ */
 public class JobUpdateLogger implements Subscriber {
 
     public void inform(Event e) {

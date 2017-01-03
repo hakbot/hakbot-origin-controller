@@ -32,6 +32,15 @@ import io.hakbot.providers.SynchronousProvider;
 import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 
+/**
+ * The JobProcessWorker is a Subscriber, that when a JobProcessEvent is fired,
+ * will begin to process the specified job. This class begins by initializing
+ * a provider, checking if the provider is available to process jobs, and
+ * submits a request to the provider to begin processing. This class supports
+ * the processing of both AsynchronousProvider and SynchronousProvider jobs.
+ *
+ * @see JobProcessEvent
+ */
 public class JobProcessWorker implements Subscriber {
 
     private static final Logger logger = Logger.getLogger(JobProcessWorker.class);

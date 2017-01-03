@@ -28,6 +28,13 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.publishers.Publisher;
 import java.lang.reflect.Constructor;
 
+/**
+ * The JobPublishWorker is a Subscriber, that when a JobPublishEvent is fired,
+ * will begin to publish results of the specified job. This class begins by
+ * initializing the publisher followed by publishing the results.
+ *
+ * @see JobPublishEvent
+ */
 public class JobPublishWorker implements Subscriber {
 
     private static final Logger logger = Logger.getLogger(JobPublishWorker.class);
