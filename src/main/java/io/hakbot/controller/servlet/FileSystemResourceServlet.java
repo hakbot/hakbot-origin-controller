@@ -56,7 +56,7 @@ public class FileSystemResourceServlet extends StaticResourceServlet {
             logger.error(e.getMessage());
         }
         try {
-            if (!isInSubDirectory(pluginPath, new File(name).getCanonicalFile())) {
+            if (!isInSubDirectory(pluginPath, new File(pluginPath + "/" + name).getCanonicalFile())) {
                 return null;
             }
         } catch (IOException e) {
