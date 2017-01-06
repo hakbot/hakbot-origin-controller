@@ -6,13 +6,14 @@
     <persistence-unit name="HakbotOrigin">
         <class>io.hakbot.controller.model.ApiKey</class>
         <class>io.hakbot.controller.model.Job</class>
+        <class>io.hakbot.controller.model.JobArtifact</class>
         <class>io.hakbot.controller.model.JobProperty</class>
         <class>io.hakbot.controller.model.LdapUser</class>
         <class>io.hakbot.controller.model.Team</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="javax.jdo.option.ConnectionURL" value="jdbc:h2:~/.hakbot/origin-controller/db"/>
+            <property name="javax.jdo.option.ConnectionURL" value="jdbc:h2:~/.hakbot/origin-controller/db;MVCC=TRUE"/>
             <property name="javax.jdo.option.ConnectionDriverName" value="org.h2.Driver"/>
             <property name="javax.jdo.option.ConnectionUserName" value="sa"/>
             <property name="javax.jdo.option.ConnectionPassword" value=""/>

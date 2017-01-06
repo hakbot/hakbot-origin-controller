@@ -19,11 +19,15 @@ package io.hakbot.controller.persistence;
 import io.hakbot.controller.Config;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.JobProperty;
 import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.model.Team;
 import io.hakbot.controller.workers.State;
+import org.apache.commons.lang3.StringUtils;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import java.security.Principal;
@@ -94,6 +98,12 @@ public class QueryManager {
         job.setUuid(UUID.randomUUID().toString());
         pm.makePersistent(job);
         pm.currentTransaction().commit();
+        if (StringUtils.isNotBlank(providerPayload)) {
+            setJobArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD, JobArtifact.MimeType.JSON.value(), providerPayload.getBytes(), null, null);
+        }
+        if (StringUtils.isNotBlank(publisherPayload)) {
+            setJobArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD, JobArtifact.MimeType.JSON.value(), publisherPayload.getBytes(), null, null);
+        }
         return pm.getObjectById(Job.class, job.getId());
     }
 
@@ -152,6 +162,47 @@ public class QueryManager {
         pm.currentTransaction().commit();
         property = pm.getObjectById(JobProperty.class, property.getId());
         return property;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<JobArtifact> getJobArtifacts(Job job) {
+        Query query = pm.newQuery(JobArtifact.class, "jobid == :jobid");
+        return (List<JobArtifact>)query.execute(job.getId());
+    }
+
+    public JobArtifact getJobArtifact(Job job, JobArtifact.Type type) {
+        List<JobArtifact> artifacts = getJobArtifacts(job);
+        for (JobArtifact artifact: artifacts) {
+            if (artifact.getType().equals(type.name())) {
+                return artifact;
+            }
+        }
+        return null;
+    }
+
+    public JobArtifact setJobArtifact(@Nonnull Job job, @Nonnull JobArtifact.Type type, @Nonnull String mimeType, @Nonnull byte[] contents, @Nullable String uuid, @Nullable String filename) {
+        pm.currentTransaction().begin();
+        JobArtifact artifact = null;
+        boolean isNewObject = false;
+        if (uuid != null) {
+            isNewObject = false;
+            artifact = getObjectByUuid(JobArtifact.class, uuid);
+        }
+        if (artifact == null) {
+            isNewObject = true;
+            artifact = new JobArtifact();
+            artifact.setUuid(UUID.randomUUID().toString());
+        }
+        artifact.setJobid(job.getId());
+        artifact.setType(type);
+        artifact.setMimetype(mimeType);
+        artifact.setContents(contents);
+        artifact.setFilename(filename);
+        if (isNewObject) {
+            pm.makePersistent(artifact);
+        }
+        pm.currentTransaction().commit();
+        return pm.getObjectById(JobArtifact.class, artifact.getId());
     }
 
     @SuppressWarnings("unchecked")
