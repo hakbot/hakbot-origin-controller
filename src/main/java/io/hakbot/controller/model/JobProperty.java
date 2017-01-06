@@ -38,6 +38,7 @@ public class JobProperty implements Serializable {
 
     @Persistent
     @Column(name="JOB_ID", allowsNull="false")
+    @JsonIgnore
     private long jobid;
 
     @Persistent
