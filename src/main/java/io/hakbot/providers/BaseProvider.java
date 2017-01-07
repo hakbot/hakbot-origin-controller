@@ -18,11 +18,8 @@ package io.hakbot.providers;
 
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.BasePlugin;
-import java.util.Base64;
 
 public abstract class BaseProvider extends BasePlugin implements Provider {
-
-    private String result;
 
     /**
      * This method is called prior to any other method and is intended to initialize
@@ -55,33 +52,6 @@ public abstract class BaseProvider extends BasePlugin implements Provider {
      */
     public boolean isCancelable(Job job) {
         return true;
-    }
-
-    /**
-     * Sets the result from the job (if any). Results are Base64 encoded.
-     */
-    public void setResult(byte[] result) {
-        if (result.length == 0) {
-            return;
-        }
-        this.result = Base64.getEncoder().encodeToString(result);
-    }
-
-    /**
-     * Sets the result from the job (if any). Results are Base64 encoded.
-     */
-    public void setResult(Object result) {
-        if (result == null) {
-            return;
-        }
-        this.result = Base64.getEncoder().encodeToString(result.toString().getBytes());
-    }
-
-    /**
-     * Returns the Base64 encoded results.
-     */
-    public String getResult() {
-        return result;
     }
 
 }

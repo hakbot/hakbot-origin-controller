@@ -58,7 +58,7 @@ public class ConsoleResource extends BaseResource {
 
         // Query on the specified job and determine if principal has permissions
         QueryManager qm = new QueryManager();
-        Job job = qm.getJob(jobUuid, Job.FetchGroup.ALL, getPrincipal());
+        Job job = qm.getJob(jobUuid, getPrincipal());
         qm.close();
         if (job != null) {
             // Principal has access to job

@@ -40,6 +40,14 @@ public class JsonUtil {
     }
 
     /**
+     * Creates a JsonObject (a Map implementation) from a json-formatted byte[] array
+     */
+    public static JsonObject toJsonObject(byte[] jsonBytes) {
+        JsonReader jsonReader = Json.createReader(new StringReader(new String(jsonBytes)));
+        return jsonReader.readObject();
+    }
+
+    /**
      * Creates a JsonArray from a json-formatted string
      */
     public static JsonArray toJsonArray(String jsonString) {

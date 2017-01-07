@@ -11,8 +11,6 @@
                 </div>
                 <div class="modal-footer">
                     <div class="form-group">
-                        <label id="decodeToggleLabel" for="decodeToggle">Decode: </label>
-                        <input type="checkbox" class="form-control" id="decodeToggle" data-toggle="toggle">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
                 </div>

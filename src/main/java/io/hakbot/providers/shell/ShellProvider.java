@@ -18,18 +18,18 @@ package io.hakbot.providers.shell;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.workers.JobException;
 import io.hakbot.controller.workers.State;
 import io.hakbot.providers.BaseProvider;
 import io.hakbot.providers.SynchronousProvider;
 import io.hakbot.util.JsonUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import javax.json.JsonObject;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ShellProvider extends BaseProvider implements SynchronousProvider {
+public  class ShellProvider extends BaseProvider implements SynchronousProvider {
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(ShellProvider.class);
@@ -37,7 +37,7 @@ public class ShellProvider extends BaseProvider implements SynchronousProvider {
     private String command;
 
     public boolean initialize(Job job) {
-        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "command")) {
             addProcessingMessage(job, "Invalid request. Expected parameters: [command]");
             return false;
@@ -63,10 +63,14 @@ public class ShellProvider extends BaseProvider implements SynchronousProvider {
                 logger.debug("STDERR:");
                 logger.debug(new String(stderr));
             }
-            super.setResult(stdout);
-            if (exitCode != 0) {
-                if (StringUtils.isEmpty(super.getResult())) {
-                    setResult(stderr);
+
+            if (exitCode == 0) {
+                addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.PLAIN_TEXT.value(), stdout, "Console-STDOUT-" + job.getUuid() + ".txt");
+            } else {
+                if (stdout.length == 0) {
+                    addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.PLAIN_TEXT.value(), stderr, "Console-STDERR-" + job.getUuid() + ".txt");
+                } else {
+                    addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.PLAIN_TEXT.value(), stdout, "Console-STDOUT-" + job.getUuid() + ".txt");
                 }
                 throw new JobException(exitCode);
             }
@@ -99,14 +103,6 @@ public class ShellProvider extends BaseProvider implements SynchronousProvider {
 
     public String getDescription() {
         return "Executes a shell command or script and captures the output from STDOUT/STDERR.";
-    }
-
-    public String getResultMimeType() {
-        return "text/plain";
-    }
-
-    public String getResultExtension() {
-        return "txt";
     }
 
 }

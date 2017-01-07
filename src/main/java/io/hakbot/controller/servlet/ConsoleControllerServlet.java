@@ -77,7 +77,7 @@ public class ConsoleControllerServlet extends HttpServlet {
         }
 
         QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, Job.FetchGroup.MINIMAL, new SystemAccount());
+        Job job = qm.getJob(uuid, new SystemAccount());
         qm.close();
         if (job == null) {
             response.sendError(404);

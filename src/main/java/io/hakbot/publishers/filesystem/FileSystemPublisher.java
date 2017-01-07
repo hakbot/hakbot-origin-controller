@@ -18,6 +18,7 @@ package io.hakbot.publishers.filesystem;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.publishers.BasePublisher;
 import io.hakbot.util.JsonUtil;
 import javax.json.JsonObject;
@@ -34,7 +35,7 @@ public class FileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
+        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "publishPath")) {
             addProcessingMessage(job, "Invalid request. Expected parameter: [publishPath]");
             return false;
@@ -58,7 +59,8 @@ public class FileSystemPublisher extends BasePublisher {
             addProcessingMessage(job, "Cannot write to the specified publishPath.");
             return false;
         }
-        File report = getResult(path);
+        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        File report = getResult(artifact, path);
         return report != null;
     }
 

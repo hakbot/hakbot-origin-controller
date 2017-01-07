@@ -31,4 +31,13 @@ public interface AsynchronousProvider extends Provider {
      */
     boolean isRunning(Job job);
 
+    /**
+     * Get the results of a provider.
+     *
+     * For AsynchronousProviders, getResult will typically perform a web
+     * service (REST/SOAP) request out to the scanning service in order to
+     * obtain the result of the scan.
+     */
+    void getResult(Job job);
+
 }

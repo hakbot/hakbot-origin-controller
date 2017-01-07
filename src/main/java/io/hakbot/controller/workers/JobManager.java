@@ -133,7 +133,7 @@ public class JobManager {
         private List<Job> getInProcessJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.ASC, Job.FetchGroup.MINIMAL, systemAccount));
+            jobs.addAll(qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.ASC, systemAccount));
             qm.close();
             return jobs;
         }
@@ -141,8 +141,8 @@ public class JobManager {
         private List<Job> getWaitingJobs() {
             List<Job> jobs = new ArrayList<>();
             QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, Job.FetchGroup.MINIMAL, systemAccount));
-            jobs.addAll(qm.getJobs(State.IN_QUEUE, QueryManager.OrderDirection.ASC, Job.FetchGroup.MINIMAL, systemAccount));
+            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, systemAccount));
+            jobs.addAll(qm.getJobs(State.IN_QUEUE, QueryManager.OrderDirection.ASC, systemAccount));
             qm.close();
             return jobs;
         }
@@ -156,7 +156,7 @@ public class JobManager {
             logger.info("Starting Prune of Job Database");
             Date now = new Date();
             QueryManager qm = new QueryManager();
-            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, Job.FetchGroup.MINIMAL, systemAccount);
+            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, systemAccount);
             for (Job job : allJobs) {
                 if (!(job.getState() == State.CREATED || job.getState() == State.IN_QUEUE || job.getState() == State.IN_PROGRESS)) {
                     if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {

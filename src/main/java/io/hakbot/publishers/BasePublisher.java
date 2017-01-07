@@ -18,17 +18,12 @@ package io.hakbot.publishers;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.plugin.BasePlugin;
-import io.hakbot.controller.workers.ExpectedClassResolver;
-import io.hakbot.controller.workers.ExpectedClassResolverException;
-import io.hakbot.providers.Provider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Base64;
 
 public abstract class BasePublisher extends BasePlugin implements Publisher {
 
@@ -48,35 +43,23 @@ public abstract class BasePublisher extends BasePlugin implements Publisher {
     }
 
     /**
-     * Returns the Base64 decoded results.
+     * Writes the contents of the JobArtifact to the specified directory. Returns a
+     * File object referencing the result, or null if something goes wrong.
      */
-    public byte[] getResult() {
-        return Base64.getDecoder().decode(job.getResult());
-    }
-
-    public File getResult(File directory) {
-        String filename = job.getUuid();
-
+    public File getResult(JobArtifact artifact, File directory) {
         try {
-            ExpectedClassResolver resolver = new ExpectedClassResolver();
-            Class clazz = resolver.resolveProvider(job);
-            @SuppressWarnings("unchecked")
-            Constructor<?> con = clazz.getConstructor();
-            Provider provider = (Provider)con.newInstance();
-
-            if (!StringUtils.isEmpty(provider.getResultExtension())) {
-                filename = filename + "." + provider.getResultExtension();
+            String filename = artifact.getFilename();
+            if (StringUtils.isEmpty(filename)) {
+                filename = job.getUuid() + ".result";
             }
-
             File result = new File(directory, filename).getAbsoluteFile();
-
-            FileUtils.writeByteArrayToFile(result, getResult());
+            FileUtils.writeByteArrayToFile(result, artifact.getContents());
             addProcessingMessage(job, "Result written to: " + result.getPath());
             return result;
-        } catch (ClassNotFoundException | ExpectedClassResolverException | NoSuchMethodException |
-                InstantiationException | InvocationTargetException | IllegalAccessException |  IOException e) {
+        } catch (IOException e) {
             logger.error("Unable to write result from job: " + job.getUuid());
             logger.error(e.getMessage());
+            addProcessingMessage(job, "Unable to write result to file");
             addProcessingMessage(job, e.getMessage());
         }
         return null;

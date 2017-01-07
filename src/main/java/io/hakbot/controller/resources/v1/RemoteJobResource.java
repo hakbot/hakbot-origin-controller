@@ -56,7 +56,7 @@ public class RemoteJobResource extends BaseResource {
         }
 
         QueryManager qm = new QueryManager();
-        List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, Job.FetchGroup.ALL, getPrincipal());
+        List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, getPrincipal());
         qm.close();
         if (jobs.size() > 0) {
             return Response.ok(jobs.get(0)).build();

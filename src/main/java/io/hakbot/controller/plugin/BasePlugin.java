@@ -19,32 +19,34 @@ package io.hakbot.controller.plugin;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.JobProperty;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
+import org.apache.commons.lang3.SerializationUtils;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BasePlugin implements Plugin {
+public abstract class BasePlugin {
 
     /**
      * Adds a processing message to the job (asynchronously).
      */
-    public void addProcessingMessage(Job job, String message) {
+    protected void addProcessingMessage(Job job, String message) {
         EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message(message));
     }
 
     /**
      * Updates the status of a job (asynchronously).
      */
-    public void updateState(Job job, State state) {
+    protected void updateState(Job job, State state) {
         EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(state));
     }
 
     /**
      * Returns the value for the specified job property key
      */
-    public String getJobProperty(Job job, String key) {
+    protected String getJobProperty(Job job, String key) {
         QueryManager qm = new QueryManager();
         JobProperty prop = qm.getJobProperty(job, key);
         qm.close();
@@ -54,7 +56,7 @@ public abstract class BasePlugin implements Plugin {
     /**
      * Returns all the job properties for the specified job
      */
-    public List<JobProperty> getJobProperties(Job job) {
+    protected List<JobProperty> getJobProperties(Job job) {
         QueryManager qm = new QueryManager();
         List<JobProperty> props = qm.getJobProperties(job);
         qm.close();
@@ -64,7 +66,7 @@ public abstract class BasePlugin implements Plugin {
     /**
      * Sets the value for the specified job property key
      */
-    public void setJobProperty(Job job, String key, Object value) {
+    protected void setJobProperty(Job job, String key, Object value) {
         QueryManager qm = new QueryManager();
         qm.setJobProperty(job, key, value);
         qm.close();
@@ -73,7 +75,7 @@ public abstract class BasePlugin implements Plugin {
     /**
      * Sets values for the specified job property keys
      */
-    public void setJobProperties(Job job, Map<String, Object> properties) {
+    protected void setJobProperties(Job job, Map<String, Object> properties) {
         QueryManager qm = new QueryManager();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             qm.setJobProperty(job, entry.getKey(), entry.getValue());
@@ -81,4 +83,39 @@ public abstract class BasePlugin implements Plugin {
         qm.close();
     }
 
+    protected JobArtifact addArtifact(Job job, JobArtifact.Type type, String mimeType, byte[] contents, String filename) {
+        QueryManager qm = new QueryManager();
+        JobArtifact artifact = qm.setJobArtifact(job, type, mimeType, contents, null, filename);
+        qm.close();
+        return artifact;
+    }
+
+    protected JobArtifact getArtifact(Job job, JobArtifact.Type type) {
+        QueryManager qm = new QueryManager();
+        JobArtifact artifact = qm.getJobArtifact(job, type);
+        byte[] contents = artifact.getContents(); // Force this blob to be loaded when qm is still open
+        qm.close();
+        return artifact;
+    }
+
+    protected RemoteInstance getRemoteInstance(Job job) {
+        JobArtifact artifact = getArtifact(job, JobArtifact.Type.REMOTE_INSTANCE);
+        byte[] content = artifact.getContents();
+        return (RemoteInstance)SerializationUtils.deserialize(content);
+    }
+
+    protected void setRemoteInstance(Job job, RemoteInstance remoteInstance) {
+        byte[] content = SerializationUtils.serialize(remoteInstance);
+        QueryManager qm = new QueryManager();
+        qm.setJobArtifact(job, JobArtifact.Type.REMOTE_INSTANCE, JobArtifact.MimeType.OBJECT.value(), content, null, null);
+        qm.close();
+    }
+
+    protected JobArtifact getProviderPayload(Job job) {
+        return getArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD);
+    }
+
+    protected JobArtifact getPublisherPayload(Job job) {
+        return getArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD);
+    }
 }

@@ -443,33 +443,8 @@ $('#modalTextDetail').on('show.bs.modal', function(e) {
     textarea.val(null);
 
     var api = $(e.relatedTarget).data('api');
-
-    // Show or hide the decode button
-    if (api.lastIndexOf('/result', 0) === 0) {
-        $('#decodeToggle').bootstrapToggle(); // initialize
-        $('#decodeToggleLabel').css('display', 'inline-block');
-        $('#decodeToggle').bootstrapToggle('off')
-    } else {
-        $('#decodeToggle').bootstrapToggle('destroy');
-        $('#decodeToggle').css('display', 'none');
-        $('#decodeToggleLabel').css('display', 'none');
-    }
-
     var url = contextPath() + URL_JOB + "/" + selectedJob.uuid + api;
     populateModalTextarea(url);
-});
-
-/**
- * Event that's fired whenever the value of the decode toggle is changed
- */
-$(function() {
-    $('#decodeToggle').change(function() {
-        var url = contextPath() + URL_JOB + "/" + selectedJob.uuid + "/result";
-        if ($(this).prop('checked') == true) {
-            url += ("?q=2");
-        }
-        populateModalTextarea(url);
-    })
 });
 
 /**

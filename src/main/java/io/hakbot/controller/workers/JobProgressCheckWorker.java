@@ -17,6 +17,7 @@
 package io.hakbot.controller.workers;
 
 import io.hakbot.controller.event.JobProgressCheckEvent;
+import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
 import io.hakbot.controller.event.framework.EventService;
@@ -26,6 +27,7 @@ import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.providers.AsynchronousProvider;
+import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Constructor;
 
 /**
@@ -45,7 +47,7 @@ public class JobProgressCheckWorker implements Subscriber {
             JobProgressCheckEvent event = (JobProgressCheckEvent) e;
 
             QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), Job.FetchGroup.MINIMAL, new SystemAccount());
+            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
             if (logger.isDebugEnabled()) {
@@ -59,14 +61,16 @@ public class JobProgressCheckWorker implements Subscriber {
                 Constructor<?> constructor = clazz.getConstructor();
                 // We only need to check status of asynchronous jobs
                 AsynchronousProvider provider = (AsynchronousProvider)constructor.newInstance();
-                if (provider.initialize(job)) {
-                    if (!provider.isRunning(job)) {
-                        // todo: Get result and update status
+                if (!provider.isRunning(job)) {
+                    // Mark as complete first, then retrieve result. It may take a while to download result, so
+                    // we don't what this attempted again, thus marking it complete first.
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
+                    provider.getResult(job);
+                    // Now that the result has been downloaded check if a publisher was defined and if so, send event.
+                    if (!StringUtils.isEmpty(job.getPublisher())) {
+                        EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                     }
-                } else {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + provider.getName()));
                 }
-
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
                 EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));

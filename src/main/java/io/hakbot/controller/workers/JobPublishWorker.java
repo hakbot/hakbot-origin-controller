@@ -44,7 +44,7 @@ public class JobPublishWorker implements Subscriber {
             JobPublishEvent event = (JobPublishEvent)e;
 
             QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), Job.FetchGroup.ALL, new SystemAccount());
+            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
             logger.info("Job: " + event.getJobUuid() + " is being processed.");

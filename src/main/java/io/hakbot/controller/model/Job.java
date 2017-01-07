@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.hakbot.controller.workers.State;
 import javax.jdo.annotations.Column;
-import javax.jdo.annotations.FetchGroup;
-import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
@@ -32,39 +30,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 @PersistenceCapable
-@FetchGroups({
-        @FetchGroup(name="message", members={@Persistent(name="message")}),
-        @FetchGroup(name="providerPayload", members={@Persistent(name="providerPayload")}),
-        @FetchGroup(name="publisherPayload", members={@Persistent(name="publisherPayload")}),
-        @FetchGroup(name="result", members={@Persistent(name="result")}),
-        @FetchGroup(name="all", members={
-                @Persistent(name="message"),
-                @Persistent(name="providerPayload"),
-                @Persistent(name="publisherPayload"),
-                @Persistent(name="result")})
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Job implements Serializable {
 
     private static final long serialVersionUID = 4247510467373253623L;
-
-    public enum FetchGroup {
-        MINIMAL(javax.jdo.FetchGroup.DEFAULT),
-        MESSAGE("message"),
-        PROVIDER_PAYLOAD("providerPayload"),
-        PUBLISHER_PAYLOAD("publisherPayload"),
-        RESULT("result"),
-        ALL("all");
-
-        private String fetchGroupName;
-        FetchGroup(String fetchGroupName) {
-            this.fetchGroupName = fetchGroupName;
-        }
-
-        public String getName() {
-            return fetchGroupName;
-        }
-    }
 
     @PrimaryKey
     @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
@@ -88,17 +57,9 @@ public class Job implements Serializable {
     @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
     private String publisher;
 
-    @Persistent(defaultFetchGroup="false")
+    @Persistent(defaultFetchGroup="true")
     @Column(name="MESSAGE", jdbcType="CLOB")
     private String message;
-
-    @Persistent(defaultFetchGroup="false")
-    @Column(name="PROVIDERPAYLOAD", jdbcType="CLOB")
-    private String providerPayload;
-
-    @Persistent(defaultFetchGroup="false")
-    @Column(name="PUBLISHERPAYLOAD", jdbcType="CLOB")
-    private String publisherPayload;
 
     @Persistent
     @Column(name="CREATED", jdbcType="TIMESTAMP", allowsNull="false")
@@ -122,10 +83,6 @@ public class Job implements Serializable {
     @Persistent
     @Column(name="STATE", jdbcType="VARCHAR", length=20, allowsNull="false")
     private String state;
-
-    @Persistent(defaultFetchGroup="false")
-    @Column(name="RESULT", jdbcType="CLOB")
-    private String result;
 
     public long getId() {
         return id;
@@ -173,22 +130,6 @@ public class Job implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getProviderPayload() {
-        return providerPayload;
-    }
-
-    public void setProviderPayload(String payload) {
-        this.providerPayload = payload;
-    }
-
-    public String getPublisherPayload() {
-        return publisherPayload;
-    }
-
-    public void setPublisherPayload(String payload) {
-        this.publisherPayload = payload;
     }
 
     public Date getCreated() {
@@ -241,14 +182,6 @@ public class Job implements Serializable {
             return completed.getTime() - created.getTime();
         }
         return null;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     public long getStartedByApiKeyId() {

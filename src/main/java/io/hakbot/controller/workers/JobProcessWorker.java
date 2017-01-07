@@ -48,7 +48,7 @@ public class JobProcessWorker implements Subscriber {
             JobProcessEvent event = (JobProcessEvent)e;
 
             QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), Job.FetchGroup.ALL, new SystemAccount());
+            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
             logger.info("Job: " + event.getJobUuid() + " is being processed.");
@@ -59,7 +59,7 @@ public class JobProcessWorker implements Subscriber {
                 Class clazz = resolver.resolveProvider(job);
                 @SuppressWarnings("unchecked")
                 Constructor<?> con = clazz.getConstructor();
-                Provider provider = (AsynchronousProvider.class == clazz) ?
+                Provider provider = (AsynchronousProvider.class.isAssignableFrom(clazz)) ?
                         (AsynchronousProvider)con.newInstance() : (SynchronousProvider)con.newInstance();
 
                 initialized = provider.initialize(job);
@@ -80,11 +80,10 @@ public class JobProcessWorker implements Subscriber {
                         // Synchronous execution needs to wait for the process to complete, thus holding up a thread.
                         // The boolean result from the execution determines if the execution was successful or not.
                         boolean success = ((SynchronousProvider)provider).process(job);
-                        String result = provider.getResult();
                         if (success) {
-                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED).result(result));
+                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                         } else {
-                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).result(result));
+                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
                         }
                     }
                 } else {

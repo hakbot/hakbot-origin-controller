@@ -18,6 +18,7 @@ package io.hakbot.publishers.filesystem;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.publishers.BasePublisher;
@@ -39,7 +40,7 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getProviderPayload());
+        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             addProcessingMessage(job, "RemoteFileSystem instance cannot be found or is not defined.");
@@ -49,28 +50,12 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        File report = getResult(new File(System.getProperty("java.io.tmpdir")));
-        if (report == null) {
-            return false;
+        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
+        if (report != null) {
+            return true;
         }
-        boolean success = false;
-        /*
-        try {
-            FileSystemOptions fsOptions = new FileSystemOptions();
-            SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(fsOptions, "no");
-            FileSystemManager fsManager = VFS.getManager();
-            String uri = "sftp://user:password@host:port/absolute-path";
-            FileObject fo = fsManager.resolveFile(uri, fsOptions);
-            if (!success) {
-                job.addMessage("Failed to upload result to remote file system");
-                job.addMessage(response.getStatusInfo().getReasonPhrase());
-            }
-            formDataMultiPart.close();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        */
-        return success;
+        return false;
     }
 
     public String getName() {

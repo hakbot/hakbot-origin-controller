@@ -17,10 +17,13 @@
 package io.hakbot.controller.plugin;
 
 import io.hakbot.controller.logging.Logger;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class RemoteInstance {
+public class RemoteInstance implements Serializable {
+
+    private static final long serialVersionUID = -2989746094308584919L;
 
     // Setup logging
     private static final Logger logger = Logger.getLogger(RemoteInstance.class);

@@ -47,32 +47,4 @@ public interface Provider extends Plugin {
      */
     boolean cancel(Job job);
 
-    /**
-     * Get the results of a provider. Results may be the result from STDOUT, a
-     * report, or a binary. Results should always be Base64 encoded.
-     */
-    String getResult();
-
-    /**
-     * Sets the result from the job (if any). Results should always be Base64
-     * encoded.
-     */
-    void setResult(byte[] result);
-
-    /**
-     * Sets the result from the job (if any). Results should always be Base64
-     * encoded.
-     */
-    void setResult(Object result);
-
-    /**
-     * Gets the mime type of the result
-     */
-    String getResultMimeType();
-
-    /**
-     * Gets the file extension of the result if it were a file
-     */
-    String getResultExtension();
-
 }

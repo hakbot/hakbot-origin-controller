@@ -16,14 +16,12 @@
  */
 package io.hakbot.providers.nessus;
 
-public abstract class NessusConstants {
+abstract class NessusConstants {
 
-    static final String PROP_INSTANCE_ALIAS = "nessus.instance.alias";
-    static final String PROP_SERVER_URL = "nessus.server.url";
-    static final String PROP_SERVER_VALIDATE_CERTS = "nessus.server.validate.certs";
-    static final String PROP_SCAN_USERNAME = "nessus.scan.username";
-    static final String PROP_SCAN_PASSWORD = "nessus.scan.password";
     static final String PROP_SCAN_ID = "nessus.scan.id";
     static final String PLUGIN_ID = "nessus";
+    static final String SCAN_NAME = "scanName";
+    static final String SCAN_POLICY = "scanPolicy";
+    static final String TARGETS = "targets";
 
 }

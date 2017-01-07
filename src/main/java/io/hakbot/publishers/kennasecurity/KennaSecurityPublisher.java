@@ -18,6 +18,7 @@ package io.hakbot.publishers.kennasecurity;
 
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.controller.plugin.RemoteInstanceAutoConfig;
 import io.hakbot.publishers.BasePublisher;
@@ -49,7 +50,7 @@ public class KennaSecurityPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(job.getPublisherPayload());
+        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));
         if (remoteInstance == null) {
             addProcessingMessage(job, "KennaSecurity instance cannot be found or is not defined.");
@@ -59,7 +60,8 @@ public class KennaSecurityPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        File report = getResult(new File(System.getProperty("java.io.tmpdir")));
+        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
         if (report == null) {
             return false;
         }

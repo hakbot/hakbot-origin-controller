@@ -47,8 +47,7 @@ public class QueryManager {
     private PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        pm.getFetchPlan().addGroup(fetchGroup.getName());
+    public List<Job> getJobs(OrderDirection order, Principal principal) {
         Query query = pm.newQuery(Job.class);
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>) query.execute();
@@ -56,8 +55,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        pm.getFetchPlan().addGroup(fetchGroup.getName());
+    public List<Job> getJobs(State state, OrderDirection order, Principal principal) {
         Query query = pm.newQuery(Job.class, "state == :state");
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute(state.getValue());
@@ -65,8 +63,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Job> getJobs(String pluginClass, State state, OrderDirection order, Job.FetchGroup fetchGroup, Principal principal) {
-        pm.getFetchPlan().addGroup(fetchGroup.getName());
+    public List<Job> getJobs(String pluginClass, State state, OrderDirection order, Principal principal) {
         Query query = pm.newQuery(Job.class, "providerClass == :pluginClass && state == :state");
         query.setOrdering("created " + order.name());
         List<Job> result = (List<Job>)query.execute(pluginClass, state.getValue());
@@ -74,8 +71,7 @@ public class QueryManager {
     }
 
     @SuppressWarnings("unchecked")
-    public Job getJob(String uuid, Job.FetchGroup fetchGroup, Principal principal) {
-        pm.getFetchPlan().addGroup(fetchGroup.getName());
+    public Job getJob(String uuid, Principal principal) {
         Query query = pm.newQuery(Job.class, "uuid == :uuid");
         List<Job> result = (List<Job>)query.execute(uuid);
         List<Job> permissible = getPermissible(result, principal);
@@ -88,8 +84,6 @@ public class QueryManager {
         job.setName(name);
         job.setProvider(provider);
         job.setPublisher(publisher);
-        job.setProviderPayload(providerPayload);
-        job.setPublisherPayload(publisherPayload);
         job.setCreated(new Date());
         job.setState(State.CREATED);
         if (apiKey != null) {
@@ -108,7 +102,7 @@ public class QueryManager {
     }
 
     public Job updateJob(Job transientJob) {
-        Job job = getJob(transientJob.getUuid(), Job.FetchGroup.ALL, new SystemAccount());
+        Job job = getJob(transientJob.getUuid(), new SystemAccount());
         pm.currentTransaction().begin();
         job.setCompleted(transientJob.getCompleted());
         job.setCreated(transientJob.getCreated());
@@ -116,9 +110,6 @@ public class QueryManager {
         job.setName(transientJob.getName());
         job.setProvider(transientJob.getProvider());
         job.setPublisher(transientJob.getPublisher());
-        job.setProviderPayload(transientJob.getProviderPayload());
-        job.setPublisherPayload(transientJob.getPublisherPayload());
-        job.setResult(transientJob.getResult());
         job.setStarted(transientJob.getStarted());
         job.setStartedByApiKeyId(transientJob.getStartedByApiKeyId());
         job.setState(transientJob.getState());

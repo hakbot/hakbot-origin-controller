@@ -21,9 +21,12 @@ import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
 import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.event.framework.Subscriber;
+import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
+import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
+import io.hakbot.providers.SynchronousProvider;
 import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,37 +41,52 @@ import java.util.Date;
  */
 public class JobUpdateLogger implements Subscriber {
 
+    private static final Logger logger = Logger.getLogger(JobUpdateLogger.class);
+
     public void inform(Event e) {
         if(e instanceof JobUpdateEvent) {
             JobUpdateEvent event = (JobUpdateEvent)e;
             QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), Job.FetchGroup.MINIMAL, new SystemAccount());
+            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             if (job != null) {
                 if (StringUtils.isNotBlank(event.getMessage())) {
                     addMessage(job, event.getMessage());
                 }
                 if (event.getState() != null) {
-                    State state = event.getState();
-                    if (job.getState() != state) {
-                        addMessage(job, "Job state changed to " + state.getValue());
-                    }
-                    job.setState(event.getState());
-                    if (state == State.CANCELED || state == State.COMPLETED || state == State.FAILED || state == State.PUBLISHED) {
-                        job.setCompleted(new Date());
-                    } else if (state == State.IN_PROGRESS) {
-                        job.setStarted(new Date());
-                    } else if (state == State.CREATED) {
-                        job.setCreated(new Date());
+                    // Check to see if the job already failed. If so, do not update state anymore
+                    if (job.getState() != State.FAILED) {
+                        State state = event.getState();
+                        if (job.getState() != state) {
+                            addMessage(job, "Job state changed to " + state.getValue());
+                        }
+                        job.setState(event.getState());
+                        if (state == State.CANCELED || state == State.COMPLETED || state == State.FAILED || state == State.PUBLISHED) {
+                            job.setCompleted(new Date());
+                        } else if (state == State.IN_PROGRESS) {
+                            job.setStarted(new Date());
+                        } else if (state == State.CREATED) {
+                            job.setCreated(new Date());
+                        }
                     }
                 }
                 if (event.getResult() != null) {
-                    job.setResult(event.getResult());
+                    qm.setJobArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.BINARY.value(), event.getResult().getBytes(), null, null);
                 }
                 qm.updateJob(job);
 
                 // Job has been updated, now check if a publisher was defined and if so, send event.
                 if (event.getState() == State.COMPLETED && !StringUtils.isEmpty(job.getPublisher())) {
-                    EventService.getInstance().publish(new JobPublishEvent(job.getUuid()).result(event.getResult()));
+                    // First check to see if provider is sync or async. sync providers will be informed to
+                    // publish here, while async provider will be informed to publish in JobProgressCheckWorker
+                    ExpectedClassResolver resolver = new ExpectedClassResolver();
+                    try {
+                        Class clazz = resolver.resolveProvider(job);
+                        if (SynchronousProvider.class.isAssignableFrom(clazz)) {
+                            EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
+                        }
+                    } catch (ClassNotFoundException | ExpectedClassResolverException ex) {
+                        logger.error(ex.getMessage());
+                    }
                 }
             }
             qm.close();
