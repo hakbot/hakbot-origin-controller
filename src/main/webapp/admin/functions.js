@@ -47,6 +47,10 @@ $teamTable.on("click-row.bs.table", function(e, row, $tr) {
 });
 
 function teamDetailFormatter(index, row) {
+    var hakmasterChecked = '';
+    if (row.hakmaster == true) {
+        hakmasterChecked = 'checked="checked"';
+    }
     var html = [];
     //$.each(row, function (key, value) {
     //    html.push('<p><b>' + key + ':</b> ' + value + '</p>');
@@ -91,7 +95,7 @@ function teamDetailFormatter(index, row) {
         </div> 
         <div class="form-group">
             <label for="inputApiKeys">Hakmaster</label>
-            <input type="checkbox" class="form-control" id="inputTeamHakmaster" placeholder="Hakmaster" checked="${row.hakmaster}">
+            <input type="checkbox" class="form-control" id="inputTeamHakmaster" placeholder="Hakmaster" ${hakmasterChecked}>
         </div> 
     </div>
     <div class="col-sm-6 col-md-6">
