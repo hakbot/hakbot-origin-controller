@@ -24,6 +24,8 @@ import io.hakbot.controller.model.JobProperty;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,11 @@ public abstract class BasePlugin {
         QueryManager qm = new QueryManager();
         JobProperty prop = qm.getJobProperty(job, key);
         qm.close();
-        return prop.getValue();
+        if (prop == null || prop.getValue() == null || StringUtils.isBlank(prop.getValue())) {
+            return null;
+        } else {
+            return prop.getValue();
+        }
     }
 
     /**
@@ -64,21 +70,28 @@ public abstract class BasePlugin {
     }
 
     /**
-     * Sets the value for the specified job property key
+     * Sets the value for the specified job property key. Accepts null
+     * values, but does not save them, thus failing gracefully.
      */
     protected void setJobProperty(Job job, String key, Object value) {
+        if (key == null || value == null) {
+            return;
+        }
         QueryManager qm = new QueryManager();
         qm.setJobProperty(job, key, value);
         qm.close();
     }
 
     /**
-     * Sets values for the specified job property keys
+     * Sets values for the specified job property keys. Accepts null
+     * values, but does not save them, thus failing gracefully.
      */
     protected void setJobProperties(Job job, Map<String, Object> properties) {
         QueryManager qm = new QueryManager();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            qm.setJobProperty(job, entry.getKey(), entry.getValue());
+            if (entry.getKey() != null && entry.getValue() != null) {
+                qm.setJobProperty(job, entry.getKey(), entry.getValue());
+            }
         }
         qm.close();
     }
