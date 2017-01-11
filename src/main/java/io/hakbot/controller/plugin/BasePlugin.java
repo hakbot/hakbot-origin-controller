@@ -25,7 +25,6 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.State;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 import java.util.Map;
 
