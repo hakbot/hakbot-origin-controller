@@ -20,15 +20,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Element;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Join;
+import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Set;
+import java.util.List;
 
 @PersistenceCapable
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -54,7 +56,8 @@ public class LdapUser implements Serializable, Principal {
     @Persistent(table="LDAPUSERS_TEAMS", defaultFetchGroup="true")
     @Join(column="LDAPUSER_ID")
     @Element(column="TEAM_ID")
-    private Set<Team> teams;
+    @Order(extensions=@Extension(vendorName="datanucleus", key="list-ordering", value="name ASC"))
+    private List<Team> teams;
 
     public long getId() {
         return id;
@@ -80,11 +83,11 @@ public class LdapUser implements Serializable, Principal {
         this.username = username;
     }
 
-    public Set<Team> getTeams() {
+    public List<Team> getTeams() {
         return teams;
     }
 
-    public void setTeams(Set<Team> teams) {
+    public void setTeams(List<Team> teams) {
         this.teams = teams;
     }
 
