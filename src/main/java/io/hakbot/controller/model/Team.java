@@ -24,12 +24,14 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Unique;
 import java.io.Serializable;
 import java.util.Set;
 
 @PersistenceCapable
 @FetchGroups({
         @FetchGroup(name="all", members={
+                @Persistent(name="uuid"),
                 @Persistent(name="name"),
                 @Persistent(name="hakmaster"),
                 @Persistent(name="apiKeys"),
@@ -58,6 +60,11 @@ public class Team implements Serializable {
     private long id;
 
     @Persistent
+    @Unique(name="TEAM_UUID_IDX")
+    @Column(name="UUID", jdbcType="VARCHAR", length=36, allowsNull="false")
+    private String uuid;
+
+    @Persistent
     @Column(name="NAME", jdbcType="VARCHAR", length=50, allowsNull="false")
     private String name;
 
@@ -77,6 +84,14 @@ public class Team implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
