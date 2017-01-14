@@ -22,6 +22,12 @@ function formatTeamTable(res) {
     for (var i=0; i<res.length; i++) {
         res[i].apiKeysNum = res[i].apiKeys.length;
         res[i].membersNum = res[i].ldapUsers.length;
+
+        if (res[i].hakmaster == true) {
+            res[i].hakmasterIcon = "&#10004;";
+        } else {
+            res[i].hakmasterIcon = "";
+        }
     }
     return res;
 }
@@ -42,6 +48,7 @@ $teamTable.on("click-row.bs.table", function(e, row, $tr) {
     if ($tr.next().is('tr.detail-view')) {
         $teamTable.bootstrapTable('collapseRow', $tr.data('index'));
     } else {
+        $teamTable.bootstrapTable('collapseAllRows');
         $teamTable.bootstrapTable('expandRow', $tr.data('index'));
     }
 });
@@ -60,23 +67,25 @@ function teamDetailFormatter(index, row) {
     var apiKeysHtml = '';
     for (i = 0; i < row.apiKeys.length; i++) {
         apiKeysHtml += `
-            <li class="list-group-item">${row.apiKeys[i].key}
+            <li class="list-group-item">
                 <a href="#" onclick="alert('Not yet implemented')" data-toggle="tooltip" title="Delete API Key">
-                    <span class="glyphicon glyphicon-trash pull-right"></span>
+                    <span class="glyphicon glyphicon-trash glyphicon-input-form pull-right"></span>
                 </a>
                 <a href="#" onclick="alert('Not yet implemented')" data-toggle="tooltip" title="Regenerate New API Key">
-                    <span class="glyphicon glyphicon-refresh pull-right spacer-horizontal-10"></span>
+                    <span class="glyphicon glyphicon-refresh glyphicon-input-form pull-right spacer-horizontal-10"></span>
                 </a>
+                ${row.apiKeys[i].key}
             </li>`;
     }
 
     var membersHtml = '';
     for (i = 0; i < row.ldapUsers.length; i++) {
         membersHtml += `
-            <li class="list-group-item">${row.ldapUsers[i].username}
+            <li class="list-group-item">
                 <a href="#" onclick="alert('Not yet implemented')" data-toggle="tooltip" title="Remove User From Team">
-                    <span class="glyphicon glyphicon-trash pull-right"></span>
+                    <span class="glyphicon glyphicon-trash glyphicon-input-form pull-right"></span>
                 </a>
+                ${row.ldapUsers[i].username}
             </li>`;
     }
 
@@ -95,7 +104,7 @@ function teamDetailFormatter(index, row) {
         </div> 
         <div class="form-group">
             <label for="inputApiKeys">Hakmaster</label>
-            <input type="checkbox" class="form-control" id="inputTeamHakmaster" placeholder="Hakmaster" ${hakmasterChecked}>
+            <input type="checkbox" class="checkbox-inline" id="inputTeamHakmaster" placeholder="Hakmaster" ${hakmasterChecked}>
         </div> 
     </div>
     <div class="col-sm-6 col-md-6">

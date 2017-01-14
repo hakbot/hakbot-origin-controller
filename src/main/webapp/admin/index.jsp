@@ -33,7 +33,7 @@
                                     <th data-align="left" data-field="name">Team Name</th>
                                     <th data-align="left" data-field="apiKeysNum">API Keys</th>
                                     <th data-align="left" data-field="membersNum">Members</th>
-                                    <th data-align="left" data-field="hakmaster">Hakmaster</th>
+                                    <th data-align="left" data-field="hakmasterIcon">Hakmaster</th>
                                 </tr>
                                 </thead>
                             </table>
