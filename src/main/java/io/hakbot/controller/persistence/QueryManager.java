@@ -290,6 +290,15 @@ public class QueryManager {
         return (List<Team>)query.execute();
     }
 
+    public Team updateTeam(Team transientTeam) {
+        Team team = getObjectByUuid(Team.class, transientTeam.getUuid());
+        pm.currentTransaction().begin();
+        team.setName(transientTeam.getName());
+        team.setHakmaster(transientTeam.isHakmaster());
+        pm.currentTransaction().commit();
+        return pm.getObjectById(Team.class, team.getId());
+    }
+
     private List<Job> getPermissible(List<Job> result, Principal principal) {
         List<Job> permissible = new ArrayList<>();
         for (Job job: result) {

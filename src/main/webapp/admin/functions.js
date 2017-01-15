@@ -194,7 +194,6 @@ function regenerateApiKey(apikey) {
 }
 
 function addApiKey(uuid) {
-    console.log("adding api key for team: " + uuid);
     $.ajax({
         url: contextPath() + URL_TEAM + "/" + uuid + "/key",
         contentType: CONTENT_TYPE_JSON,
@@ -210,7 +209,18 @@ function addApiKey(uuid) {
 }
 
 function setHakmaster(uuid, isHakmaster) {
-    alert("Setting hakmaster status of team: " + uuid + " to: " + isHakmaster);
+    $.ajax({
+        url: contextPath() + URL_TEAM + "/" + uuid + "/hakmaster/" + isHakmaster,
+        contentType: CONTENT_TYPE_JSON,
+        dataType: DATA_TYPE,
+        type: METHOD_POST,
+        success: function (data) {
+            $teamTable.bootstrapTable('refresh', {silent: true});
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            console.log("failed");
+        }
+    });
 }
 
 function removeTeamMembership(uuid, username) {

@@ -131,4 +131,33 @@ public class TeamResource extends BaseResource {
         }
     }
 
+    @POST
+    @Path("/{uuid}/hakmaster/{hakmaster}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Sets Hakmaster role on the specified team",
+            notes = "Requires hakmaster permission.",
+            response = Team.class
+    )
+    public Response setHakmaster(
+            @ApiParam(value = "The UUID of the team", required = true)
+            @PathParam("uuid") String uuid,
+            @ApiParam(value = "Boolean indicating if team has Hakmaster role", required = true)
+            @PathParam("hakmaster") boolean hakmaster) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        QueryManager qm = new QueryManager();
+        Team team = qm.getObjectByUuid(Team.class, uuid);
+        if (team != null) {
+            team.setHakmaster(hakmaster);
+            team = qm.updateTeam(team);
+            qm.close();
+            return Response.ok(team).build();
+        } else {
+            qm.close();
+            return Response.notModified().build();
+        }
+    }
+
 }
