@@ -25,6 +25,7 @@ import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.model.Team;
 import io.hakbot.controller.workers.State;
+import io.hakbot.util.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,6 +33,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -245,6 +247,24 @@ public class QueryManager {
         return result.size() == 0 ? null : result.get(0);
     }
 
+    public ApiKey regenerateApiKey(ApiKey apiKey) {
+        pm.currentTransaction().begin();
+        apiKey.setKey(UuidUtil.stripHyphens(UUID.randomUUID().toString()));
+        pm.currentTransaction().commit();
+        apiKey = pm.getObjectById(ApiKey.class, apiKey.getId());
+        return apiKey;
+    }
+
+    public ApiKey createApiKey(Team team) {
+        pm.currentTransaction().begin();
+        ApiKey apiKey = new ApiKey();
+        apiKey.setKey(UuidUtil.stripHyphens(UUID.randomUUID().toString()));
+        apiKey.setTeams(Arrays.asList(team));
+        pm.makePersistent(apiKey);
+        pm.currentTransaction().commit();
+        return pm.getObjectById(ApiKey.class, apiKey.getId());
+    }
+
     @SuppressWarnings("unchecked")
     public LdapUser getLdapUser(String username) {
         Query query = pm.newQuery(LdapUser.class, "username == :username");
@@ -323,6 +343,12 @@ public class QueryManager {
             }
         }
         return false;
+    }
+
+    public void delete(Object... objects) {
+        pm.currentTransaction().begin();
+        pm.deletePersistentAll(objects);
+        pm.currentTransaction().commit();
     }
 
     public <T>T getObjectById (Class<T> clazz, Object key) {
