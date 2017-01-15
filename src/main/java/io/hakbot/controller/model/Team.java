@@ -17,6 +17,7 @@
 package io.hakbot.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.FetchGroup;
@@ -39,6 +40,7 @@ import java.util.List;
                 @Persistent(name="apiKeys"),
                 @Persistent(name="ldapUsers")})
 })
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Team implements Serializable {
 
     private static final long serialVersionUID = 6173877472831531299L;
