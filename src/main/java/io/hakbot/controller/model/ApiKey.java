@@ -27,7 +27,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Set;
+import java.util.List;
 
 @PersistenceCapable
 public class ApiKey implements Serializable, Principal {
@@ -48,7 +48,7 @@ public class ApiKey implements Serializable, Principal {
     @Join(column="APIKEY_ID")
     @Element(column="TEAM_ID")
     @JsonIgnore
-    private Set<Team> teams;
+    private List<Team> teams;
 
     public long getId() {
         return id;
@@ -76,11 +76,11 @@ public class ApiKey implements Serializable, Principal {
         return getKey();
     }
 
-    public Set<Team> getTeams() {
+    public List<Team> getTeams() {
         return teams;
     }
 
-    public void setTeams(Set<Team> teams) {
+    public void setTeams(List<Team> teams) {
         this.teams = teams;
     }
 
