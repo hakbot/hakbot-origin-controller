@@ -33,9 +33,10 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class QueryManager {
@@ -256,10 +257,12 @@ public class QueryManager {
     }
 
     public ApiKey createApiKey(Team team) {
+        Set<Team> teams = new HashSet<>();
+        teams.add(team);
         pm.currentTransaction().begin();
         ApiKey apiKey = new ApiKey();
         apiKey.setKey(UuidUtil.stripHyphens(UUID.randomUUID().toString()));
-        apiKey.setTeams(Arrays.asList(team));
+        apiKey.setTeams(teams);
         pm.makePersistent(apiKey);
         pm.currentTransaction().commit();
         return pm.getObjectById(ApiKey.class, apiKey.getId());
