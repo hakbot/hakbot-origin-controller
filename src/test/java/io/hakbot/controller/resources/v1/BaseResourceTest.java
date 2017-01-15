@@ -32,7 +32,6 @@ import io.hakbot.providers.shell.ShellProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.spi.TestContainer;
 import org.junit.After;
 import org.junit.Before;
 import javax.jdo.PersistenceManager;
@@ -42,8 +41,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 
 public class BaseResourceTest extends JerseyTest {
 
@@ -137,13 +136,15 @@ public class BaseResourceTest extends JerseyTest {
 
         Team admins = new Team();
         admins.setName("Administrators");
+        admins.setUuid("00000000-0000-0000-0000-000000000000");
         admins.setHakmaster(true);
-        admins.setLdapUsers(new HashSet<LdapUser>(){{add(adminUser);}});
+        admins.setLdapUsers(new ArrayList<LdapUser>(){{add(adminUser);}});
 
         Team users = new Team();
         users.setName("Users");
+        users.setUuid("00000000-0000-0000-0000-000000000001");
         users.setHakmaster(false);
-        users.setLdapUsers(new HashSet<LdapUser>(){{add(user);}});
+        users.setLdapUsers(new ArrayList<LdapUser>(){{add(user);}});
 
         pm.makePersistentAll(admins, users);
         pm.currentTransaction().commit();
