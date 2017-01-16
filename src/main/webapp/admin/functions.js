@@ -121,10 +121,10 @@ function teamDetailFormatter(index, row) {
 
     var template = `
     <div class="col-sm-6 col-md-6">
-    <form>
+    <form id="form-${row.uuid}">
         <div class="form-group">
             <label for="inputTeamName">Team Name</label>
-            <input type="text" class="form-control" id="inputTeamName" placeholder="Name" value="${row.name}">
+            <input type="text" class="form-control" id="inputTeamName-${row.uuid}" placeholder="Name" value="${row.name}" data-team-uuid="${row.uuid}">
         </div>
         <div class="form-group">
             <label for="inputApiKeys">API Keys</label>
@@ -134,7 +134,7 @@ function teamDetailFormatter(index, row) {
         </div> 
         <div class="form-group">
             <label for="inputApiKeys">Hakmaster</label>
-            <input type="checkbox" class="checkbox-inline" id="inputTeamHakmaster" placeholder="Hakmaster" ${hakmasterChecked} onchange="setHakmaster('${row.uuid}', this.checked)">
+            <input type="checkbox" class="checkbox-inline" id="inputTeamHakmaster-${row.uuid}" placeholder="Hakmaster" ${hakmasterChecked} data-team-uuid="${row.uuid}">
         </div> 
     </div>
     <div class="col-sm-6 col-md-6">
@@ -147,9 +147,33 @@ function teamDetailFormatter(index, row) {
         <button type="submit" class="btn btn-primary pull-right">Save</button>
     </form>
     </div>
+    <script type="text/javascript">
+        $('#inputTeamName-${row.uuid}').keypress(debounce(updateTeam, 750));
+        $('#inputTeamHakmaster-${row.uuid}').change(updateTeam);
+    </script>
 `;
     html.push(template);
     return html.join('');
+}
+
+function updateTeam() {
+    var teamUuid = $(this).data("team-uuid");
+    var teamName = $('#inputTeamName-' + teamUuid).val();
+    var isHakmaster = $('#inputTeamHakmaster-' + teamUuid).is(':checked');
+    $.ajax({
+        url: contextPath() + URL_TEAM,
+        contentType: CONTENT_TYPE_JSON,
+        dataType: DATA_TYPE,
+        type: METHOD_POST,
+        data: JSON.stringify({uuid: teamUuid, name: teamName, hakmaster: isHakmaster}),
+        success: function (data) {
+            console.log(data);
+            $teamTable.bootstrapTable('refresh', {silent: true});
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            console.log("failed");
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -199,21 +223,6 @@ function addApiKey(uuid) {
         contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_PUT,
-        success: function (data) {
-            $teamTable.bootstrapTable('refresh', {silent: true});
-        },
-        error: function(xhr, ajaxOptions, thrownError){
-            console.log("failed");
-        }
-    });
-}
-
-function setHakmaster(uuid, isHakmaster) {
-    $.ajax({
-        url: contextPath() + URL_TEAM + "/" + uuid + "/hakmaster/" + isHakmaster,
-        contentType: CONTENT_TYPE_JSON,
-        dataType: DATA_TYPE,
-        type: METHOD_POST,
         success: function (data) {
             $teamTable.bootstrapTable('refresh', {silent: true});
         },
