@@ -22,6 +22,7 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -49,10 +50,59 @@ public class TeamResource extends BaseResource {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
         }
-        QueryManager qm = new QueryManager();
-        List<Team> teams = qm.getTeams();
-        qm.close();
-        return Response.ok(teams).build();
+        try (QueryManager qm = new QueryManager()) {
+            List<Team> teams = qm.getTeams();
+            return Response.ok(teams).build();
+        }
+    }
+
+    @GET
+    @Path("/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Returns a specific team",
+            notes = "Requires hakmaster permission.",
+            response = Team.class
+    )
+    public Response getTeam(
+            @ApiParam(value = "The UUID of the team to retrieve", required = true)
+            @PathParam("uuid") String uuid) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            Team team = qm.getObjectByUuid(Team.class, uuid);
+            if (team != null) {
+                return Response.ok(team).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Updates a team's fields including name and hakmaster",
+            notes = "Requires hakmaster permission.",
+            response = Team.class
+    )
+    public Response updateTeam(Team jsonTeam) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid());
+            if (team != null) {
+                team.setName(jsonTeam.getName());
+                team.setHakmaster(jsonTeam.isHakmaster());
+                team = qm.updateTeam(jsonTeam);
+                return Response.ok(team).build();
+            } else {
+                return Response.notModified().build();
+            }
+        }
     }
 
     @PUT
@@ -69,15 +119,14 @@ public class TeamResource extends BaseResource {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
         }
-        QueryManager qm = new QueryManager();
-        Team team = qm.getObjectByUuid(Team.class, uuid);
-        if (team != null) {
-            ApiKey apiKey = qm.createApiKey(team);
-            qm.close();
-            return Response.ok(apiKey).build();
-        } else {
-            qm.close();
-            return Response.notModified().build();
+        try (QueryManager qm = new QueryManager()) {
+            Team team = qm.getObjectByUuid(Team.class, uuid);
+            if (team != null) {
+                ApiKey apiKey = qm.createApiKey(team);
+                return Response.ok(apiKey).build();
+            } else {
+                return Response.notModified().build();
+            }
         }
     }
 
@@ -95,15 +144,14 @@ public class TeamResource extends BaseResource {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
         }
-        QueryManager qm = new QueryManager();
-        ApiKey apiKey = qm.getApiKey(apikey);
-        if (apiKey != null) {
-            apiKey = qm.regenerateApiKey(apiKey);
-            qm.close();
-            return Response.ok(apiKey).build();
-        } else {
-            qm.close();
-            return Response.notModified().build();
+        try (QueryManager qm = new QueryManager()) {
+            ApiKey apiKey = qm.getApiKey(apikey);
+            if (apiKey != null) {
+                apiKey = qm.regenerateApiKey(apiKey);
+                return Response.ok(apiKey).build();
+            } else {
+                return Response.notModified().build();
+            }
         }
     }
 
@@ -119,44 +167,14 @@ public class TeamResource extends BaseResource {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
         }
-        QueryManager qm = new QueryManager();
-        ApiKey apiKey = qm.getApiKey(apikey);
-        if (apiKey != null) {
-            qm.delete(apiKey);
-            qm.close();
-            return Response.ok().build();
-        } else {
-            qm.close();
-            return Response.notModified("The API key could not be found").build();
-        }
-    }
-
-    @POST
-    @Path("/{uuid}/hakmaster/{hakmaster}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Sets Hakmaster role on the specified team",
-            notes = "Requires hakmaster permission.",
-            response = Team.class
-    )
-    public Response setHakmaster(
-            @ApiParam(value = "The UUID of the team", required = true)
-            @PathParam("uuid") String uuid,
-            @ApiParam(value = "Boolean indicating if team has Hakmaster role", required = true)
-            @PathParam("hakmaster") boolean hakmaster) {
-        if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
-        }
-        QueryManager qm = new QueryManager();
-        Team team = qm.getObjectByUuid(Team.class, uuid);
-        if (team != null) {
-            team.setHakmaster(hakmaster);
-            team = qm.updateTeam(team);
-            qm.close();
-            return Response.ok(team).build();
-        } else {
-            qm.close();
-            return Response.notModified().build();
+        try (QueryManager qm = new QueryManager()) {
+            ApiKey apiKey = qm.getApiKey(apikey);
+            if (apiKey != null) {
+                qm.delete(apiKey);
+                return Response.ok().build();
+            } else {
+                return Response.notModified("The API key could not be found").build();
+            }
         }
     }
 
