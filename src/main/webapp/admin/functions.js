@@ -143,8 +143,7 @@ function teamDetailFormatter(index, row) {
             <ul class="list-group" id="inputTeamMembers">
                 ${membersHtml}
             </ul>
-        </div> 
-        <button type="submit" class="btn btn-primary pull-right">Save</button>
+        </div>
     </form>
     </div>
     <script type="text/javascript">
