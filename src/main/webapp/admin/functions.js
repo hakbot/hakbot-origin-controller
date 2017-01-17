@@ -144,15 +144,37 @@ function teamDetailFormatter(index, row) {
                 ${membersHtml}
             </ul>
         </div>
+        <button type="button" class="btn btn-danger pull-right" id="deleteTeam-${row.uuid}" data-team-uuid="${row.uuid}">Delete Team</button>
     </form>
     </div>
     <script type="text/javascript">
         $('#inputTeamName-${row.uuid}').keypress(debounce(updateTeam, 750));
         $('#inputTeamHakmaster-${row.uuid}').change(updateTeam);
+        $('#deleteTeam-${row.uuid}').on('click', deleteTeam);
     </script>
 `;
     html.push(template);
     return html.join('');
+}
+
+function createTeam() {
+    var inputField = $('#createTeamNameInput');
+    var teamName = inputField.val();
+    $.ajax({
+        url: contextPath() + URL_TEAM,
+        contentType: CONTENT_TYPE_JSON,
+        dataType: DATA_TYPE,
+        type: METHOD_PUT,
+        data: JSON.stringify({name: teamName}),
+        success: function (data) {
+            console.log(data);
+            $teamTable.bootstrapTable('refresh', {silent: true});
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            console.log("failed");
+        }
+    });
+    inputField.val('');
 }
 
 function updateTeam() {
@@ -166,7 +188,24 @@ function updateTeam() {
         type: METHOD_POST,
         data: JSON.stringify({uuid: teamUuid, name: teamName, hakmaster: isHakmaster}),
         success: function (data) {
-            console.log(data);
+            $teamTable.bootstrapTable('refresh', {silent: true});
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            console.log("failed");
+        }
+    });
+}
+
+function deleteTeam() {
+    var teamUuid = $(this).data("team-uuid");
+    $.ajax({
+        url: contextPath() + URL_TEAM,
+        contentType: CONTENT_TYPE_JSON,
+        type: METHOD_DELETE,
+        data: JSON.stringify({uuid: teamUuid}),
+        success: function (data) {
+            $teamTable.expanded = false;
+            $teamTable.bootstrapTable('collapseAllRows');
             $teamTable.bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
@@ -178,6 +217,14 @@ function updateTeam() {
 $(document).ready(function () {
     // Initialize all tooltips
     $('[data-toggle="tooltip"]').tooltip();
+
+    // Listen for if teams should be created
+    $('#createTeamCreateButton').on('click', createTeam);
+
+    // When modal closes, clear out the input fields
+    $('#modalCreateTeam').on('hidden.bs.modal', function () {
+        $('#createTeamNameInput').val('');
+    })
 });
 
 function deleteApiKey(apikey) {

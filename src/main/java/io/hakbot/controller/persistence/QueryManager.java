@@ -33,6 +33,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -282,6 +283,20 @@ public class QueryManager implements AutoCloseable {
         return (List<LdapUser>)query.execute();
     }
 
+    public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
+        pm.currentTransaction().begin();
+        Team team = new Team();
+        team.setName(name);
+        team.setHakmaster(isHakmaster);
+        team.setUuid(UUID.randomUUID().toString());
+        pm.makePersistent(team);
+        pm.currentTransaction().commit();
+        if (createApiKey) {
+            createApiKey(team);
+        }
+        return getObjectByUuid(Team.class, team.getUuid(), Team.FetchGroup.ALL.getName());
+    }
+
     @SuppressWarnings("unchecked")
     public List<Team> getTeams() {
         pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
@@ -363,6 +378,12 @@ public class QueryManager implements AutoCloseable {
         pm.currentTransaction().commit();
     }
 
+    public void delete(Collection collection) {
+        pm.currentTransaction().begin();
+        pm.deletePersistentAll(collection);
+        pm.currentTransaction().commit();
+    }
+
     public <T>T getObjectById (Class<T> clazz, Object key) {
         return pm.getObjectById(clazz, key);
     }
@@ -372,6 +393,12 @@ public class QueryManager implements AutoCloseable {
         Query query = pm.newQuery(clazz, "uuid == :uuid");
         List<T> result = (List<T>)query.execute(uuid);
         return result.size() == 0 ? null : result.get(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T>T getObjectByUuid(Class<T> clazz, String uuid, String fetchGroup) {
+        pm.getFetchPlan().addGroup(fetchGroup);
+        return getObjectByUuid(clazz, uuid);
     }
 
     public void close() {

@@ -80,6 +80,24 @@ public class TeamResource extends BaseResource {
         }
     }
 
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Creates a new team along with an associated API key",
+            notes = "Requires hakmaster permission.",
+            response = Team.class
+    )
+    public Response createTeam(Team jsonTeam) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            Team team = qm.createTeam(jsonTeam.getName(), false, true);
+            return Response.ok(team).build();
+        }
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -102,6 +120,25 @@ public class TeamResource extends BaseResource {
             } else {
                 return Response.notModified().build();
             }
+        }
+    }
+
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Deletes a team",
+            notes = "Requires hakmaster permission."
+    )
+    public Response deleteTeam(Team jsonTeam) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid(), Team.FetchGroup.ALL.getName());
+            qm.delete(team.getApiKeys());
+            qm.delete(team);
+            return Response.ok().build();
         }
     }
 
