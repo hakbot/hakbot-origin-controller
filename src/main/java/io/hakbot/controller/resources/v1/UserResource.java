@@ -25,9 +25,12 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -108,6 +111,42 @@ public class UserResource extends BaseResource {
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(getPrincipal().getName());
             return Response.ok(user).build();
+        }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Creates a new user that references an existing LDAP object.",
+            notes = "Requires hakmaster permission.",
+            response = LdapUser.class
+    )
+    public Response createLdapUser(LdapUser jsonUser) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            LdapUser user = qm.createLdapUser(jsonUser.getUsername());
+            return Response.ok(user).build();
+        }
+    }
+
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Deletes a user.",
+            notes = "Requires hakmaster permission."
+    )
+    public Response deleteLdapUser(LdapUser jsonUser) {
+        if (!isHakmaster()) {
+            Response.status(Response.Status.UNAUTHORIZED);
+        }
+        try (QueryManager qm = new QueryManager()) {
+            LdapUser user = qm.getLdapUser(jsonUser.getUsername());
+            qm.delete(user);
+            return Response.ok().build();
         }
     }
 

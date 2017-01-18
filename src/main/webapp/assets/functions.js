@@ -33,6 +33,7 @@ var URL_HAKMASTER = "/v1/user/hakmaster";
 var URL_JOB = "/v1/job";
 var URL_CONSOLE_JOB = "/v1/console/job";
 var URL_TEAM = "/v1/team";
+var URL_USER = "/v1/user";
 var STATE_CREATED = "CREATED";
 var STATE_IN_QUEUE = "IN_QUEUE";
 var STATE_IN_PROGRESS = "IN_PROGRESS";

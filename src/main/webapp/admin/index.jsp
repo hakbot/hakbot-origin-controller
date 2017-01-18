@@ -44,15 +44,21 @@
                             </table>
                         </div>
                         <div class="tab-pane" id="usersTab">
-                            <table id="usersTable" class="table table-hover table-striped detail-table" data-toggle="table"
+                            <div id="usersToolbar">
+                                <div class="form-inline" role="form">
+                                    <button id="createUserButton" class="btn btn-default" data-toggle="modal" data-target="#modalCreateUser"><span class="glyphicon glyphicon-plus"></span> Create User</button>
+                                </div>
+                            </div>
+                            <table id="usersTable" class="table table-hover detail-table" data-toggle="table"
                                    data-url="<c:url value="/api/v1/user"/>" data-response-handler="formatUserTable"
                                    data-show-refresh="true" data-show-columns="true" data-search="true"
-                                   data-detail-view="true" data-detail-formatter="teamDetailFormatter"
-                                   data-click-to-select="true" data-height="100%">
+                                   data-detail-view="true" data-detail-formatter="userDetailFormatter"
+                                   data-toolbar="#usersToolbar" data-click-to-select="true" data-height="100%">
                                 <thead>
                                 <tr>
                                     <th data-align="left" data-field="username">Username</th>
                                     <th data-align="left" data-field="dn">Distinguished Name</th>
+                                    <th data-align="left" data-field="teamsNum">Teams</th>
                                 </tr>
                                 </thead>
                             </table>
@@ -80,6 +86,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" id="createTeamCreateButton">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCreateUser" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create User</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="sr-only" for="createUserNameInput">Team Name</label>
+                        <input type="text" name="username" placeholder="LDAP username..." class="form-control" id="createUserNameInput">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="createUserCreateButton">Create</button>
                 </div>
             </div>
         </div>
