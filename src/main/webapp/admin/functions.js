@@ -15,11 +15,55 @@
  * Hakbot Origin Controller. If not, see http://www.gnu.org/licenses/.
  */
 
+"use strict";
+
+
 /**
- * Called by bootstrap table to format the data in the table.
+ * Setup events and trigger other stuff when the page is loaded and ready
+ */
+$(document).ready(function () {
+
+    // Initialize all tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Listen for if the button to create a team is clicked
+    $('#createTeamCreateButton').on('click', createTeam);
+
+    // When modal closes, clear out the input fields
+    $('#modalCreateTeam').on('hidden.bs.modal', function () {
+        $('#createTeamNameInput').val('');
+    });
+
+    const teamTable = $('#teamsTable');
+    teamTable.on("click-row.bs.table", function(e, row, $tr) {
+        //console.log("Clicked on: " + $(e.target).attr('class'), [e, row, $tr]);
+        if ($tr.next().is('tr.detail-view')) {
+            teamTable.bootstrapTable('collapseRow', $tr.data('index'));
+            teamTable.expanded = false;
+        } else {
+            teamTable.bootstrapTable('collapseAllRows');
+            teamTable.bootstrapTable('expandRow', $tr.data('index'));
+            teamTable.expanded = true;
+            teamTable.expandedUuid = row.uuid;
+        }
+    });
+
+    teamTable.on("load-success.bs.table", function(e, data) {
+        if (teamTable.expanded == true) {
+            $.each(data, function(i, team) {
+                if (team.uuid == teamTable.expandedUuid) {
+                    teamTable.bootstrapTable('expandRow', i);
+                }
+            });
+        }
+    });
+});
+
+/**
+ * Called by bootstrap table to format the data in the team table.
  */
 function formatTeamTable(res) {
-    for (var i=0; i<res.length; i++) {
+    for (let i=0; i<res.length; i++) {
         if (res[i].apiKeys === undefined) {
             res[i].apiKeysNum = 0;
         } else {
@@ -41,52 +85,29 @@ function formatTeamTable(res) {
 }
 
 /**
- * Called by bootstrap table to format the data in the table.
+ * Called by bootstrap table to format the data in the ldap users table.
  */
 function formatUserTable(res) {
-    for (var i=0; i<res.length; i++) {
+    for (let i=0; i<res.length; i++) {
     }
     return res;
 }
 
-var $teamTable = $('#teamsTable');
-$teamTable.on("click-row.bs.table", function(e, row, $tr) {
-    //console.log("Clicked on: " + $(e.target).attr('class'), [e, row, $tr]);
-    if ($tr.next().is('tr.detail-view')) {
-        $teamTable.bootstrapTable('collapseRow', $tr.data('index'));
-        $teamTable.expanded = false;
-    } else {
-        $teamTable.bootstrapTable('collapseAllRows');
-        $teamTable.bootstrapTable('expandRow', $tr.data('index'));
-        $teamTable.expanded = true;
-        $teamTable.expandedUuid = row.uuid;
-    }
-});
-
-$teamTable.on("load-success.bs.table", function(e, data) {
-    if ($teamTable.expanded == true) {
-        $.each(data, function(i, team) {
-            if (team.uuid == $teamTable.expandedUuid) {
-                $teamTable.bootstrapTable('expandRow', i);
-            }
-        });
-    }
-});
-
+/**
+ * Function called by bootstrap table when row is clicked/touched, and
+ * expanded. This function handles the dynamic creation of the expanded
+ * view with simple inline templates.
+ */
 function teamDetailFormatter(index, row) {
-    var hakmasterChecked = '';
+    let hakmasterChecked = '';
     if (row.hakmaster == true) {
         hakmasterChecked = 'checked="checked"';
     }
-    var html = [];
-    //$.each(row, function (key, value) {
-    //    html.push('<p><b>' + key + ':</b> ' + value + '</p>');
-    //});
+    let html = [];
 
-
-    var apiKeysHtml = '';
+    let apiKeysHtml = '';
     if (!(row.apiKeys === undefined)) {
-        for (i = 0; i < row.apiKeys.length; i++) {
+        for (let i = 0; i < row.apiKeys.length; i++) {
             apiKeysHtml += `
             <li class="list-group-item" id="container-apikey-${row.apiKeys[i].key}">
                 <a href="#" id="delete-${row.apiKeys[i].key}" onclick="deleteApiKey('${row.apiKeys[i].key}')" data-toggle="tooltip" title="Delete API Key">
@@ -108,10 +129,9 @@ function teamDetailFormatter(index, row) {
             </li>`;
 
 
-
-    var membersHtml = '';
+    let membersHtml = '';
     if (!(row.ldapUsers === undefined)) {
-        for (i = 0; i < row.ldapUsers.length; i++) {
+        for (let i = 0; i < row.ldapUsers.length; i++) {
             membersHtml += `
             <li class="list-group-item">
                 <a href="#" onclick="removeTeamMembership('${row.uuid}', '${row.ldapUsers[i].username}')" data-toggle="tooltip" title="Remove User From Team">
@@ -122,7 +142,7 @@ function teamDetailFormatter(index, row) {
         }
     }
 
-    var template = `
+    let template = `
     <div class="col-sm-6 col-md-6">
     <form id="form-${row.uuid}">
         <div class="form-group">
@@ -160,9 +180,12 @@ function teamDetailFormatter(index, row) {
     return html.join('');
 }
 
+/**
+ * Service called when a team is created.
+ */
 function createTeam() {
-    var inputField = $('#createTeamNameInput');
-    var teamName = inputField.val();
+    const inputField = $('#createTeamNameInput');
+    const teamName = inputField.val();
     $.ajax({
         url: contextPath() + URL_TEAM,
         contentType: CONTENT_TYPE_JSON,
@@ -170,8 +193,7 @@ function createTeam() {
         type: METHOD_PUT,
         data: JSON.stringify({name: teamName}),
         success: function (data) {
-            console.log(data);
-            $teamTable.bootstrapTable('refresh', {silent: true});
+            $('#teamsTable').bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -180,10 +202,13 @@ function createTeam() {
     inputField.val('');
 }
 
+/**
+ * Service called when a team is updated.
+ */
 function updateTeam() {
-    var teamUuid = $(this).data("team-uuid");
-    var teamName = $('#inputTeamName-' + teamUuid).val();
-    var isHakmaster = $('#inputTeamHakmaster-' + teamUuid).is(':checked');
+    const teamUuid = $(this).data("team-uuid");
+    const teamName = $('#inputTeamName-' + teamUuid).val();
+    const isHakmaster = $('#inputTeamHakmaster-' + teamUuid).is(':checked');
     $.ajax({
         url: contextPath() + URL_TEAM,
         contentType: CONTENT_TYPE_JSON,
@@ -191,7 +216,7 @@ function updateTeam() {
         type: METHOD_POST,
         data: JSON.stringify({uuid: teamUuid, name: teamName, hakmaster: isHakmaster}),
         success: function (data) {
-            $teamTable.bootstrapTable('refresh', {silent: true});
+            $('#teamsTable').bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -199,17 +224,21 @@ function updateTeam() {
     });
 }
 
+/**
+ * Service called when a team is deleted.
+ */
 function deleteTeam() {
-    var teamUuid = $(this).data("team-uuid");
+    const teamUuid = $(this).data("team-uuid");
     $.ajax({
         url: contextPath() + URL_TEAM,
         contentType: CONTENT_TYPE_JSON,
         type: METHOD_DELETE,
         data: JSON.stringify({uuid: teamUuid}),
         success: function (data) {
-            $teamTable.expanded = false;
-            $teamTable.bootstrapTable('collapseAllRows');
-            $teamTable.bootstrapTable('refresh', {silent: true});
+            const teamTable = $('#teamsTable');
+            teamTable.expanded = false;
+            teamTable.bootstrapTable('collapseAllRows');
+            teamTable.bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -217,27 +246,17 @@ function deleteTeam() {
     });
 }
 
-$(document).ready(function () {
-    // Initialize all tooltips
-    $('[data-toggle="tooltip"]').tooltip();
-
-    // Listen for if teams should be created
-    $('#createTeamCreateButton').on('click', createTeam);
-
-    // When modal closes, clear out the input fields
-    $('#modalCreateTeam').on('hidden.bs.modal', function () {
-        $('#createTeamNameInput').val('');
-    })
-});
-
-function deleteApiKey(apikey) {
+/**
+ * Service called when an API key is created.
+ */
+function addApiKey(uuid) {
     $.ajax({
-        url: contextPath() + URL_TEAM + "/key/" + apikey,
+        url: contextPath() + URL_TEAM + "/" + uuid + "/key",
         contentType: CONTENT_TYPE_JSON,
-        type: METHOD_DELETE,
-        success: function () {
-            $('#container-apikey-' + apikey).remove();
-            $teamTable.bootstrapTable('refresh', {silent: true});
+        dataType: DATA_TYPE,
+        type: METHOD_PUT,
+        success: function (data) {
+            $('#teamsTable').bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -245,6 +264,9 @@ function deleteApiKey(apikey) {
     });
 }
 
+/**
+ * Service called when an API key is regenerated.
+ */
 function regenerateApiKey(apikey) {
     $.ajax({
         url: contextPath() + URL_TEAM + "/key/" + apikey,
@@ -258,7 +280,7 @@ function regenerateApiKey(apikey) {
             $('#regen-' + data.key).attr("onclick","regenerateApiKey('" + data.key + "')");
             $('#delete-' + apikey).attr("id","delete-" + data.key);
             $('#delete-' + data.key).attr("onclick","deleteApiKey('" + data.key + "')");
-            $teamTable.bootstrapTable('refresh', {silent: true});
+            $('#teamsTable').bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -266,14 +288,17 @@ function regenerateApiKey(apikey) {
     });
 }
 
-function addApiKey(uuid) {
+/**
+ * Service called when an API key is deleted.
+ */
+function deleteApiKey(apikey) {
     $.ajax({
-        url: contextPath() + URL_TEAM + "/" + uuid + "/key",
+        url: contextPath() + URL_TEAM + "/key/" + apikey,
         contentType: CONTENT_TYPE_JSON,
-        dataType: DATA_TYPE,
-        type: METHOD_PUT,
-        success: function (data) {
-            $teamTable.bootstrapTable('refresh', {silent: true});
+        type: METHOD_DELETE,
+        success: function () {
+            $('#container-apikey-' + apikey).remove();
+            $('#teamsTable').bootstrapTable('refresh', {silent: true});
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
