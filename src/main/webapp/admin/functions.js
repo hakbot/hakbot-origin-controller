@@ -59,14 +59,17 @@ $teamTable.on("click-row.bs.table", function(e, row, $tr) {
         $teamTable.bootstrapTable('collapseAllRows');
         $teamTable.bootstrapTable('expandRow', $tr.data('index'));
         $teamTable.expanded = true;
-        $teamTable.expandedRow = $tr.data('index');
+        $teamTable.expandedUuid = row.uuid;
     }
 });
 
-$teamTable.on("load-success.bs.table", function(data) {
+$teamTable.on("load-success.bs.table", function(e, data) {
     if ($teamTable.expanded == true) {
-        console.log("expanding: " + $teamTable.expandedRow);
-        $teamTable.bootstrapTable('expandRow', $teamTable.expandedRow);
+        $.each(data, function(i, team) {
+            if (team.uuid == $teamTable.expandedUuid) {
+                $teamTable.bootstrapTable('expandRow', i);
+            }
+        });
     }
 });
 
