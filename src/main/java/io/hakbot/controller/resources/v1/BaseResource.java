@@ -52,8 +52,9 @@ abstract class BaseResource {
             // authentication was already required (if enabled)
             isHakMaster = true;
         } else {
-            QueryManager qm = new QueryManager();
-            isHakMaster = qm.isHakMaster((LdapUser) principal);
+            try (QueryManager qm = new QueryManager()) {
+                isHakMaster = qm.isHakMaster((LdapUser) principal);
+            }
         }
         return isHakMaster;
     }

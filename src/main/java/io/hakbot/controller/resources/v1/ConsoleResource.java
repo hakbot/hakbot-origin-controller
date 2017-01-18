@@ -57,9 +57,10 @@ public class ConsoleResource extends BaseResource {
             @PathParam("job") String jobUuid) {
 
         // Query on the specified job and determine if principal has permissions
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(jobUuid, getPrincipal());
-        qm.close();
+        Job job;
+        try (QueryManager qm = new QueryManager()) {
+            job = qm.getJob(jobUuid, getPrincipal());
+        }
         if (job != null) {
             // Principal has access to job
             try {

@@ -30,7 +30,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import java.security.Principal;
-//import java.util.Base64;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -61,10 +60,10 @@ public class JobResource extends BaseResource {
             responseContainer = "List"
     )
     public Response getAllJobs() {
-        QueryManager qm = new QueryManager();
-        List<Job> jobs = qm.getJobs(QueryManager.OrderDirection.DESC, getPrincipal());
-        qm.close();
-        return Response.ok(jobs).build();
+        try (QueryManager qm = new QueryManager()) {
+            List<Job> jobs = qm.getJobs(QueryManager.OrderDirection.DESC, getPrincipal());
+            return Response.ok(jobs).build();
+        }
     }
 
     @GET
@@ -78,9 +77,10 @@ public class JobResource extends BaseResource {
     public Response getJobByUuid(
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, getPrincipal());
-        qm.close();
+        Job job;
+        try (QueryManager qm = new QueryManager()) {
+            job = qm.getJob(uuid, getPrincipal());
+        }
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
@@ -99,10 +99,10 @@ public class JobResource extends BaseResource {
     public Response getJobMessage(
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
-        QueryManager qm = new QueryManager();
-        String message = qm.getJob(uuid, getPrincipal()).getMessage();
-        qm.close();
-        return Response.ok(message).build();
+        try (QueryManager qm = new QueryManager()) {
+            String message = qm.getJob(uuid, getPrincipal()).getMessage();
+            return Response.ok(message).build();
+        }
     }
 
     @GET
@@ -117,27 +117,25 @@ public class JobResource extends BaseResource {
             @PathParam("uuid") String uuid,
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
             @DefaultValue("0") @QueryParam("q") int q) {
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, getPrincipal());
-        if (job == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try (QueryManager qm = new QueryManager()) {
+            Job job = qm.getJob(uuid, getPrincipal());
+            if (job == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD);
+            if (artifact == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            byte[] contents = artifact.getContents();
+            if (q == 0) {
+                return Response.ok(contents, MediaType.TEXT_PLAIN).build();
+            } else if (q == 1) {
+                return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
+                        .header("Content-Disposition", "attachment; filename=\"" + uuid + "-provider-payload" + "\"")
+                        .build();
+            }
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD);
-        if (artifact == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        byte[] contents = artifact.getContents();
-        qm.close();
-        if (q == 0) {
-            return Response.ok(contents, MediaType.TEXT_PLAIN).build();
-        } else if (q == 1){
-            return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", "attachment; filename=\"" + uuid + "-provider-payload" + "\"" )
-                    .build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @GET
@@ -152,27 +150,25 @@ public class JobResource extends BaseResource {
             @PathParam("uuid") String uuid,
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
             @DefaultValue("0") @QueryParam("q") int q) {
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, getPrincipal());
-        if (job == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try (QueryManager qm = new QueryManager()) {
+            Job job = qm.getJob(uuid, getPrincipal());
+            if (job == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD);
+            if (artifact == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            byte[] contents = artifact.getContents();
+            if (q == 0) {
+                return Response.ok(contents, MediaType.TEXT_PLAIN).build();
+            } else if (q == 1) {
+                return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
+                        .header("Content-Disposition", "attachment; filename=\"" + uuid + "-publisher-payload" + "\"")
+                        .build();
+            }
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD);
-        if (artifact == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        byte[] contents = artifact.getContents();
-        qm.close();
-        if (q == 0) {
-            return Response.ok(contents, MediaType.TEXT_PLAIN).build();
-        } else if (q == 1){
-            return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", "attachment; filename=\"" + uuid + "-publisher-payload" + "\"" )
-                    .build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @GET
@@ -187,27 +183,25 @@ public class JobResource extends BaseResource {
             @PathParam("uuid") String uuid,
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1,2" )
             @DefaultValue("0") @QueryParam("q") int q) {
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, getPrincipal());
-        if (job == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try (QueryManager qm = new QueryManager()) {
+            Job job = qm.getJob(uuid, getPrincipal());
+            if (job == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+            if (artifact == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            byte[] contents = artifact.getContents();
+            if (q == 0) {
+                return Response.ok(contents, MediaType.TEXT_PLAIN).build();
+            } else if (q == 1) {
+                return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
+                        .header("Content-Disposition", "attachment; filename=\"" + artifact.getFilename() + "\"")
+                        .build();
+            }
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
-        if (artifact == null) {
-            qm.close();
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        byte[] contents = artifact.getContents();
-        qm.close();
-        if (q == 0) {
-            return Response.ok(contents, MediaType.TEXT_PLAIN).build();
-        } else if (q == 1){
-            return Response.ok(contents, MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", "attachment; filename=\"" + artifact.getFilename() + "\"" )
-                    .build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @POST
@@ -222,39 +216,43 @@ public class JobResource extends BaseResource {
                 jobRequest.getProvider().getClassname() == null || jobRequest.getProvider().getPayload() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        QueryManager qm = new QueryManager();
-        if (qm.getUnprocessedJobCount() > MAX_QUEUE_SIZE) {
-            return Response.ok("Queue limit reached. The server is not accepting new jobs. This could be due to a large number of unprocessed jobs or a small limit on the queue. Try again later.").status(Response.Status.SERVICE_UNAVAILABLE).build();
+        try (QueryManager qm = new QueryManager()) {
+            if (qm.getUnprocessedJobCount() > MAX_QUEUE_SIZE) {
+                return Response.ok("Queue limit reached. The server is not accepting new jobs. This could be due to a large number of unprocessed jobs or a small limit on the queue. Try again later.")
+                        .status(Response.Status.SERVICE_UNAVAILABLE)
+                        .build();
+            }
+
+            // Retrieve the optional principal for the API key that initiated this request
+            Principal principal = getPrincipal();
+            ApiKey apiKey = null;
+            if (principal != null) {
+                apiKey = (ApiKey) principal;
+            }
+
+            String name = jobRequest.getName();
+            String providerClass = jobRequest.getProvider().getClassname();
+            String providerPayload = JsonUtil.jsonStringFromObject(jobRequest.getProvider().getPayload());
+            String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher()
+                    .getClassname() : null;
+            String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher()
+                    .getPayload()) : null;
+
+            Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
+            // At this point, the job has a state of CREATED, which is what we want our response to be.
+            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
+            return Response.ok(job).build();
         }
-
-        // Retrieve the optional principal for the API key that initiated this request
-        Principal principal = getPrincipal();
-        ApiKey apiKey = null;
-        if (principal != null) {
-            apiKey = (ApiKey)principal;
-        }
-
-        String name = jobRequest.getName();
-        String providerClass = jobRequest.getProvider().getClassname();
-        String providerPayload = JsonUtil.jsonStringFromObject(jobRequest.getProvider().getPayload());
-        String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher().getClassname() : null;
-        String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher().getPayload()) : null;
-
-        Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
-        qm.close();
-        // At this point, the job has a state of CREATED, which is what we want our response to be.
-        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
-        return Response.ok(job).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Purges all jobs from database")
     public Response purgeAll() {
-        QueryManager qm = new QueryManager();
-        qm.deleteAllJobs(getPrincipal());
-        qm.close();
-        return Response.ok().build();
+        try (QueryManager qm = new QueryManager()) {
+            qm.deleteAllJobs(getPrincipal());
+            return Response.ok().build();
+        }
     }
 
     @DELETE
@@ -264,10 +262,10 @@ public class JobResource extends BaseResource {
     public Response purgeByUuid(
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
-        QueryManager qm = new QueryManager();
-        qm.deleteJob(uuid, getPrincipal());
-        qm.close();
-        return Response.ok().build();
+        try (QueryManager qm = new QueryManager()) {
+            qm.deleteJob(uuid, getPrincipal());
+            return Response.ok().build();
+        }
     }
 
     @DELETE
@@ -279,10 +277,10 @@ public class JobResource extends BaseResource {
     public Response purge(
             @ApiParam(value = "The job state", required = true)
             @PathParam("state") State state) {
-        QueryManager qm = new QueryManager();
-        qm.deleteJobs(state, getPrincipal());
-        qm.close();
-        return Response.ok().build();
+        try (QueryManager qm = new QueryManager()) {
+            qm.deleteJobs(state, getPrincipal());
+            return Response.ok().build();
+        }
     }
 
 }

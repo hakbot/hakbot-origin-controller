@@ -55,13 +55,13 @@ public class RemoteJobResource extends BaseResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        QueryManager qm = new QueryManager();
-        List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, getPrincipal());
-        qm.close();
-        if (jobs.size() > 0) {
-            return Response.ok(jobs.get(0)).build();
-        } else {
-            return Response.ok().build();
+        try (QueryManager qm = new QueryManager()) {
+            List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, getPrincipal());
+            if (jobs.size() > 0) {
+                return Response.ok(jobs.get(0)).build();
+            } else {
+                return Response.ok().build();
+            }
         }
 
     }
