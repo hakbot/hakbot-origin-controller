@@ -283,6 +283,17 @@ public class QueryManager implements AutoCloseable {
         return (List<LdapUser>)query.execute();
     }
 
+    public LdapUser createLdapUser(String username) {
+        pm.currentTransaction().begin();
+        LdapUser user = new LdapUser();
+        user.setUsername(username);
+        user.setDN("Syncing...");
+        //todo - Implement lookup/sync service that automatically obtains and updates DN, or in the case of incorrect or deleted entries, mark DN as 'INVALID'
+        pm.makePersistent(user);
+        pm.currentTransaction().commit();
+        return getObjectById(LdapUser.class, user.getId());
+    }
+
     public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
         pm.currentTransaction().begin();
         Team team = new Team();
