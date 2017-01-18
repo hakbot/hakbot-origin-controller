@@ -55,13 +55,13 @@ public class UserResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        QueryManager qm = new QueryManager();
-        LdapUser ldapUser = qm.getLdapUser(username);
-        qm.close();
-        KeyManager km = KeyManager.getInstance();
-        JsonWebToken jwt = new JsonWebToken(km.getSecretKey());
-        String token = jwt.createToken(ldapUser);
-        return Response.ok(token).build();
+        try (QueryManager qm = new QueryManager()) {
+            LdapUser ldapUser = qm.getLdapUser(username);
+            KeyManager km = KeyManager.getInstance();
+            JsonWebToken jwt = new JsonWebToken(km.getSecretKey());
+            String token = jwt.createToken(ldapUser);
+            return Response.ok(token).build();
+        }
     }
 
     @GET
@@ -91,10 +91,10 @@ public class UserResource extends BaseResource {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
         }
-        QueryManager qm = new QueryManager();
-        List<LdapUser> users = qm.getLdapUsers();
-        qm.close();
-        return Response.ok(users).build();
+        try (QueryManager qm = new QueryManager()) {
+            List<LdapUser> users = qm.getLdapUsers();
+            return Response.ok(users).build();
+        }
     }
 
     @GET
@@ -105,10 +105,10 @@ public class UserResource extends BaseResource {
             response = LdapUser.class
     )
     public Response getSelf() {
-        QueryManager qm = new QueryManager();
-        LdapUser user = qm.getLdapUser(getPrincipal().getName());
-        qm.close();
-        return Response.ok(user).build();
+        try (QueryManager qm = new QueryManager()) {
+            LdapUser user = qm.getLdapUser(getPrincipal().getName());
+            return Response.ok(user).build();
+        }
     }
 
 }
