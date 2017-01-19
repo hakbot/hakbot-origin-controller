@@ -227,15 +227,16 @@ function userDetailFormatter(index, row) {
         for (let i = 0; i < row.teams.length; i++) {
             teamsHtml += `
             <li class="list-group-item" id="container-apikey-${row.teams[i].key}">
-                <a href="#" id="delete-${row.teams[i].uuid}" onclick="deleteApiKey('${row.teams[i].uuid}')" data-toggle="tooltip" title="Remove from Team">
+                <a href="#" id="delete-${row.teams[i].uuid}" onclick="deleteUser('${row.teams[i].uuid}')" data-toggle="tooltip" title="Remove from Team">
                     <span class="glyphicon glyphicon-trash glyphicon-input-form pull-right"></span>
                 </a>
+                <span id="${row.username}-team-${row.teams[i].uuid}">${row.teams[i].name}</span>
             </li>`;
         }
     }
     teamsHtml += `
             <li class="list-group-item" id="container-no-apikey">
-                <a href="#" id="add-apikey" onclick="addApiKey('${row.uuid}')" data-toggle="tooltip" title="Add User to Team">
+                <a href="#" id="add-apikey" onclick="createUser('${row.uuid}')" data-toggle="tooltip" title="Add User to Team">
                     <span class="glyphicon glyphicon-plus-sign glyphicon-input-form pull-right"></span>
                 </a>
                 <span>&nbsp;</span>
@@ -282,8 +283,10 @@ function createTeam() {
         dataType: DATA_TYPE,
         type: METHOD_PUT,
         data: JSON.stringify({name: teamName}),
-        success: function (data) {
-            $('#teamsTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            201: function(data) {
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -305,8 +308,13 @@ function updateTeam() {
         dataType: DATA_TYPE,
         type: METHOD_POST,
         data: JSON.stringify({uuid: teamUuid, name: teamName, hakmaster: isHakmaster}),
-        success: function (data) {
-            $('#teamsTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            200: function(data) {
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+            },
+            404: function(data) {
+                //todo: the uuid of the team could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -324,11 +332,16 @@ function deleteTeam() {
         contentType: CONTENT_TYPE_JSON,
         type: METHOD_DELETE,
         data: JSON.stringify({uuid: teamUuid}),
-        success: function (data) {
-            const teamTable = $('#teamsTable');
-            teamTable.expanded = false;
-            teamTable.bootstrapTable('collapseAllRows');
-            teamTable.bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            204: function(data) {
+                const teamTable = $('#teamsTable');
+                teamTable.expanded = false;
+                teamTable.bootstrapTable('collapseAllRows');
+                teamTable.bootstrapTable('refresh', {silent: true});
+            },
+            404: function(data) {
+                //todo: the uuid of the team could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -345,8 +358,13 @@ function addApiKey(uuid) {
         contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_PUT,
-        success: function (data) {
-            $('#teamsTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            201: function(data) {
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+            },
+            404: function(data) {
+                //todo: the uuid of the team could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -363,14 +381,19 @@ function regenerateApiKey(apikey) {
         contentType: CONTENT_TYPE_JSON,
         dataType: DATA_TYPE,
         type: METHOD_POST,
-        success: function (data) {
-            $('#apikey-' + apikey).html(data.key);
-            $('#apikey-' + apikey).attr("id","apikey-" + data.key);
-            $('#regen-' + apikey).attr("id","regen-" + data.key);
-            $('#regen-' + data.key).attr("onclick","regenerateApiKey('" + data.key + "')");
-            $('#delete-' + apikey).attr("id","delete-" + data.key);
-            $('#delete-' + data.key).attr("onclick","deleteApiKey('" + data.key + "')");
-            $('#teamsTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            200: function(data) {
+                $('#apikey-' + apikey).html(data.key);
+                $('#apikey-' + apikey).attr("id","apikey-" + data.key);
+                $('#regen-' + apikey).attr("id","regen-" + data.key);
+                $('#regen-' + data.key).attr("onclick","regenerateApiKey('" + data.key + "')");
+                $('#delete-' + apikey).attr("id","delete-" + data.key);
+                $('#delete-' + data.key).attr("onclick","deleteApiKey('" + data.key + "')");
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+            },
+            404: function(data) {
+                //todo: the api key could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -386,9 +409,14 @@ function deleteApiKey(apikey) {
         url: contextPath() + URL_TEAM + "/key/" + apikey,
         contentType: CONTENT_TYPE_JSON,
         type: METHOD_DELETE,
-        success: function () {
-            $('#container-apikey-' + apikey).remove();
-            $('#teamsTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            204: function (data) {
+                $('#container-apikey-' + apikey).remove();
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+            },
+            404: function (data) {
+                //todo: the api key could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -408,8 +436,13 @@ function createUser() {
         dataType: DATA_TYPE,
         type: METHOD_PUT,
         data: JSON.stringify({username: username}),
-        success: function (data) {
-            $('#usersTable').bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            201: function (data) {
+                $('#usersTable').bootstrapTable('refresh', {silent: true});
+            },
+            409: function (data) {
+                //todo: a user with the same username already exists
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");
@@ -428,11 +461,16 @@ function deleteUser() {
         contentType: CONTENT_TYPE_JSON,
         type: METHOD_DELETE,
         data: JSON.stringify({username: username}),
-        success: function (data) {
-            const userTable = $('#usersTable');
-            userTable.expanded = false;
-            userTable.bootstrapTable('collapseAllRows');
-            userTable.bootstrapTable('refresh', {silent: true});
+        statusCode: {
+            204: function (data) {
+                const userTable = $('#usersTable');
+                userTable.expanded = false;
+                userTable.bootstrapTable('collapseAllRows');
+                userTable.bootstrapTable('refresh', {silent: true});
+            },
+            404: function (data) {
+                //todo: the user could not be found
+            }
         },
         error: function(xhr, ajaxOptions, thrownError){
             console.log("failed");

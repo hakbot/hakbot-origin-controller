@@ -127,8 +127,13 @@ public class UserResource extends BaseResource {
             Response.status(Response.Status.UNAUTHORIZED);
         }
         try (QueryManager qm = new QueryManager()) {
-            LdapUser user = qm.createLdapUser(jsonUser.getUsername());
-            return Response.ok(user).build();
+            LdapUser user = qm.getLdapUser(jsonUser.getUsername());
+            if (user == null) {
+                user = qm.createLdapUser(jsonUser.getUsername());
+                return Response.status(Response.Status.CREATED).entity(user).build();
+            } else {
+                return Response.status(Response.Status.CONFLICT).entity("A user with the same username already exists. Cannot create new user.").build();
+            }
         }
     }
 
@@ -145,8 +150,12 @@ public class UserResource extends BaseResource {
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(jsonUser.getUsername());
-            qm.delete(user);
-            return Response.ok().build();
+            if (user != null) {
+                qm.delete(user);
+                return Response.status(Response.Status.NO_CONTENT).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("The user could not be found.").build();
+            }
         }
     }
 

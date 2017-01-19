@@ -94,7 +94,7 @@ public class TeamResource extends BaseResource {
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.createTeam(jsonTeam.getName(), false, true);
-            return Response.ok(team).build();
+            return Response.status(Response.Status.CREATED).entity(team).build();
         }
     }
 
@@ -118,7 +118,7 @@ public class TeamResource extends BaseResource {
                 team = qm.updateTeam(jsonTeam);
                 return Response.ok(team).build();
             } else {
-                return Response.notModified().build();
+                return Response.status(Response.Status.NOT_FOUND).entity("The UUID of the team could not be found.").build();
             }
         }
     }
@@ -136,9 +136,13 @@ public class TeamResource extends BaseResource {
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid(), Team.FetchGroup.ALL.getName());
-            qm.delete(team.getApiKeys());
-            qm.delete(team);
-            return Response.ok().build();
+            if (team != null) {
+                qm.delete(team.getApiKeys());
+                qm.delete(team);
+                return Response.status(Response.Status.NO_CONTENT).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("The UUID of the team could not be found.").build();
+            }
         }
     }
 
@@ -160,9 +164,9 @@ public class TeamResource extends BaseResource {
             Team team = qm.getObjectByUuid(Team.class, uuid);
             if (team != null) {
                 ApiKey apiKey = qm.createApiKey(team);
-                return Response.ok(apiKey).build();
+                return Response.status(Response.Status.CREATED).entity(apiKey).build();
             } else {
-                return Response.notModified().build();
+                return Response.status(Response.Status.NOT_FOUND).entity("The UUID of the team could not be found.").build();
             }
         }
     }
@@ -187,7 +191,7 @@ public class TeamResource extends BaseResource {
                 apiKey = qm.regenerateApiKey(apiKey);
                 return Response.ok(apiKey).build();
             } else {
-                return Response.notModified().build();
+                return Response.status(Response.Status.NOT_FOUND).entity("The API key could not be found.").build();
             }
         }
     }
@@ -208,9 +212,9 @@ public class TeamResource extends BaseResource {
             ApiKey apiKey = qm.getApiKey(apikey);
             if (apiKey != null) {
                 qm.delete(apiKey);
-                return Response.ok().build();
+                return Response.status(Response.Status.NO_CONTENT).build();
             } else {
-                return Response.notModified("The API key could not be found").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("The API key could not be found.").build();
             }
         }
     }
