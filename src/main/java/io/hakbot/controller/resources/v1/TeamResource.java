@@ -22,6 +22,8 @@ import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -46,6 +48,10 @@ public class TeamResource extends BaseResource {
             response = Team.class,
             responseContainer = "List"
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized")
+    })
     public Response getTeams() {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
@@ -64,6 +70,11 @@ public class TeamResource extends BaseResource {
             notes = "Requires hakmaster permission.",
             response = Team.class
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The user could not be found")
+    })
     public Response getTeam(
             @ApiParam(value = "The UUID of the team to retrieve", required = true)
             @PathParam("uuid") String uuid) {
@@ -75,7 +86,7 @@ public class TeamResource extends BaseResource {
             if (team != null) {
                 return Response.ok(team).build();
             } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                return Response.status(Response.Status.NOT_FOUND).entity("The user could not be found.").build();
             }
         }
     }
@@ -88,6 +99,10 @@ public class TeamResource extends BaseResource {
             notes = "Requires hakmaster permission.",
             response = Team.class
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized")
+    })
     public Response createTeam(Team jsonTeam) {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
@@ -106,6 +121,11 @@ public class TeamResource extends BaseResource {
             notes = "Requires hakmaster permission.",
             response = Team.class
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The UUID of the team could not be found")
+    })
     public Response updateTeam(Team jsonTeam) {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
@@ -130,6 +150,11 @@ public class TeamResource extends BaseResource {
             value = "Deletes a team",
             notes = "Requires hakmaster permission."
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The UUID of the team could not be found")
+    })
     public Response deleteTeam(Team jsonTeam) {
         if (!isHakmaster()) {
             Response.status(Response.Status.UNAUTHORIZED);
@@ -154,6 +179,11 @@ public class TeamResource extends BaseResource {
             notes = "Requires hakmaster permission.",
             response = ApiKey.class
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The UUID of the team could not be found")
+    })
     public Response generateApiKey(
             @ApiParam(value = "The UUID of the team to generate a key for", required = true)
             @PathParam("uuid") String uuid) {
@@ -179,6 +209,11 @@ public class TeamResource extends BaseResource {
             notes = "Requires hakmaster permission.",
             response = ApiKey.class
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The API key could not be found")
+    })
     public Response regenerateApiKey(
             @ApiParam(value = "The API key to regenerate", required = true)
             @PathParam("apikey") String apikey) {
@@ -202,6 +237,11 @@ public class TeamResource extends BaseResource {
             value = "Deletes the specified API key",
             notes = "Requires hakmaster permission."
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "The API key could not be found")
+    })
     public Response deleteApiKey(
             @ApiParam(value = "The API key to delete", required = true)
             @PathParam("apikey") String apikey) {
