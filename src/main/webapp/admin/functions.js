@@ -32,6 +32,9 @@ $(document).ready(function () {
     // Listen for if the button to create a user is clicked
     $('#createUserCreateButton').on('click', createUser);
 
+    // Listen for if the button to assign a team to a user is clicked
+    $('#assignTeamToUser').on('click', assignTeamToUser);
+
     // When modal closes, clear out the input fields
     $('#modalCreateTeam').on('hidden.bs.modal', function () {
         $('#createTeamNameInput').val('');
@@ -40,9 +43,14 @@ $(document).ready(function () {
         $('#createUserNameInput').val('');
     });
 
+    // When modal is about to be shown, update the data model
+    $('#modalAssignTeamToUser').on('show.bs.modal', function () {
+        $('#teamsMembershipTable').bootstrapTable('load', teamData());
+        $('#teamsMembershipTable').bootstrapTable('refresh', {silent: true});
+    });
+
     const teamTable = $('#teamsTable');
     teamTable.on("click-row.bs.table", function(e, row, $tr) {
-        //console.log("Clicked on: " + $(e.target).attr('class'), [e, row, $tr]);
         if ($tr.next().is('tr.detail-view')) {
             teamTable.bootstrapTable('collapseRow', $tr.data('index'));
             teamTable.expanded = false;
@@ -55,6 +63,7 @@ $(document).ready(function () {
     });
 
     teamTable.on("load-success.bs.table", function(e, data) {
+        teamData(data); // Cache team data for other views/purposes
         if (teamTable.expanded == true) {
             $.each(data, function(i, team) {
                 if (team.uuid == teamTable.expandedUuid) {
@@ -87,6 +96,15 @@ $(document).ready(function () {
         }
     });
 });
+
+function teamData(data) {
+    if (data === undefined) {
+        data = JSON.parse(localStorage['teamData']);
+    } else {
+        localStorage['teamData'] = JSON.stringify(data);
+    }
+    return data;
+}
 
 /**
  * Called by bootstrap table to format the data in the team table.
@@ -167,7 +185,7 @@ function teamDetailFormatter(index, row) {
     if (!(row.ldapUsers === undefined)) {
         for (let i = 0; i < row.ldapUsers.length; i++) {
             membersHtml += `
-            <li class="list-group-item">
+            <li class="list-group-item" id="container-${row.uuid}-${row.ldapUsers[i].username}-membership">
                 <a href="#" onclick="removeTeamMembership('${row.uuid}', '${row.ldapUsers[i].username}')" data-toggle="tooltip" title="Remove User From Team">
                     <span class="glyphicon glyphicon-trash glyphicon-input-form pull-right"></span>
                 </a>
@@ -227,7 +245,7 @@ function userDetailFormatter(index, row) {
         for (let i = 0; i < row.teams.length; i++) {
             teamsHtml += `
             <li class="list-group-item" id="container-apikey-${row.teams[i].key}">
-                <a href="#" id="delete-${row.teams[i].uuid}" onclick="deleteUser('${row.teams[i].uuid}')" data-toggle="tooltip" title="Remove from Team">
+                <a href="#" id="delete-${row.teams[i].uuid}" onclick="removeTeamMembership('${row.teams[i].uuid}', '${row.username}')" data-toggle="tooltip" title="Remove from Team">
                     <span class="glyphicon glyphicon-trash glyphicon-input-form pull-right"></span>
                 </a>
                 <span id="${row.username}-team-${row.teams[i].uuid}">${row.teams[i].name}</span>
@@ -236,7 +254,7 @@ function userDetailFormatter(index, row) {
     }
     teamsHtml += `
             <li class="list-group-item" id="container-no-apikey">
-                <a href="#" id="add-apikey" onclick="createUser('${row.uuid}')" data-toggle="tooltip" title="Add User to Team">
+                <a href="#" id="add-user-${row.username}-to-team" data-toggle="modal" data-target="#modalAssignTeamToUser" data-username="${row.username}" title="Add to Team">
                     <span class="glyphicon glyphicon-plus-sign glyphicon-input-form pull-right"></span>
                 </a>
                 <span>&nbsp;</span>
@@ -265,6 +283,9 @@ function userDetailFormatter(index, row) {
     </div>
     <script type="text/javascript">
         $('#deleteUser-${row.username}').on('click', deleteUser);
+        $('#add-user-${row.username}-to-team').on('click', function () {
+            $("#assignTeamToUser").attr('data-username', $(this).data("username")); // Assign the username to the data-username attribute of the 'Update' button
+        });
     </script>
 `;
     html.push(template);
@@ -440,6 +461,9 @@ function createUser() {
             201: function (data) {
                 $('#usersTable').bootstrapTable('refresh', {silent: true});
             },
+            400: function (data) {
+                //todo: username cannot be blank
+            },
             409: function (data) {
                 //todo: a user with the same username already exists
             }
@@ -478,6 +502,60 @@ function deleteUser() {
     });
 }
 
+/**
+ * Service called when teams are assigned to a user
+ */
+function assignTeamToUser() {
+    const username = $('#assignTeamToUser').attr('data-username');
+    const selections = $('#teamsMembershipTable').bootstrapTable('getAllSelections');
+    for (let i = 0; i < selections.length; i++) {
+        let uuid = selections[i].uuid;
+        $.ajax({
+            url: contextPath() + URL_USER + "/" + username + "/membership",
+            contentType: CONTENT_TYPE_JSON,
+            dataType: DATA_TYPE,
+            type: METHOD_POST,
+            data: JSON.stringify({uuid: uuid}),
+            statusCode: {
+                200: function (data) {
+                    $('#teamsTable').bootstrapTable('refresh', {silent: true});
+                    $('#usersTable').bootstrapTable('refresh', {silent: true});
+                },
+                304: function (data) {
+                    //todo: The user is already a member of the specified team
+                },
+                404: function (data) {
+                    //todo: The user or team could not be found
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+                console.log("failed");
+            }
+        });
+    }
+}
+
 function removeTeamMembership(uuid, username) {
-    alert("Removing membership of " + username + " from group: " + uuid);
+    $.ajax({
+        url: contextPath() + URL_USER + "/" + username + "/membership",
+        contentType: CONTENT_TYPE_JSON,
+        type: METHOD_DELETE,
+        data: JSON.stringify({uuid: uuid}),
+        statusCode: {
+            200: function (data) {
+                $('#container-' + uuid + '-' + username + '-membership').remove();
+                $('#teamsTable').bootstrapTable('refresh', {silent: true});
+                $('#usersTable').bootstrapTable('refresh', {silent: true});
+            },
+            304: function (data) {
+                //todo: The user was not a member of the specified team
+            },
+            404: function (data) {
+                //todo: the user or team could not be found
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            console.log("failed");
+        }
+    });
 }

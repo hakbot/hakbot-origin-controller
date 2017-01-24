@@ -325,6 +325,42 @@ public class QueryManager implements AutoCloseable {
         return pm.getObjectById(Team.class, team.getId());
     }
 
+    public boolean addUserToTeam(LdapUser user, Team team) {
+        List<Team> teams = user.getTeams();
+        boolean found = false;
+        for (Team t: teams) {
+            if (team.getUuid().equals(t.getUuid())) {
+                found = true;
+            }
+        }
+        if (!found) {
+            pm.currentTransaction().begin();
+            teams.add(team);
+            user.setTeams(teams);
+            pm.currentTransaction().commit();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeUserFromTeam(LdapUser user, Team team) {
+        List<Team> teams = user.getTeams();
+        boolean found = false;
+        for (Team t: teams) {
+            if (team.getUuid().equals(t.getUuid())) {
+                found = true;
+            }
+        }
+        if (found) {
+            pm.currentTransaction().begin();
+            teams.remove(team);
+            user.setTeams(teams);
+            pm.currentTransaction().commit();
+            return true;
+        }
+        return false;
+    }
+
     private List<Job> getPermissible(List<Job> result, Principal principal) {
         List<Job> permissible = new ArrayList<>();
         for (Job job: result) {

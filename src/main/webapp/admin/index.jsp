@@ -111,6 +111,31 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalAssignTeamToUser" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Team Membership</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="teamsMembershipTable" class="table table-hover" data-toggle="table"
+                           data-click-to-select="true" data-height="100%">
+                        <thead>
+                        <tr>
+                            <th data-align="middle" data-field="selected" data-checkbox="true"></th>
+                            <th data-align="left" data-field="name">Team Name</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="assignTeamToUser" data-username="">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <jsp:include page="/WEB-INF/fragments/footer.jsp"/>
 <script type="text/javascript" src="<c:url value="/admin/functions.js"/>"></script>
