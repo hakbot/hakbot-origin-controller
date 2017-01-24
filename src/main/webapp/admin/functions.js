@@ -44,9 +44,10 @@ $(document).ready(function () {
     });
 
     // When modal is about to be shown, update the data model
+    const teamsMembershipTable = $('#teamsMembershipTable');
     $('#modalAssignTeamToUser').on('show.bs.modal', function () {
-        $('#teamsMembershipTable').bootstrapTable('load', teamData());
-        $('#teamsMembershipTable').bootstrapTable('refresh', {silent: true});
+        teamsMembershipTable.bootstrapTable('load', teamData());
+        teamsMembershipTable.bootstrapTable('refresh', {silent: true});
     });
 
     const teamTable = $('#teamsTable');
