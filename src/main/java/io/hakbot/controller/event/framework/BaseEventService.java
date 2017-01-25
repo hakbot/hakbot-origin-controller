@@ -102,7 +102,7 @@ public abstract class BaseEventService {
      * only be called prior to the application being shut down.
      */
     public void shutdown() {
-        logger.info("Shutting down EventService");
+        logger.info("Shutting down JobEventService");
         ftexecutor.shutdownNow();
         stexecutor.shutdownNow();
     }

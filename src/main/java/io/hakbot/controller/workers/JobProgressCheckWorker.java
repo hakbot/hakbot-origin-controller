@@ -20,7 +20,7 @@ import io.hakbot.controller.event.JobProgressCheckEvent;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.event.framework.Subscriber;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
@@ -64,16 +64,16 @@ public class JobProgressCheckWorker implements Subscriber {
                 if (!provider.isRunning(job)) {
                     // Mark as complete first, then retrieve result. It may take a while to download result, so
                     // we don't what this attempted again, thus marking it complete first.
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                     provider.getResult(job);
                     // Now that the result has been downloaded check if a publisher was defined and if so, send event.
                     if (!StringUtils.isEmpty(job.getPublisher())) {
-                        EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
+                        JobEventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                     }
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }

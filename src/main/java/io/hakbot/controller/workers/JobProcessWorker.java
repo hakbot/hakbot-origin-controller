@@ -19,7 +19,7 @@ package io.hakbot.controller.workers;
 import io.hakbot.controller.event.JobProcessEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.event.framework.Subscriber;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
@@ -64,15 +64,15 @@ public class JobProcessWorker implements Subscriber {
 
                 initialized = provider.initialize(job);
                 if (initialized) {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + provider.getName()));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + provider.getName()));
                     isAvailable = provider.isAvailable(job);
                 } else {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + provider.getName()));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + provider.getName()));
                     return; // Cannot continue.
                 }
 
                 if (isAvailable) {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_PROGRESS));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_PROGRESS));
                     if (provider instanceof AsynchronousProvider) {
                         // Asynchronously process a job. Another task will periodically poll for updates and status.
                         ((AsynchronousProvider)provider).process(job);
@@ -81,17 +81,17 @@ public class JobProcessWorker implements Subscriber {
                         // The boolean result from the execution determines if the execution was successful or not.
                         boolean success = ((SynchronousProvider)provider).process(job);
                         if (success) {
-                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
+                            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                         } else {
-                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
+                            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
                         }
                     }
                 } else {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.UNAVAILABLE));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.UNAVAILABLE));
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }

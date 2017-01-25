@@ -19,7 +19,7 @@ package io.hakbot.controller.workers;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.event.framework.Subscriber;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
@@ -82,7 +82,7 @@ public class JobUpdateLogger implements Subscriber {
                     try {
                         Class clazz = resolver.resolveProvider(job);
                         if (SynchronousProvider.class.isAssignableFrom(clazz)) {
-                            EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
+                            JobEventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                         }
                     } catch (ClassNotFoundException | ExpectedClassResolverException ex) {
                         logger.error(ex.getMessage());

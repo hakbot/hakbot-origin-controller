@@ -18,7 +18,7 @@ package io.hakbot.controller.resources.v1;
 
 import io.hakbot.controller.Config;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
@@ -240,7 +240,7 @@ public class JobResource extends BaseResource {
 
             Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
             // At this point, the job has a state of CREATED, which is what we want our response to be.
-            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
+            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
             return Response.ok(job).build();
         }
     }

@@ -16,7 +16,7 @@
  */
 package io.hakbot.controller.event;
 
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.workers.JobManager;
 import io.hakbot.controller.workers.JobProcessWorker;
 import io.hakbot.controller.workers.JobProgressCheckWorker;
@@ -27,26 +27,26 @@ import javax.servlet.ServletContextListener;
 
 public class EventSubsystemInitializer implements ServletContextListener {
 
-    // Starts the EventService
-    private static final EventService eventService = EventService.getInstance();
+    // Starts the JobEventService
+    private static final JobEventService JOB_EVENT_SERVICE = JobEventService.getInstance();
 
     public void contextInitialized(ServletContextEvent event) {
         // Starts the JobManager
         JobManager.getInstance();
 
-        eventService.subscribe(JobProcessEvent.class, JobProcessWorker.class);
-        eventService.subscribe(JobProgressCheckEvent.class, JobProgressCheckWorker.class);
-        eventService.subscribe(JobPublishEvent.class, JobPublishWorker.class);
-        eventService.subscribe(JobUpdateEvent.class, JobUpdateLogger.class);
+        JOB_EVENT_SERVICE.subscribe(JobProcessEvent.class, JobProcessWorker.class);
+        JOB_EVENT_SERVICE.subscribe(JobProgressCheckEvent.class, JobProgressCheckWorker.class);
+        JOB_EVENT_SERVICE.subscribe(JobPublishEvent.class, JobPublishWorker.class);
+        JOB_EVENT_SERVICE.subscribe(JobUpdateEvent.class, JobUpdateLogger.class);
     }
 
     public void contextDestroyed(ServletContextEvent event) {
         JobManager.getInstance().shutdown();
 
-        eventService.unsubscribe(JobProcessWorker.class);
-        eventService.unsubscribe(JobProgressCheckWorker.class);
-        eventService.unsubscribe(JobPublishWorker.class);
-        eventService.unsubscribe(JobUpdateLogger.class);
-        eventService.shutdown();
+        JOB_EVENT_SERVICE.unsubscribe(JobProcessWorker.class);
+        JOB_EVENT_SERVICE.unsubscribe(JobProgressCheckWorker.class);
+        JOB_EVENT_SERVICE.unsubscribe(JobPublishWorker.class);
+        JOB_EVENT_SERVICE.unsubscribe(JobUpdateLogger.class);
+        JOB_EVENT_SERVICE.shutdown();
     }
 }

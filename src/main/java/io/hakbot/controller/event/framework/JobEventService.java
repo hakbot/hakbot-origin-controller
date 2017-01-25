@@ -24,11 +24,13 @@ import java.util.concurrent.Executors;
 /**
  * A publish/subscribe (pubsub) event service that provides the ability to publish events and
  * asynchronously inform all subscribers to subscribed events.
+ *
+ * This event service is specific to the processing of Jobs.
  */
-public class EventService extends BaseEventService {
+public class JobEventService extends BaseEventService {
 
-    private static final EventService instance = new EventService();
-    private static final Logger logger = Logger.getLogger(EventService.class);
+    private static final JobEventService instance = new JobEventService();
+    private static final Logger logger = Logger.getLogger(JobEventService.class);
     private static final ExecutorService executor =
             Executors.newFixedThreadPool(Config.getInstance().determineNumberOfThreads());
 
@@ -37,9 +39,9 @@ public class EventService extends BaseEventService {
         instance.setLogger(logger);
     }
 
-    private EventService() { }
+    private JobEventService() { }
 
-    public static EventService getInstance() {
+    public static JobEventService getInstance() {
         return instance;
     }
 

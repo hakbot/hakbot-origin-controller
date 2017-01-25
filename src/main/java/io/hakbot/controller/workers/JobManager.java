@@ -19,7 +19,7 @@ package io.hakbot.controller.workers;
 import io.hakbot.controller.Config;
 import io.hakbot.controller.event.JobProcessEvent;
 import io.hakbot.controller.event.JobProgressCheckEvent;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
@@ -115,7 +115,7 @@ public class JobManager {
                 if (workQueue.contains(job.getUuid())) {
                     workQueue.remove(job.getUuid());
                 }
-                EventService.getInstance().publish(new JobProgressCheckEvent(job.getUuid()));
+                JobEventService.getInstance().publish(new JobProgressCheckEvent(job.getUuid()));
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Polling for new jobs");
@@ -125,7 +125,7 @@ public class JobManager {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding job " + job.getUuid() + " to work queue");
                     }
-                    EventService.getInstance().publish(new JobProcessEvent(job.getUuid()));
+                    JobEventService.getInstance().publish(new JobProcessEvent(job.getUuid()));
                 }
             }
         }

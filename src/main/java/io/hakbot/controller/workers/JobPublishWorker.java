@@ -19,7 +19,7 @@ package io.hakbot.controller.workers;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
 import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.EventService;
+import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.event.framework.Subscriber;
 import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
@@ -59,20 +59,20 @@ public class JobPublishWorker implements Subscriber {
 
                 initialized = publisher.initialize(job);
                 if (initialized) {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
                     boolean success = publisher.publish(job);
                     if (success) {
-                        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.PUBLISHED));
+                        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.PUBLISHED));
                     } else {
-                        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
+                        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
                     }
                 } else {
-                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + publisher.getName()));
+                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + publisher.getName()));
                     //return; // Cannot continue.
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }
