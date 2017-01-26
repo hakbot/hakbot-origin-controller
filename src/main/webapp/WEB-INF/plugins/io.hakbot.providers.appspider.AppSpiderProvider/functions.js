@@ -94,27 +94,27 @@ $appspider = function() {
      */
     function parseConsoleData(data) {
         // data is the JSON response from the console
-        status.scanProgress = data.status2.m_iScanProgress;
-        status.timeRemaining = data.status2.m_szTimeRemaining;
-        status.elapsedTime = data.status2.m_szTimeElapsed;
-        status.token = data.Token;
-        status.running = data.Running;
-        status.crashed = data.Crashed;
-        status.scanned = data.Scanned;
-        status.loggedIn = data.LoggedIn;
-        status.linksInQueue = data.LinksInQueue;
-        status.linksCrawled = data.LinksCrawled;
-        status.attacksInQueue = data.AttacksInQueue;
-        status.attacked = data.Attacked;
-        status.vulnerable = data.Vulnerable;
-        status.requests = data.Requests;
-        status.failedRequests = data.FailedRequests;
-        status.networkSpeed = data.NetworkSpeed;
-        status.dripDelay = data.DripDelay;
-        status.averageResponseTime = data.AvgRespTime;
+        status.scanProgress = toHtml(data.status2.m_iScanProgress);
+        status.timeRemaining = toHtml(data.status2.m_szTimeRemaining);
+        status.elapsedTime = toHtml(data.status2.m_szTimeElapsed);
+        status.token = toHtml(data.Token);
+        status.running = toHtml(data.Running);
+        status.crashed = toHtml(data.Crashed);
+        status.scanned = toHtml(data.Scanned);
+        status.loggedIn = toHtml(data.LoggedIn);
+        status.linksInQueue = toHtml(data.LinksInQueue);
+        status.linksCrawled = toHtml(data.LinksCrawled);
+        status.attacksInQueue = toHtml(data.AttacksInQueue);
+        status.attacked = toHtml(data.Attacked);
+        status.vulnerable = toHtml(data.Vulnerable);
+        status.requests = toHtml(data.Requests);
+        status.failedRequests = toHtml(data.FailedRequests);
+        status.networkSpeed = toHtml(data.NetworkSpeed);
+        status.dripDelay = toHtml(data.DripDelay);
+        status.averageResponseTime = toHtml(data.AvgRespTime);
         status.startTime = timeConverter(data.StartTime);
         status.endTime = timeConverter(data.EndTime);
-        status.elapsedTime = data.Elapsed;
+        status.elapsedTime = toHtml(data.Elapsed);
 
         events.length = 0; // Empties array by setting length to 0. Keeps references to object in-tact.
         for(var i = 0; i < data.EventList.EVENT.length; i++) {
@@ -122,10 +122,10 @@ $appspider = function() {
             var event = {};
             event.timestamp = objE.Time;
             event.dateTime = timeConverter(objE.Time);
-            event.event = objE.Event;
-            event.details = objE.Details;
-            event.error = objE.Error;
-            event.errorCode = objE.ErrorCode;
+            event.event = toHtml(objE.Event);
+            event.details = toHtml(objE.Details);
+            event.error = toHtml(objE.Error);
+            event.errorCode = toHtml(objE.ErrorCode);
             events.push(event);
         }
 
@@ -133,10 +133,10 @@ $appspider = function() {
         for(var j = 0; j < data.ModuleStatusList.MODULESTATUS.length; j++) {
             var objM = data.ModuleStatusList.MODULESTATUS[j];
             var module = {};
-            module.name = objM.ModuleName;
-            module.passiveAnalysis = objM.PassiveAnalysis;
-            module.attempted = objM.Attempted;
-            module.vulnerable = objM.Vulnerable;
+            module.name = toHtml(objM.ModuleName);
+            module.passiveAnalysis = toHtml(objM.PassiveAnalysis);
+            module.attempted = toHtml(objM.Attempted);
+            module.vulnerable = toHtml(objM.Vulnerable);
             modules.push(module);
         }
         
