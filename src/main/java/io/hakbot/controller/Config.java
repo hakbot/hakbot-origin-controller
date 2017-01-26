@@ -54,6 +54,10 @@ public final class Config {
         ENFORCE_AUTHORIZATION    ("enforce.authorization"),
         LDAP_SERVER_URL          ("ldap.server.url"),
         LDAP_DOMAIN              ("ldap.domain"),
+        LDAP_BASEDN              ("ldap.basedn"),
+        LDAP_BIND_USERNAME       ("ldap.bind.username"),
+        LDAP_BIND_PASSWORD       ("ldap.bind.password"),
+        LDAP_ATTRIBUTE_MAIL      ("ldap.attribute.mail"),
         GZIP_COMPRESSION_ENABLED ("proto.gzip.enabled");
 
         String propertyName;

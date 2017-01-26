@@ -17,6 +17,8 @@
 package io.hakbot.controller.persistence;
 
 import io.hakbot.controller.Config;
+import io.hakbot.controller.event.LdapSyncEvent;
+import io.hakbot.controller.event.framework.EventService;
 import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
@@ -291,7 +293,16 @@ public class QueryManager implements AutoCloseable {
         //todo - Implement lookup/sync service that automatically obtains and updates DN, or in the case of incorrect or deleted entries, mark DN as 'INVALID'
         pm.makePersistent(user);
         pm.currentTransaction().commit();
+        EventService.getInstance().publish(new LdapSyncEvent(user.getUsername()));
         return getObjectById(LdapUser.class, user.getId());
+    }
+
+    public LdapUser updateUser(LdapUser transientUser) {
+        LdapUser user = getObjectById(LdapUser.class, transientUser.getId());
+        pm.currentTransaction().begin();
+        user.setDN(transientUser.getDN());
+        pm.currentTransaction().commit();
+        return pm.getObjectById(LdapUser.class, user.getId());
     }
 
     public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
