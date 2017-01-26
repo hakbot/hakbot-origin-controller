@@ -32,7 +32,7 @@ public class TaskScheduler {
     private List<Timer> timers = new ArrayList<>();
 
     private TaskScheduler() {
-        // Creates a new task that executes every 6 hours (3600000) after an initial 1 minute (60000) delay
+        // Creates a new task that executes every 6 hours (21600000) after an initial 1 minute (60000) delay
         Timer ldapTimer = new Timer();
         ldapTimer.schedule(new ScheduledLdapSyncTask(), 60000, 21600000);
         timers.add(ldapTimer);
