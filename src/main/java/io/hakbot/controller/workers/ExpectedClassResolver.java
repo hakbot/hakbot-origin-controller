@@ -16,8 +16,9 @@
  */
 package io.hakbot.controller.workers;
 
-import io.hakbot.controller.Config;
-import io.hakbot.controller.logging.Logger;
+import alpine.Config;
+import alpine.logging.Logger;
+import io.hakbot.HakbotConfigKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.Plugin;
 import org.apache.commons.lang3.StringUtils;
@@ -34,11 +35,11 @@ public class ExpectedClassResolver {
     private static final List<Class> resolvedProviders = new ArrayList<>();
     private static final List<Class> resolvedPublishers = new ArrayList<>();
     static {
-        String[] classes = Config.getInstance().getProperty(Config.Key.PROVIDERS_ENALBED).split(",");
+        String[] classes = Config.getInstance().getProperty(HakbotConfigKey.PROVIDERS_ENABLED).split(",");
         for (String clazz : classes) {
             providersConfigured.add(clazz.trim());
         }
-        classes = Config.getInstance().getProperty(Config.Key.PUBLISHERS_ENABLED).split(",");
+        classes = Config.getInstance().getProperty(HakbotConfigKey.PUBLISHERS_ENABLED).split(",");
         for (String clazz : classes) {
             publishersConfigured.add(clazz.trim());
         }

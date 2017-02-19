@@ -16,8 +16,8 @@
  */
 package io.hakbot.controller.plugin;
 
-import io.hakbot.controller.Config;
-import io.hakbot.controller.logging.Logger;
+import alpine.Config;
+import alpine.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import java.net.MalformedURLException;
 import java.net.URL;

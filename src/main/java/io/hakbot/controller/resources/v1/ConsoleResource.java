@@ -16,7 +16,7 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.plugin.Console;
@@ -67,7 +67,7 @@ public class ConsoleResource extends BaseResource {
                 ExpectedClassResolver resolver = new ExpectedClassResolver();
                 Class pluginClass = resolver.resolveProvider(job);
                 if (ConsoleIdentifier.class.isAssignableFrom(pluginClass)) {
-                    Map queryParams = requestContext.getUriInfo().getQueryParameters();
+                    Map queryParams = getUriInfo().getQueryParameters();
 
                     // Lookup the corresponding console class from the plugin instance
                     ConsoleIdentifier ci = (ConsoleIdentifier) pluginClass.newInstance();

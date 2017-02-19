@@ -16,12 +16,14 @@
  */
 package io.hakbot.controller.event;
 
+import alpine.event.framework.Event;
+
 /**
  * This event is called when a completed job needs publishing.
  *
  * @see io.hakbot.controller.workers.JobPublishWorker
  */
-public class JobPublishEvent extends BaseJobEvent {
+public class JobPublishEvent extends BaseJobEvent implements Event {
 
     private String result;
 

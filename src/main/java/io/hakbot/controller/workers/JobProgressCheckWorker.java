@@ -16,13 +16,13 @@
  */
 package io.hakbot.controller.workers;
 
+import alpine.event.framework.Event;
+import alpine.event.framework.EventService;
+import alpine.event.framework.Subscriber;
+import alpine.logging.Logger;
 import io.hakbot.controller.event.JobProgressCheckEvent;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.event.framework.Subscriber;
-import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
@@ -64,16 +64,16 @@ public class JobProgressCheckWorker implements Subscriber {
                 if (!provider.isRunning(job)) {
                     // Mark as complete first, then retrieve result. It may take a while to download result, so
                     // we don't what this attempted again, thus marking it complete first.
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                     provider.getResult(job);
                     // Now that the result has been downloaded check if a publisher was defined and if so, send event.
                     if (!StringUtils.isEmpty(job.getPublisher())) {
-                        JobEventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
+                        EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                     }
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }

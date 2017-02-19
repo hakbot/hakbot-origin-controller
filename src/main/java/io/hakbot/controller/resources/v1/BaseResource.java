@@ -16,34 +16,12 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.model.LdapUser;
+import alpine.model.LdapUser;
+import alpine.resources.AlpineResource;
 import io.hakbot.controller.persistence.QueryManager;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
 import java.security.Principal;
 
-abstract class BaseResource {
-
-    @Context
-    ContainerRequestContext requestContext;
-
-    /**
-     * Returns the principal for who initiated the request.
-     * @see {@link io.hakbot.controller.model.ApiKey}
-     * @see {@link io.hakbot.controller.model.LdapUser}
-     */
-    protected Principal getPrincipal() {
-        Object principal = requestContext.getProperty("Principal");
-        if (principal != null) {
-            return (Principal)principal;
-        } else {
-            return null;
-        }
-    }
-
-    protected boolean isLdapUser() {
-        return (getPrincipal() instanceof LdapUser);
-    }
+abstract class BaseResource extends AlpineResource {
 
     protected boolean isHakmaster() {
         boolean isHakMaster;

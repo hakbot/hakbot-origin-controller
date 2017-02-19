@@ -5,10 +5,10 @@
          version="3.1">
 
     <listener>
-        <listener-class>io.hakbot.controller.persistence.LocalPersistenceInitializer</listener-class>
+        <listener-class>alpine.persistence.PersistenceInitializer</listener-class>
     </listener>
     <listener>
-        <listener-class>io.hakbot.controller.persistence.LocalPersistenceManagerFactory</listener-class>
+        <listener-class>alpine.persistence.PersistenceManagerFactory</listener-class>
     </listener>
     <listener>
         <listener-class>io.hakbot.controller.event.EventSubsystemInitializer</listener-class>
@@ -16,10 +16,10 @@
 
     <servlet>
         <servlet-name>OriginController</servlet-name>
-        <servlet-class>io.hakbot.controller.OriginControllerServlet</servlet-class>
+        <servlet-class>alpine.AlpineServlet</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>io.swagger.jaxrs.listing,io.hakbot.controller.resources,io.hakbot.controller.filters</param-value>
+            <param-value>io.swagger.jaxrs.listing,alpine.filters,alpine.resources,io.hakbot.controller.resources</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

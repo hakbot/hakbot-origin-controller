@@ -16,13 +16,15 @@
  */
 package io.hakbot.controller.event;
 
+import alpine.event.framework.Event;
+
 /**
  * This event is called when an asynchronously processed job is in need of
  * a status update.
  *
  * @see io.hakbot.controller.workers.JobProgressCheckWorker
  */
-public class JobProgressCheckEvent extends BaseJobEvent {
+public class JobProgressCheckEvent extends BaseJobEvent implements Event {
 
     public JobProgressCheckEvent(String jobUuid) {
         super(jobUuid);

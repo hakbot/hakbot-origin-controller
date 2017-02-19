@@ -16,6 +16,7 @@
  */
 package io.hakbot.controller.event;
 
+import alpine.event.framework.UnblockedEvent;
 import io.hakbot.controller.workers.State;
 
 /**
@@ -25,7 +26,7 @@ import io.hakbot.controller.workers.State;
  *
  * @see io.hakbot.controller.workers.JobUpdateLogger
  */
-public class JobUpdateEvent extends BaseJobEvent {
+public class JobUpdateEvent extends BaseJobEvent implements UnblockedEvent {
 
     private String message;
     private State state;

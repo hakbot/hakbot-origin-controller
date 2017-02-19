@@ -16,14 +16,14 @@
  */
 package io.hakbot.providers.appspider;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
+import alpine.util.UuidUtil;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.BasePlugin;
 import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
-import io.hakbot.util.UuidUtil;
 
 import java.util.Map;
 

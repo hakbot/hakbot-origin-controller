@@ -16,41 +16,33 @@
  */
 package io.hakbot.controller.persistence;
 
-import io.hakbot.controller.Config;
-import io.hakbot.controller.event.LdapSyncEvent;
-import io.hakbot.controller.event.framework.EventService;
-import io.hakbot.controller.model.ApiKey;
+import alpine.Config;
+import alpine.model.ApiKey;
+import alpine.model.LdapUser;
+import alpine.persistence.AlpineQueryManager;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.JobProperty;
-import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.model.Team;
 import io.hakbot.controller.workers.State;
-import io.hakbot.util.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-public class QueryManager implements AutoCloseable {
+public class QueryManager extends AlpineQueryManager {
 
-    private static final boolean ENFORCE_AUTHORIZATION = Config.getInstance().getPropertyAsBoolean(Config.Key.ENFORCE_AUTHORIZATION);
+    private static final boolean ENFORCE_AUTHORIZATION = Config.getInstance().getPropertyAsBoolean(Config.AlpineKey.ENFORCE_AUTHORIZATION);
 
     public enum OrderDirection {
         ASC, DESC
     }
-
-    private PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(OrderDirection order, Principal principal) {
@@ -244,67 +236,6 @@ public class QueryManager implements AutoCloseable {
         pm.currentTransaction().commit();
     }
 
-    @SuppressWarnings("unchecked")
-    public ApiKey getApiKey(String key) {
-        Query query = pm.newQuery(ApiKey.class, "key == :key");
-        List<ApiKey> result = (List<ApiKey>)query.execute (key);
-        return result.size() == 0 ? null : result.get(0);
-    }
-
-    public ApiKey regenerateApiKey(ApiKey apiKey) {
-        pm.currentTransaction().begin();
-        apiKey.setKey(UuidUtil.stripHyphens(UUID.randomUUID().toString()));
-        pm.currentTransaction().commit();
-        apiKey = pm.getObjectById(ApiKey.class, apiKey.getId());
-        return apiKey;
-    }
-
-    public ApiKey createApiKey(Team team) {
-        Set<Team> teams = new HashSet<>();
-        teams.add(team);
-        pm.currentTransaction().begin();
-        ApiKey apiKey = new ApiKey();
-        apiKey.setKey(UuidUtil.stripHyphens(UUID.randomUUID().toString()));
-        apiKey.setTeams(teams);
-        pm.makePersistent(apiKey);
-        pm.currentTransaction().commit();
-        return pm.getObjectById(ApiKey.class, apiKey.getId());
-    }
-
-    @SuppressWarnings("unchecked")
-    public LdapUser getLdapUser(String username) {
-        Query query = pm.newQuery(LdapUser.class, "username == :username");
-        List<LdapUser> result = (List<LdapUser>)query.execute(username);
-        return result.size() == 0 ? null : result.get(0);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<LdapUser> getLdapUsers() {
-        Query query = pm.newQuery(LdapUser.class);
-        query.setOrdering("username " + OrderDirection.ASC.name());
-        return (List<LdapUser>)query.execute();
-    }
-
-    public LdapUser createLdapUser(String username) {
-        pm.currentTransaction().begin();
-        LdapUser user = new LdapUser();
-        user.setUsername(username);
-        user.setDN("Syncing...");
-        //todo - Implement lookup/sync service that automatically obtains and updates DN, or in the case of incorrect or deleted entries, mark DN as 'INVALID'
-        pm.makePersistent(user);
-        pm.currentTransaction().commit();
-        EventService.getInstance().publish(new LdapSyncEvent(user.getUsername()));
-        return getObjectById(LdapUser.class, user.getId());
-    }
-
-    public LdapUser updateUser(LdapUser transientUser) {
-        LdapUser user = getObjectById(LdapUser.class, transientUser.getId());
-        pm.currentTransaction().begin();
-        user.setDN(transientUser.getDN());
-        pm.currentTransaction().commit();
-        return pm.getObjectById(LdapUser.class, user.getId());
-    }
-
     public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
         pm.currentTransaction().begin();
         Team team = new Team();
@@ -320,10 +251,10 @@ public class QueryManager implements AutoCloseable {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Team> getTeams() {
+    public List<Team> getHakbotTeams() {
         pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
         Query query = pm.newQuery(Team.class);
-        query.setOrdering("name " + OrderDirection.ASC.name());
+        query.setOrdering("name asc");
         return (List<Team>)query.execute();
     }
 
@@ -337,9 +268,9 @@ public class QueryManager implements AutoCloseable {
     }
 
     public boolean addUserToTeam(LdapUser user, Team team) {
-        List<Team> teams = user.getTeams();
+        List<alpine.model.Team> teams = user.getTeams();
         boolean found = false;
-        for (Team t: teams) {
+        for (alpine.model.Team t: teams) {
             if (team.getUuid().equals(t.getUuid())) {
                 found = true;
             }
@@ -347,24 +278,6 @@ public class QueryManager implements AutoCloseable {
         if (!found) {
             pm.currentTransaction().begin();
             teams.add(team);
-            user.setTeams(teams);
-            pm.currentTransaction().commit();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean removeUserFromTeam(LdapUser user, Team team) {
-        List<Team> teams = user.getTeams();
-        boolean found = false;
-        for (Team t: teams) {
-            if (team.getUuid().equals(t.getUuid())) {
-                found = true;
-            }
-        }
-        if (found) {
-            pm.currentTransaction().begin();
-            teams.remove(team);
             user.setTeams(teams);
             pm.currentTransaction().commit();
             return true;
@@ -406,11 +319,12 @@ public class QueryManager implements AutoCloseable {
     private boolean hasPermission(Job job, LdapUser ldapUser) {
         ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
         ArrayList<Long> list = new ArrayList<>();
-        for (Team team: apiKey.getTeams()) {
+        for (alpine.model.Team team: apiKey.getTeams()) {
             list.add(team.getId());
         }
-        for (Team team: ldapUser.getTeams()) {
-            if (team.isHakmaster()) {
+        for (alpine.model.Team team: ldapUser.getTeams()) {
+            Team t = (Team)team;
+            if (t.isHakmaster()) {
                 return true;
             }
             if (list.contains(team.getId())) {
@@ -422,49 +336,12 @@ public class QueryManager implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     public boolean isHakMaster(LdapUser ldapUser) {
-        for (Team team: ldapUser.getTeams()) {
-            if (team.isHakmaster()) {
+        for (alpine.model.Team team: ldapUser.getTeams()) {
+            Team t = (Team)team;
+            if (t.isHakmaster()) {
                 return true;
             }
         }
         return false;
-    }
-
-    public void delete(Object... objects) {
-        pm.currentTransaction().begin();
-        pm.deletePersistentAll(objects);
-        pm.currentTransaction().commit();
-    }
-
-    public void delete(Collection collection) {
-        pm.currentTransaction().begin();
-        pm.deletePersistentAll(collection);
-        pm.currentTransaction().commit();
-    }
-
-    public <T>T getObjectById (Class<T> clazz, Object key) {
-        return pm.getObjectById(clazz, key);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T>T getObjectByUuid(Class<T> clazz, String uuid) {
-        Query query = pm.newQuery(clazz, "uuid == :uuid");
-        List<T> result = (List<T>)query.execute(uuid);
-        return result.size() == 0 ? null : result.get(0);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T>T getObjectByUuid(Class<T> clazz, String uuid, String fetchGroup) {
-        pm.getFetchPlan().addGroup(fetchGroup);
-        return getObjectByUuid(clazz, uuid);
-    }
-
-    public void close() {
-        pm.close();
-    }
-
-    protected void finalize() throws Throwable {
-        close();
-        super.finalize();
     }
 }

@@ -16,17 +16,17 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.Config;
-import io.hakbot.controller.auth.JsonWebToken;
-import io.hakbot.controller.auth.KeyManager;
-import io.hakbot.controller.filters.AuthenticationFeature;
-import io.hakbot.controller.filters.AuthenticationFilter;
-import io.hakbot.controller.model.ApiKey;
+import alpine.Config;
+import alpine.auth.JsonWebToken;
+import alpine.auth.KeyManager;
+import alpine.filters.AuthenticationFeature;
+import alpine.filters.AuthenticationFilter;
+import alpine.model.ApiKey;
+import alpine.model.LdapUser;
+import alpine.persistence.PersistenceManagerFactory;
+import alpine.resources.VersionResource;
 import io.hakbot.controller.model.Job;
-import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.Team;
-import io.hakbot.controller.persistence.LocalPersistenceManagerFactory;
-import io.hakbot.controller.resources.VersionResource;
 import io.hakbot.controller.workers.State;
 import io.hakbot.providers.shell.ShellProvider;
 import org.apache.commons.lang3.ArrayUtils;
@@ -115,7 +115,7 @@ public class BaseResourceTest extends JerseyTest {
 
     @Before
     public void before() {
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        PersistenceManager pm = PersistenceManagerFactory.createPersistenceManager();
 
         pm.currentTransaction().begin();
 
@@ -171,7 +171,7 @@ public class BaseResourceTest extends JerseyTest {
     @After
     @SuppressWarnings("unchecked")
     public void after() throws Exception {
-        PersistenceManager pm = LocalPersistenceManagerFactory.createPersistenceManager();
+        PersistenceManager pm = PersistenceManagerFactory.createPersistenceManager();
         JDOConnection jdoConnection = pm.getDataStoreConnection();
         Connection conn = null;
         Statement stmt = null;

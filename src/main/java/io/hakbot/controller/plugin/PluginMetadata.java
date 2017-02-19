@@ -16,9 +16,9 @@
  */
 package io.hakbot.controller.plugin;
 
+import alpine.logging.Logger;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.hakbot.controller.logging.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 

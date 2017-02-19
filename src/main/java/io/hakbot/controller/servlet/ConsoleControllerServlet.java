@@ -16,13 +16,13 @@
  */
 package io.hakbot.controller.servlet;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
+import alpine.util.UuidUtil;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
 import io.hakbot.controller.workers.ExpectedClassResolver;
 import io.hakbot.controller.workers.ExpectedClassResolverException;
-import io.hakbot.util.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

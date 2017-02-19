@@ -3,12 +3,10 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
 
-    <persistence-unit name="HakbotOrigin">
-        <class>io.hakbot.controller.model.ApiKey</class>
+    <persistence-unit name="Alpine">
         <class>io.hakbot.controller.model.Job</class>
         <class>io.hakbot.controller.model.JobArtifact</class>
         <class>io.hakbot.controller.model.JobProperty</class>
-        <class>io.hakbot.controller.model.LdapUser</class>
         <class>io.hakbot.controller.model.Team</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

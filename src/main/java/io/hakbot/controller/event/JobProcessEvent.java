@@ -16,13 +16,15 @@
  */
 package io.hakbot.controller.event;
 
+import alpine.event.framework.Event;
+
 /**
  * This event is called when an unprocessed job (Created, Unavailable, or
  * In-Queue) is scheduled to be processed.
  *
  * @see io.hakbot.controller.workers.JobProcessWorker
  */
-public class JobProcessEvent extends BaseJobEvent {
+public class JobProcessEvent extends BaseJobEvent implements Event {
 
     public JobProcessEvent(String jobUuid) {
         super(jobUuid);

@@ -16,10 +16,11 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.Config;
+import alpine.Config;
+import alpine.event.framework.EventService;
+import alpine.model.ApiKey;
+import io.hakbot.HakbotConfigKey;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.model.ApiKey;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.persistence.QueryManager;
@@ -29,8 +30,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
-import java.security.Principal;
-import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -42,6 +41,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.Principal;
+import java.util.List;
 
 @Path("/v1/job")
 @Api(value = "job", authorizations = {
@@ -49,7 +50,7 @@ import javax.ws.rs.core.Response;
 })
 public class JobResource extends BaseResource {
 
-    private static final int MAX_QUEUE_SIZE = Config.getInstance().getPropertyAsInt(Config.Key.MAX_QUEUE_SIZE);
+    private static final int MAX_QUEUE_SIZE = Config.getInstance().getPropertyAsInt(HakbotConfigKey.MAX_QUEUE_SIZE);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -240,7 +241,7 @@ public class JobResource extends BaseResource {
 
             Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
             // At this point, the job has a state of CREATED, which is what we want our response to be.
-            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
+            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
             return Response.ok(job).build();
         }
     }

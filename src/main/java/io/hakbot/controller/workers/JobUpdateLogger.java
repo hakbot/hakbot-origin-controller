@@ -16,12 +16,12 @@
  */
 package io.hakbot.controller.workers;
 
+import alpine.event.framework.Event;
+import alpine.event.framework.EventService;
+import alpine.event.framework.Subscriber;
+import alpine.logging.Logger;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.event.framework.Subscriber;
-import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.SystemAccount;
@@ -82,7 +82,7 @@ public class JobUpdateLogger implements Subscriber {
                     try {
                         Class clazz = resolver.resolveProvider(job);
                         if (SynchronousProvider.class.isAssignableFrom(clazz)) {
-                            JobEventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
+                            EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                         }
                     } catch (ClassNotFoundException | ExpectedClassResolverException ex) {
                         logger.error(ex.getMessage());

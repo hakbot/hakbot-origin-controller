@@ -16,7 +16,7 @@
  */
 package io.hakbot.publishers.filesystem;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.publishers.BasePublisher;

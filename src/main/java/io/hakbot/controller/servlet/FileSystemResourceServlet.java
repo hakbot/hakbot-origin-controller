@@ -16,7 +16,7 @@
  */
 package io.hakbot.controller.servlet;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;

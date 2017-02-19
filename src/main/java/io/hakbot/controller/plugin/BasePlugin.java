@@ -16,8 +16,8 @@
  */
 package io.hakbot.controller.plugin;
 
+import alpine.event.framework.EventService;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.JobEventService;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.model.JobProperty;
@@ -34,14 +34,14 @@ public abstract class BasePlugin {
      * Adds a processing message to the job (asynchronously).
      */
     protected void addProcessingMessage(Job job, String message) {
-        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message(message));
+        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message(message));
     }
 
     /**
      * Updates the status of a job (asynchronously).
      */
     protected void updateState(Job job, State state) {
-        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(state));
+        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(state));
     }
 
     /**

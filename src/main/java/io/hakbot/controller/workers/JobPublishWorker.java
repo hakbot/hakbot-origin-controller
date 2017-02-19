@@ -16,12 +16,12 @@
  */
 package io.hakbot.controller.workers;
 
+import alpine.event.framework.Event;
+import alpine.event.framework.EventService;
+import alpine.event.framework.Subscriber;
+import alpine.logging.Logger;
 import io.hakbot.controller.event.JobPublishEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.event.framework.Subscriber;
-import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
@@ -59,20 +59,20 @@ public class JobPublishWorker implements Subscriber {
 
                 initialized = publisher.initialize(job);
                 if (initialized) {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
                     boolean success = publisher.publish(job);
                     if (success) {
-                        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.PUBLISHED));
+                        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.PUBLISHED));
                     } else {
-                        JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
+                        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
                     }
                 } else {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + publisher.getName()));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + publisher.getName()));
                     //return; // Cannot continue.
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }

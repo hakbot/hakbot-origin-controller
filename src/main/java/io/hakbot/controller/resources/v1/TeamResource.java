@@ -16,7 +16,7 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.model.ApiKey;
+import alpine.model.ApiKey;
 import io.hakbot.controller.model.Team;
 import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
@@ -57,7 +57,7 @@ public class TeamResource extends BaseResource {
             Response.status(Response.Status.UNAUTHORIZED);
         }
         try (QueryManager qm = new QueryManager()) {
-            List<Team> teams = qm.getTeams();
+            List<Team> teams = qm.getHakbotTeams();
             return Response.ok(teams).build();
         }
     }

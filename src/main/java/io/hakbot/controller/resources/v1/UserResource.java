@@ -16,12 +16,12 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import io.hakbot.controller.auth.AuthenticationNotRequired;
-import io.hakbot.controller.auth.JsonWebToken;
-import io.hakbot.controller.auth.KeyManager;
-import io.hakbot.controller.auth.LdapAuthenticator;
+import alpine.auth.AuthenticationNotRequired;
+import alpine.auth.Authenticator;
+import alpine.auth.JsonWebToken;
+import alpine.logging.Logger;
+import alpine.model.LdapUser;
 import io.hakbot.controller.model.IdentifiableObject;
-import io.hakbot.controller.model.LdapUser;
 import io.hakbot.controller.model.Team;
 import io.hakbot.controller.persistence.QueryManager;
 import io.swagger.annotations.Api;
@@ -31,6 +31,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import org.apache.commons.lang3.StringUtils;
+import org.owasp.security.logging.SecurityMarkers;
+import javax.naming.AuthenticationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -42,11 +44,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.Principal;
 import java.util.List;
 
 @Path("/v1/user")
 @Api(value = "user")
 public class UserResource extends BaseResource {
+
+    private static final Logger logger = Logger.getLogger(UserResource.class);
 
     @POST
     @Path("login")
@@ -62,20 +67,22 @@ public class UserResource extends BaseResource {
     })
     @AuthenticationNotRequired
     public Response validateCredentials(@FormParam("username") String username, @FormParam("password") String password) {
+        Authenticator auth = new Authenticator(username, password);
+        try {
+            Principal principal = auth.authenticate();
+            if (principal != null) {
+                logger.info(SecurityMarkers.SECURITY_AUDIT, "Login succeeded (username: " + username +
+                        " / ip address: " + super.getRemoteAddress() + " / agent: " + super.getUserAgent() + ")");
 
-        LdapAuthenticator ldapAuth = new LdapAuthenticator();
-        boolean isValid = ldapAuth.validateCredentials(username, password);
-        if (!isValid) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+                JsonWebToken jwt = new JsonWebToken();
+                String token = jwt.createToken(principal);
+                return Response.ok(token).build();
+            }
+        } catch (AuthenticationException e) {
         }
-
-        try (QueryManager qm = new QueryManager()) {
-            LdapUser ldapUser = qm.getLdapUser(username);
-            KeyManager km = KeyManager.getInstance();
-            JsonWebToken jwt = new JsonWebToken(km.getSecretKey());
-            String token = jwt.createToken(ldapUser);
-            return Response.ok(token).build();
-        }
+        logger.warn(SecurityMarkers.SECURITY_AUDIT, "Unauthorized login attempt (username: " + username +
+                " / ip address: " + super.getRemoteAddress() + " / agent: " + super.getUserAgent() + ")");
+        return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     @GET

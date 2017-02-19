@@ -16,7 +16,7 @@
  */
 package io.hakbot.providers.nessus;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.plugin.BasePlugin;
 import io.hakbot.controller.plugin.Console;

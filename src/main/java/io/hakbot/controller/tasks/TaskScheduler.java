@@ -16,26 +16,18 @@
  */
 package io.hakbot.controller.tasks;
 
-import io.hakbot.controller.event.LdapSyncEvent;
-import io.hakbot.controller.event.framework.EventService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import alpine.event.LdapSyncEvent;
+import alpine.tasks.AlpineTaskScheduler;
 
-public class TaskScheduler {
+public class TaskScheduler extends AlpineTaskScheduler {
 
     // Holds an instance of TaskScheduler
     private static final TaskScheduler instance = new TaskScheduler();
 
-    // Holds a list of all timers created during construction
-    private List<Timer> timers = new ArrayList<>();
-
     private TaskScheduler() {
-        // Creates a new task that executes every 6 hours (21600000) after an initial 1 minute (60000) delay
-        Timer ldapTimer = new Timer();
-        ldapTimer.schedule(new ScheduledLdapSyncTask(), 60000, 21600000);
-        timers.add(ldapTimer);
+
+        // Creates a new event that executes every 6 hours (21600000) after an initial 10 second (10000) delay
+        scheduleEvent(new LdapSyncEvent(), 10000, 21600000);
     }
 
     /**
@@ -46,15 +38,4 @@ public class TaskScheduler {
         return instance;
     }
 
-    private class ScheduledLdapSyncTask extends TimerTask {
-        public synchronized void run() {
-            EventService.getInstance().publish(new LdapSyncEvent());
-        }
-    }
-
-    public void shutdown() {
-        for (Timer timer: timers) {
-            timer.cancel();
-        }
-    }
 }

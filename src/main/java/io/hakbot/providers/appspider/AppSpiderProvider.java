@@ -16,7 +16,8 @@
  */
 package io.hakbot.providers.appspider;
 
-import io.hakbot.controller.logging.Logger;
+import alpine.logging.Logger;
+import alpine.util.UuidUtil;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
 import io.hakbot.controller.plugin.Console;
@@ -31,7 +32,6 @@ import io.hakbot.providers.appspider.ws.NTOServiceSoap;
 import io.hakbot.providers.appspider.ws.Result;
 import io.hakbot.providers.appspider.ws.SCANSTATUS2;
 import io.hakbot.util.JsonUtil;
-import io.hakbot.util.UuidUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

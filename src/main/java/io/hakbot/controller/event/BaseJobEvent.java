@@ -16,9 +16,7 @@
  */
 package io.hakbot.controller.event;
 
-import io.hakbot.controller.event.framework.Event;
-
-public abstract class BaseJobEvent implements Event {
+public abstract class BaseJobEvent {
 
     private String jobUuid;
 

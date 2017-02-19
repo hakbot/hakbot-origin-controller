@@ -16,12 +16,12 @@
  */
 package io.hakbot.controller.workers;
 
+import alpine.event.framework.Event;
+import alpine.event.framework.EventService;
+import alpine.event.framework.Subscriber;
+import alpine.logging.Logger;
 import io.hakbot.controller.event.JobProcessEvent;
 import io.hakbot.controller.event.JobUpdateEvent;
-import io.hakbot.controller.event.framework.Event;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.event.framework.Subscriber;
-import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
@@ -64,15 +64,15 @@ public class JobProcessWorker implements Subscriber {
 
                 initialized = provider.initialize(job);
                 if (initialized) {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + provider.getName()));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + provider.getName()));
                     isAvailable = provider.isAvailable(job);
                 } else {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + provider.getName()));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message("Unable to initialize " + provider.getName()));
                     return; // Cannot continue.
                 }
 
                 if (isAvailable) {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_PROGRESS));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_PROGRESS));
                     if (provider instanceof AsynchronousProvider) {
                         // Asynchronously process a job. Another task will periodically poll for updates and status.
                         ((AsynchronousProvider)provider).process(job);
@@ -81,17 +81,17 @@ public class JobProcessWorker implements Subscriber {
                         // The boolean result from the execution determines if the execution was successful or not.
                         boolean success = ((SynchronousProvider)provider).process(job);
                         if (success) {
-                            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
+                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                         } else {
-                            JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
+                            EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED));
                         }
                     }
                 } else {
-                    JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.UNAVAILABLE));
+                    EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.UNAVAILABLE));
                 }
             } catch (Throwable ex) {
                 logger.error(ex.getMessage());
-                JobEventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
+                EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }
     }

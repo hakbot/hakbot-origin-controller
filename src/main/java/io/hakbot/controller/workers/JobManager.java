@@ -16,11 +16,12 @@
  */
 package io.hakbot.controller.workers;
 
-import io.hakbot.controller.Config;
+import alpine.Config;
+import alpine.event.framework.EventService;
+import alpine.logging.Logger;
+import io.hakbot.HakbotConfigKey;
 import io.hakbot.controller.event.JobProcessEvent;
 import io.hakbot.controller.event.JobProgressCheckEvent;
-import io.hakbot.controller.event.framework.JobEventService;
-import io.hakbot.controller.logging.Logger;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.SystemAccount;
 import io.hakbot.controller.persistence.QueryManager;
@@ -71,20 +72,9 @@ public class JobManager {
     private JobManager() {
         logger.info("Initializing JobManager");
 
-        int coreMultiplier = Config.getInstance().getPropertyAsInt(Config.Key.CORE_MULTIPLIER);
-        int maxQueueSize = Config.getInstance().getPropertyAsInt(Config.Key.MAX_QUEUE_SIZE);
-        int queueCheckInterval = Config.getInstance().getPropertyAsInt(Config.Key.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
-        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(Config.Key.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
-        this.jobPruneInterval = Config.getInstance().getPropertyAsLong(Config.Key.JOB_PRUNE_INTERVAL) * 86400000; // in Days
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Core Multiplier:      " + coreMultiplier);
-            logger.debug("Executor Threads:     " + Config.getInstance().determineNumberOfThreads());
-            logger.debug("Max Queue Size:       " + maxQueueSize);
-            logger.debug("Queue Check Interval: " + queueCheckInterval + "ms");
-            logger.debug("Prune Check Interval: " + jobPruneCheckInterval + "ms");
-            logger.debug("Prune Interval:       " + jobPruneInterval + "ms");
-        }
+        int queueCheckInterval = Config.getInstance().getPropertyAsInt(HakbotConfigKey.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
+        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(HakbotConfigKey.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
+        this.jobPruneInterval = Config.getInstance().getPropertyAsLong(HakbotConfigKey.JOB_PRUNE_INTERVAL) * 86400000; // in Days
 
         // Creates a new JobSchedulerTask every x seconds (defined by queueCheckInterval)
         jobSchedulerTimer.schedule(new JobSchedulerTask(), 0, queueCheckInterval);
@@ -115,7 +105,7 @@ public class JobManager {
                 if (workQueue.contains(job.getUuid())) {
                     workQueue.remove(job.getUuid());
                 }
-                JobEventService.getInstance().publish(new JobProgressCheckEvent(job.getUuid()));
+                EventService.getInstance().publish(new JobProgressCheckEvent(job.getUuid()));
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Polling for new jobs");
@@ -125,7 +115,7 @@ public class JobManager {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding job " + job.getUuid() + " to work queue");
                     }
-                    JobEventService.getInstance().publish(new JobProcessEvent(job.getUuid()));
+                    EventService.getInstance().publish(new JobProcessEvent(job.getUuid()));
                 }
             }
         }
