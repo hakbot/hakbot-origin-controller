@@ -19,6 +19,8 @@ be processed.
 
 Jobs can be anything ranging from executing shell scripts to controlling dynamic analysis engines.
 
+Hakbot Origin Controller is built on top of [Alpine].
+
 Features
 -------------------
 
@@ -172,3 +174,4 @@ Hakbot Origin Controller is Copyright (c) Steve Springett. All Rights Reserved.
 Permission to modify and redistribute is granted under the terms of the [GPL 3.0] license.
 
   [GPL 3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
+  [Alpine]: https://github.com/stevespringett/Alpine
