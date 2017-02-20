@@ -237,6 +237,26 @@ public class QueryManager extends AlpineQueryManager {
         pm.currentTransaction().commit();
     }
 
+    @Override
+    public List<alpine.model.LdapUser> getLdapUsers() {
+        List<LdapUser> users = new ArrayList<>();
+        for (LdapUser ldapUser: super.getLdapUsers()) {
+            LdapUser transientUser = new LdapUser();
+            transientUser.setId(ldapUser.getId());
+            transientUser.setDN(ldapUser.getDN());
+            transientUser.setUsername(ldapUser.getUsername());
+            List<alpine.model.Team> transientTeams = new ArrayList<>();
+            for (alpine.model.Team team: ldapUser.getTeams()) {
+                if (team instanceof Team) {
+                    transientTeams.add(team);
+                }
+            }
+            transientUser.setTeams(transientTeams);
+            users.add(transientUser);
+        }
+        return users;
+    }
+
     /**
      * Since we are extending alpine.model.Team, we don't want to create an Alpine team.
      */
@@ -369,10 +389,13 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public boolean isHakMaster(LdapUser ldapUser) {
-        for (alpine.model.Team alpineTeam: ldapUser.getTeams()) {
-            Team team = getObjectById(Team.class, alpineTeam.getId());
-            if (team.isHakmaster()) {
-                return true;
+        List<alpine.model.Team> teams = ldapUser.getTeams();
+        if (teams != null) {
+            for (alpine.model.Team alpineTeam : ldapUser.getTeams()) {
+                Team team = getObjectById(Team.class, alpineTeam.getId());
+                if (team.isHakmaster()) {
+                    return true;
+                }
             }
         }
         return false;
