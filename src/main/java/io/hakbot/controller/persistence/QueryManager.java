@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import javax.jdo.Query;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -236,6 +237,17 @@ public class QueryManager extends AlpineQueryManager {
         pm.currentTransaction().commit();
     }
 
+    /**
+     * Since we are extending alpine.model.Team, we don't want to create an Alpine team.
+     */
+    @Deprecated
+    public alpine.model.Team createTeam(String name, boolean createApiKey) {
+        return createTeam(name, false, createApiKey);
+    }
+
+    /**
+     * Creates a Hakbot team
+     */
     public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
         pm.currentTransaction().begin();
         Team team = new Team();
@@ -250,6 +262,15 @@ public class QueryManager extends AlpineQueryManager {
         return getObjectByUuid(Team.class, team.getUuid(), Team.FetchGroup.ALL.getName());
     }
 
+    /**
+     * Since we are extending alpine.model.Team, we don't want to retrieve Alpine teams.
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public List<alpine.model.Team> getTeams() {
+        return Collections.EMPTY_LIST;
+    }
+
     public List<Team> getHakbotTeams() {
         List<Team> teams = new ArrayList<>();
         for (alpine.model.Team alpineTeam : super.getTeams()) {
@@ -258,6 +279,14 @@ public class QueryManager extends AlpineQueryManager {
             }
         }
         return teams;
+    }
+
+    /**
+     * Since we are extending alpine.model.Team, we don't want to update Alpine teams.
+     */
+    @Deprecated
+    public alpine.model.Team updateTeam(alpine.model.Team transientTeam) {
+        return null;
     }
 
     public Team updateTeam(Team transientTeam) {
