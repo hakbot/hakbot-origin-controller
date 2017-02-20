@@ -270,7 +270,8 @@ public class QueryManager extends AlpineQueryManager {
     public boolean addUserToTeam(LdapUser user, Team team) {
         List<alpine.model.Team> teams = user.getTeams();
         boolean found = false;
-        for (alpine.model.Team t: teams) {
+        for (alpine.model.Team alpineTeam: teams) {
+            Team t = getObjectById(Team.class, alpineTeam.getId());
             if (team.getUuid().equals(t.getUuid())) {
                 found = true;
             }
@@ -319,12 +320,13 @@ public class QueryManager extends AlpineQueryManager {
     private boolean hasPermission(Job job, LdapUser ldapUser) {
         ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
         ArrayList<Long> list = new ArrayList<>();
-        for (alpine.model.Team team: apiKey.getTeams()) {
+        for (alpine.model.Team alpineTeam: apiKey.getTeams()) {
+            Team team = getObjectById(Team.class, alpineTeam.getId());
             list.add(team.getId());
         }
-        for (alpine.model.Team team: ldapUser.getTeams()) {
-            Team t = (Team)team;
-            if (t.isHakmaster()) {
+        for (alpine.model.Team alpineTeam: ldapUser.getTeams()) {
+            Team team = getObjectById(Team.class, alpineTeam.getId());
+            if (team.isHakmaster()) {
                 return true;
             }
             if (list.contains(team.getId())) {
@@ -336,9 +338,9 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public boolean isHakMaster(LdapUser ldapUser) {
-        for (alpine.model.Team team: ldapUser.getTeams()) {
-            Team t = (Team)team;
-            if (t.isHakmaster()) {
+        for (alpine.model.Team alpineTeam: ldapUser.getTeams()) {
+            Team team = getObjectById(Team.class, alpineTeam.getId());
+            if (team.isHakmaster()) {
                 return true;
             }
         }
