@@ -250,12 +250,14 @@ public class QueryManager extends AlpineQueryManager {
         return getObjectByUuid(Team.class, team.getUuid(), Team.FetchGroup.ALL.getName());
     }
 
-    @SuppressWarnings("unchecked")
     public List<Team> getHakbotTeams() {
-        pm.getFetchPlan().addGroup(Team.FetchGroup.ALL.getName());
-        Query query = pm.newQuery(Team.class);
-        query.setOrdering("name asc");
-        return (List<Team>)query.execute();
+        List<Team> teams = new ArrayList<>();
+        for (alpine.model.Team alpineTeam : super.getTeams()) {
+            if (alpineTeam instanceof Team) {
+                teams.add(getObjectById(Team.class, alpineTeam.getId()));
+            }
+        }
+        return teams;
     }
 
     public Team updateTeam(Team transientTeam) {
