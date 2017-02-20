@@ -14,12 +14,22 @@
         </encoder>
     </appender>
 
+    <appender name="SECURITY_CONSOLE" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/.hakbot/origin-controller/audit.log</file>
+        <filter class="org.owasp.security.logging.filter.SecurityMarkerFilter"/>
+        <encoder>
+            <pattern>%date [%marker] %level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="io.hakbot" level="INFO" additivity="false">
         <appender-ref ref="FILE" />
+        <appender-ref ref="SECURITY_CONSOLE" />
     </logger>
 
     <root level="DEBUG">
         <appender-ref ref="FILE" />
+        <appender-ref ref="SECURITY_CONSOLE" />
     </root>
 
 </configuration>
