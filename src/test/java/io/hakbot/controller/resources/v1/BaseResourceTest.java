@@ -114,6 +114,7 @@ public class BaseResourceTest extends JerseyTest {
     }
 
     @Before
+    @SuppressWarnings("unchecked")
     public void before() {
         PersistenceManager pm = PersistenceManagerFactory.createPersistenceManager();
 
