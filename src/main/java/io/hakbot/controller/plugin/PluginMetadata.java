@@ -17,12 +17,12 @@
 package io.hakbot.controller.plugin;
 
 import alpine.logging.Logger;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PluginMetadata {
 
     // Setup logger
