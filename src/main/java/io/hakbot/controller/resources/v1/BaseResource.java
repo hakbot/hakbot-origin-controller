@@ -16,7 +16,8 @@
  */
 package io.hakbot.controller.resources.v1;
 
-import alpine.model.LdapUser;
+import alpine.model.ApiKey;
+import alpine.model.UserPrincipal;
 import alpine.resources.AlpineResource;
 import io.hakbot.controller.persistence.QueryManager;
 import java.security.Principal;
@@ -29,9 +30,13 @@ abstract class BaseResource extends AlpineResource {
         if (principal == null) {
             // authentication was already required (if enabled)
             isHakMaster = true;
-        } else if (principal instanceof LdapUser) {
+        } else if (principal instanceof ApiKey) {
             try (QueryManager qm = new QueryManager()) {
-                isHakMaster = qm.isHakMaster((LdapUser) principal);
+                isHakMaster = qm.isHakMaster((ApiKey) principal);
+            }
+        } else if (principal instanceof UserPrincipal){
+            try (QueryManager qm = new QueryManager()) {
+                isHakMaster = qm.isHakMaster((UserPrincipal)principal);
             }
         }
         return isHakMaster;
