@@ -18,32 +18,31 @@
 /**
  * Constants
  */
-var CONTENT_TYPE_JSON = 'application/json';
-var CONTENT_TYPE_TEXT = 'text/plain';
-var DATA_TYPE = "json";
-var METHOD_GET = "GET";
-var METHOD_POST = "POST";
-var METHOD_PUT = "PUT";
-var METHOD_DELETE = "DELETE";
-var URL_ABOUT = "/version";
-var URL_LOGIN = "/v1/user/login";
-var URL_PROVIDERS = "/v1/providers";
-var URL_PUBLISHERS = "/v1/publishers";
-var URL_HAKMASTER = "/v1/user/hakmaster";
-var URL_JOB = "/v1/job";
-var URL_CONSOLE_JOB = "/v1/console/job";
-var URL_TEAM = "/v1/team";
-var URL_USER = "/v1/user";
-var STATE_CREATED = "CREATED";
-var STATE_IN_QUEUE = "IN_QUEUE";
-var STATE_IN_PROGRESS = "IN_PROGRESS";
-var STATE_COMPLETED = "COMPLETED";
-var STATE_PUBLISHED = "PUBLISHED";
-var STATE_CANCELED = "CANCELED";
-var STATE_UNAVAILABLE = "UNAVAILABLE";
-var STATE_FAILED = "FAILED";
-var PLUGIN_PROVIDER = "provider";
-var PLUGIN_PUBLISHER = "publisher";
+const CONTENT_TYPE_JSON = 'application/json';
+const CONTENT_TYPE_TEXT = 'text/plain';
+const DATA_TYPE = "json";
+const METHOD_GET = "GET";
+const METHOD_POST = "POST";
+const METHOD_DELETE = "DELETE";
+const URL_ABOUT = "/version";
+const URL_LOGIN = "/v1/user/login";
+const URL_PROVIDERS = "/v1/providers";
+const URL_PUBLISHERS = "/v1/publishers";
+const URL_HAKMASTER = "/v1/user/hakmaster";
+const URL_JOB = "/v1/job";
+const URL_CONSOLE_JOB = "/v1/console/job";
+const URL_TEAM = "/v1/team";
+const URL_USER = "/v1/user";
+const STATE_CREATED = "CREATED";
+const STATE_IN_QUEUE = "IN_QUEUE";
+const STATE_IN_PROGRESS = "IN_PROGRESS";
+const STATE_COMPLETED = "COMPLETED";
+const STATE_PUBLISHED = "PUBLISHED";
+const STATE_CANCELED = "CANCELED";
+const STATE_UNAVAILABLE = "UNAVAILABLE";
+const STATE_FAILED = "FAILED";
+const PLUGIN_PROVIDER = "provider";
+const PLUGIN_PUBLISHER = "publisher";
 
 /**
  * Variables
