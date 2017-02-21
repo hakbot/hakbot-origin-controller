@@ -397,7 +397,7 @@ public class QueryManager extends AlpineQueryManager {
         return isHakMaster(apiKey.getTeams());
     }
 
-    public boolean isHakMaster(List<alpine.model.Team> teamMembership) {
+    private boolean isHakMaster(List<alpine.model.Team> teamMembership) {
         if (teamMembership != null) {
             for (alpine.model.Team alpineTeam : teamMembership) {
                 Team team = getObjectById(Team.class, alpineTeam.getId());
