@@ -23,6 +23,7 @@ const CONTENT_TYPE_TEXT = 'text/plain';
 const DATA_TYPE = "json";
 const METHOD_GET = "GET";
 const METHOD_POST = "POST";
+const METHOD_PUT = "PUT";
 const METHOD_DELETE = "DELETE";
 const URL_ABOUT = "/version";
 const URL_LOGIN = "/v1/user/login";
