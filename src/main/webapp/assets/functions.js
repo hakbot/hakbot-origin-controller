@@ -271,10 +271,21 @@ function getAppVersion() {
  */
 function formatJobTable(res) {
     for (var i=0; i<res.length; i++) {
-        res[i].providerName = resolvePluginByClass(PLUGIN_PROVIDER, res[i].provider).name;
-        if (resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher)) {
-            res[i].publisherName = resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher).name;
+
+        const resolvedProvider = resolvePluginByClass(PLUGIN_PROVIDER, res[i].provider);
+        if (resolvedProvider) {
+            res[i].providerName = resolvedProvider.name;
+        } else if (res[i].provider != null) {
+            res[i].providerName = "INVALID";
         }
+
+        const resolvedPublisher = resolvePluginByClass(PLUGIN_PUBLISHER, res[i].publisher);
+        if (resolvedPublisher) {
+            res[i].publisherName = resolvedPublisher.name;
+        } else if (res[i].publisher != null) {
+            res[i].publisherName = "INVALID";
+        }
+
         res[i].duration = getDuration(res[i].created, res[i].completed);
         res[i].created = timeConverter(res[i].created);
         res[i].started = timeConverter(res[i].started);
