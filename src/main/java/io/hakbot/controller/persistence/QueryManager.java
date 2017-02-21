@@ -19,6 +19,8 @@ package io.hakbot.controller.persistence;
 import alpine.Config;
 import alpine.model.ApiKey;
 import alpine.model.LdapUser;
+import alpine.model.ManagedUser;
+import alpine.model.UserPrincipal;
 import alpine.persistence.AlpineQueryManager;
 import io.hakbot.controller.model.Job;
 import io.hakbot.controller.model.JobArtifact;
@@ -387,11 +389,17 @@ public class QueryManager extends AlpineQueryManager {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean isHakMaster(LdapUser ldapUser) {
-        List<alpine.model.Team> teams = ldapUser.getTeams();
-        if (teams != null) {
-            for (alpine.model.Team alpineTeam : ldapUser.getTeams()) {
+    public boolean isHakMaster(UserPrincipal principal) {
+        return isHakMaster(principal.getTeams());
+    }
+
+    public boolean isHakMaster(ApiKey apiKey) {
+        return isHakMaster(apiKey.getTeams());
+    }
+
+    public boolean isHakMaster(List<alpine.model.Team> teamMembership) {
+        if (teamMembership != null) {
+            for (alpine.model.Team alpineTeam : teamMembership) {
                 Team team = getObjectById(Team.class, alpineTeam.getId());
                 if (team.isHakmaster()) {
                     return true;
@@ -400,4 +408,5 @@ public class QueryManager extends AlpineQueryManager {
         }
         return false;
     }
+
 }
