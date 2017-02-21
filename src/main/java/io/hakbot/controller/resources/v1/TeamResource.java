@@ -54,7 +54,7 @@ public class TeamResource extends BaseResource {
     })
     public Response getTeams() {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             List<Team> teams = qm.getHakbotTeams();
@@ -79,7 +79,7 @@ public class TeamResource extends BaseResource {
             @ApiParam(value = "The UUID of the team to retrieve", required = true)
             @PathParam("uuid") String uuid) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.getObjectByUuid(Team.class, uuid);
@@ -105,7 +105,7 @@ public class TeamResource extends BaseResource {
     })
     public Response createTeam(Team jsonTeam) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.createTeam(jsonTeam.getName(), false, true);
@@ -128,7 +128,7 @@ public class TeamResource extends BaseResource {
     })
     public Response updateTeam(Team jsonTeam) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid());
@@ -157,7 +157,7 @@ public class TeamResource extends BaseResource {
     })
     public Response deleteTeam(Team jsonTeam) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid(), Team.FetchGroup.ALL.getName());
@@ -188,7 +188,7 @@ public class TeamResource extends BaseResource {
             @ApiParam(value = "The UUID of the team to generate a key for", required = true)
             @PathParam("uuid") String uuid) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             Team team = qm.getObjectByUuid(Team.class, uuid);
@@ -218,7 +218,7 @@ public class TeamResource extends BaseResource {
             @ApiParam(value = "The API key to regenerate", required = true)
             @PathParam("apikey") String apikey) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             ApiKey apiKey = qm.getApiKey(apikey);
@@ -246,7 +246,7 @@ public class TeamResource extends BaseResource {
             @ApiParam(value = "The API key to delete", required = true)
             @PathParam("apikey") String apikey) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             ApiKey apiKey = qm.getApiKey(apikey);

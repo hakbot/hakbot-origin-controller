@@ -24,12 +24,12 @@ import java.security.Principal;
 abstract class BaseResource extends AlpineResource {
 
     protected boolean isHakmaster() {
-        boolean isHakMaster;
+        boolean isHakMaster = false;
         Principal principal = getPrincipal();
         if (principal == null) {
             // authentication was already required (if enabled)
             isHakMaster = true;
-        } else {
+        } else if (principal instanceof LdapUser) {
             try (QueryManager qm = new QueryManager()) {
                 isHakMaster = qm.isHakMaster((LdapUser) principal);
             }

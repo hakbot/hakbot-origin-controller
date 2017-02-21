@@ -117,7 +117,7 @@ public class UserResource extends BaseResource {
     })
     public Response getUsers() {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             List<LdapUser> users = qm.getLdapUsers();
@@ -158,7 +158,7 @@ public class UserResource extends BaseResource {
     })
     public Response createLdapUser(LdapUser jsonUser) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             if (StringUtils.isBlank(jsonUser.getUsername())) {
@@ -188,7 +188,7 @@ public class UserResource extends BaseResource {
     })
     public Response deleteLdapUser(LdapUser jsonUser) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(jsonUser.getUsername());
@@ -222,7 +222,7 @@ public class UserResource extends BaseResource {
             @ApiParam(value = "The UUID of the team to associate username with", required = true)
             IdentifiableObject identifiableObject) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(username);
@@ -264,7 +264,7 @@ public class UserResource extends BaseResource {
             @ApiParam(value = "The UUID of the team to un-associate username from", required = true)
             IdentifiableObject identifiableObject) {
         if (!isHakmaster()) {
-            Response.status(Response.Status.UNAUTHORIZED);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(username);
