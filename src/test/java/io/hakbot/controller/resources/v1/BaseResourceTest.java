@@ -48,7 +48,7 @@ public class BaseResourceTest extends JerseyTest {
 
     private static final String API_VERSION = "v1";
     static final String HEADER_API_KEY_NAME = "X-Api-Key";
-    static final String HEADER_API_KEY_VALUE = "12345";
+    static final String HEADER_API_KEY_VALUE = "01234567890123456789012345678912";
     static final String HEADER_AUTH = "Authorization";
     static String HEADER_AUTH_TOKEN_ADMIN;
     static String HEADER_AUTH_TOKEN_USER;
@@ -74,7 +74,7 @@ public class BaseResourceTest extends JerseyTest {
 
     @Override
     protected URI getBaseUri() {
-        return UriBuilder.fromUri("http://0.0.0.0/").port(getPort()).build();
+        return UriBuilder.fromUri("http://127.0.0.1/").port(getPort()).build();
     }
 
     private String createJsonWebToken(LdapUser ldapUser) {
