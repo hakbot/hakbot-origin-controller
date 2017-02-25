@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/hakbot/hakbot-origin-controller.svg?branch=master)](https://travis-ci.org/hakbot/hakbot-origin-controller) 
 [![Coverity Status](https://scan.coverity.com/projects/10425/badge.svg)](https://scan.coverity.com/projects/hakbot-hakbot-origin-controller)
+[![Alpine](https://img.shields.io/badge/built%20on-Alpine-blue.svg)](https://github.com/stevespringett/Alpine)
 
 Hakbot Origin Controller
 =====================================
