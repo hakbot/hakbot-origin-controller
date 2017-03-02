@@ -20,6 +20,7 @@ import io.hakbot.util.JsonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 
 public class JobResourceTest extends BaseResourceTest {
@@ -46,7 +47,11 @@ public class JobResourceTest extends BaseResourceTest {
         Assert.assertEquals("00000000-0000-0000-0000-000000000001", jsonResponse.getString("uuid"));
         Assert.assertEquals("Job 1", jsonResponse.getString("name"));
         Assert.assertEquals("io.hakbot.providers.shell.ShellProvider", jsonResponse.getString("provider"));
-        Assert.assertTrue(jsonResponse.getInt("created") > 0);
+
+        JsonNumber number = (jsonResponse.getJsonNumber("created"));
+        long created = number.longValueExact();
+        Assert.assertTrue(created > 0);
+
         Assert.assertEquals("CREATED", jsonResponse.getString("state"));
         Assert.assertTrue(jsonResponse.getInt("startedByApiKeyId") > 0);
     }
