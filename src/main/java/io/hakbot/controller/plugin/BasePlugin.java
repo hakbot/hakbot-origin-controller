@@ -45,6 +45,13 @@ public abstract class BasePlugin {
     }
 
     /**
+     * Updates the status of a job (asynchronously) along with a processing message.
+     */
+    protected void updateState(Job job, State state, String message) {
+        EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(state).message(message));
+    }
+
+    /**
      * Returns the value for the specified job property key
      */
     protected String getJobProperty(Job job, String key) {
