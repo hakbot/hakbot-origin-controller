@@ -93,8 +93,9 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
             scan.logout();
         } catch (LoginException e) {
-            addProcessingMessage(job, "Unable to login to Nessus");
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "Unable to login to Nessus");
+        } catch (RuntimeException e) {
+            updateState(job, State.FAILED, "Unable to process Nessus job. Likely cause is an invalid scan policy.");
         }
     }
 
@@ -109,8 +110,7 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             scan.logout();
             return isRunning;
         } catch (LoginException e) {
-            addProcessingMessage(job, "Unable to login to Nessus");
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "Unable to login to Nessus");
         }
         return false;
     }
@@ -133,11 +133,9 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             report.delete();
             scan.logout();
         } catch (LoginException e) {
-            addProcessingMessage(job, "Unable to login to Nessus");
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "Unable to login to Nessus");
         } catch (IOException e) {
-            addProcessingMessage(job, "IOException - Possibly due to downloading report");
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "IOException - Possibly due to downloading report");
         }
     }
 
