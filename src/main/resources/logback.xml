@@ -27,7 +27,7 @@
         <appender-ref ref="SECURITY_CONSOLE" />
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE" />
         <appender-ref ref="SECURITY_CONSOLE" />
     </root>
