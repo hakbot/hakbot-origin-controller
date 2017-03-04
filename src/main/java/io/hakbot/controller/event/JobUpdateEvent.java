@@ -28,7 +28,7 @@ import io.hakbot.controller.workers.State;
  */
 public class JobUpdateEvent extends BaseJobEvent implements UnblockedEvent {
 
-    private String message;
+    private String[] messages;
     private State state;
     private String result;
 
@@ -36,8 +36,8 @@ public class JobUpdateEvent extends BaseJobEvent implements UnblockedEvent {
         super(jobUuid);
     }
 
-    public String getMessage() {
-        return message;
+    public String[] getMessages() {
+        return messages;
     }
 
     public State getState() {
@@ -48,8 +48,8 @@ public class JobUpdateEvent extends BaseJobEvent implements UnblockedEvent {
         return result;
     }
 
-    public JobUpdateEvent message(String message) {
-        this.message = message;
+    public JobUpdateEvent message(String... messages) {
+        this.messages = messages;
         return this;
     }
 

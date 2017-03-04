@@ -49,8 +49,12 @@ public class JobUpdateLogger implements Subscriber {
             QueryManager qm = new QueryManager();
             Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             if (job != null) {
-                if (StringUtils.isNotBlank(event.getMessage())) {
-                    addMessage(job, event.getMessage());
+                if (event.getMessages() != null) {
+                    for (String message: event.getMessages()) {
+                        if (StringUtils.isNotBlank(message)) {
+                            addMessage(job, message);
+                        }
+                    }
                 }
                 if (event.getState() != null) {
                     // Check to see if the job already failed. If so, do not update state anymore
