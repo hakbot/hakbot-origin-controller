@@ -99,9 +99,7 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
         // Submit the scan request
         Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, decodedScanConfig, null, null);
         if (!submitResult.isSuccess()) {
-            addProcessingMessage(job, "Failed to execute AppSpider job");
-            addProcessingMessage(job, submitResult.getErrorDescription());
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "Failed to execute AppSpider job", submitResult.getErrorDescription());
         }
     }
 
@@ -148,17 +146,14 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
             StatusLine statusLine = httpResponse.getStatusLine();
             HttpEntity entity = httpResponse.getEntity();
             if (httpResponse.getStatusLine().getStatusCode() >= 300) {
-                addProcessingMessage(job, "Unable to download report file. Status Code: " + statusLine.getStatusCode());
-                updateState(job, State.FAILED);
+                updateState(job, State.FAILED, "Unable to download report file. Status Code: " + statusLine.getStatusCode());
             }
 
             // Convert result to byte array and save it
             byte[] results = IOUtils.toByteArray(entity.getContent());
             addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), results, "VulnerabilitySummary_" + job.getUuid() + ".xml" );
         } catch (IOException e) {
-            addProcessingMessage(job, "Unable to get scan result");
-            addProcessingMessage(job, e.getMessage());
-            updateState(job, State.FAILED);
+            updateState(job, State.FAILED, "Unable to get scan result", e.getMessage());
         }
     }
 
