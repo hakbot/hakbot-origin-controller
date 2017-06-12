@@ -43,6 +43,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 
 public class BaseResourceTest extends JerseyTest {
 
@@ -137,13 +138,13 @@ public class BaseResourceTest extends JerseyTest {
 
         Team admins = new Team();
         admins.setName("Administrators");
-        admins.setUuid("00000000-0000-0000-0000-000000000000");
+        admins.setUuid(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         admins.setHakmaster(true);
         admins.setLdapUsers(new ArrayList<LdapUser>(){{add(adminUser);}});
 
         Team users = new Team();
         users.setName("Users");
-        users.setUuid("00000000-0000-0000-0000-000000000001");
+        users.setUuid(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         users.setHakmaster(false);
         users.setLdapUsers(new ArrayList<LdapUser>(){{add(user);}});
 

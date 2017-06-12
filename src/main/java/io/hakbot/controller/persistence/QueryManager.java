@@ -275,7 +275,6 @@ public class QueryManager extends AlpineQueryManager {
         Team team = new Team();
         team.setName(name);
         team.setHakmaster(isHakmaster);
-        team.setUuid(UUID.randomUUID().toString());
         pm.makePersistent(team);
         pm.currentTransaction().commit();
         if (createApiKey) {
