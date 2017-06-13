@@ -52,7 +52,7 @@ import java.util.Map;
 public class AppSpiderProvider extends BaseProvider implements AsynchronousProvider, ConsoleIdentifier {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(AppSpiderProvider.class);
+    private static final Logger LOGGER = Logger.getLogger(AppSpiderProvider.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().
             createMap(Type.PROVIDER, AppSpiderConstants.PLUGIN_ID);
@@ -60,12 +60,12 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
 
     @Override
     public boolean initialize(Job job) {
-        JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "instance", "scanConfig")) {
             addProcessingMessage(job, "Invalid request. Expected parameters: [instance], [config]");
             return false;
         }
-        RemoteInstance remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
+        final RemoteInstance remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             return false;
         }
@@ -76,28 +76,28 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
 
     public void process(Job job) {
         // Retrieve payload and extract scan config (which is currently Base64 encoded)
-        JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
-        String scanConfig = JsonUtil.getString(payload, "scanConfig");
+        final JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
+        final String scanConfig = JsonUtil.getString(payload, "scanConfig");
 
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
 
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
+        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
 
         // Retrieve UUID from job and use it as the AppSpider scan token
-        String token = UuidUtil.stripHyphens(job.getUuid());
+        final String token = UuidUtil.stripHyphens(job.getUuid());
         setJobProperty(job, "token", token);
 
         // Decodes the scan config (should be XML)
-        String decodedScanConfig = new String(Base64.getDecoder().decode(scanConfig));
+        final String decodedScanConfig = new String(Base64.getDecoder().decode(scanConfig));
 
         // Parse the scanConfig and retrieve the scan name
-        String scanName = getScanName(decodedScanConfig);
+        final String scanName = getScanName(decodedScanConfig);
         setJobProperty(job, "scanName", scanName);
 
         // Submit the scan request
-        Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, decodedScanConfig, null, null);
+        final Result submitResult = soap.runScanXml(remoteInstance.getUsername(), remoteInstance.getPassword(), token, decodedScanConfig, null, null);
         if (!submitResult.isSuccess()) {
             updateState(job, State.FAILED, "Failed to execute AppSpider job", submitResult.getErrorDescription());
         }
@@ -105,53 +105,53 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
 
     public boolean isRunning(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-        String token = getJobProperty(job, "token");
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
-        Result runningResult = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final String token = getJobProperty(job, "token");
+        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
+        final Result runningResult = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
         return !runningResult.getData().equalsIgnoreCase("false");
     }
 
     @Override
     public void getResult(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-        String token = getJobProperty(job, "token");
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final String token = getJobProperty(job, "token");
 
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
+        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
         // Get the scan date and create the 'format' of the date that will be used in the URL
-        SCANSTATUS2 scanStatus2 = soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
-        XMLGregorianCalendar startTime = scanStatus2.getStartTime();
-        String dirDate =
+        final SCANSTATUS2 scanStatus2 = soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+        final XMLGregorianCalendar startTime = scanStatus2.getStartTime();
+        final String dirDate =
                 startTime.getYear() + "_" +
                         String.format("%02d", startTime.getMonth()) + "_" +
                         String.format("%02d", startTime.getDay()) + "_" +
                         String.format("%02d", startTime.getHour()) + "_" +
                         String.format("%02d", startTime.getMinute());
 
-        String scanName = getJobProperty(job, "scanName");
+        final String scanName = getJobProperty(job, "scanName");
 
         // Using the scan date, and scan config, create the URL where the report will be accessible from
-        String reportUrl = remoteInstance.getUrl().substring(0, remoteInstance.getUrl().lastIndexOf("/")) + "/Reports/" + scanName + "/" + dirDate + "/VulnerabilitiesSummary.xml";
-        if (logger.isDebugEnabled()) {
-            logger.debug("Job UUID: " + job.getUuid() + " - Downloading report from: " + reportUrl);
+        final String reportUrl = remoteInstance.getUrl().substring(0, remoteInstance.getUrl().lastIndexOf("/")) + "/Reports/" + scanName + "/" + dirDate + "/VulnerabilitiesSummary.xml";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Job UUID: " + job.getUuid() + " - Downloading report from: " + reportUrl);
         }
 
         try {
             // Download report
-            Response response = Request.Get(reportUrl).execute();
-            HttpResponse httpResponse = response.returnResponse();
-            StatusLine statusLine = httpResponse.getStatusLine();
-            HttpEntity entity = httpResponse.getEntity();
+            final Response response = Request.Get(reportUrl).execute();
+            final HttpResponse httpResponse = response.returnResponse();
+            final StatusLine statusLine = httpResponse.getStatusLine();
+            final HttpEntity entity = httpResponse.getEntity();
             if (httpResponse.getStatusLine().getStatusCode() >= 300) {
                 updateState(job, State.FAILED, "Unable to download report file. Status Code: " + statusLine.getStatusCode());
             }
 
             // Convert result to byte array and save it
-            byte[] results = IOUtils.toByteArray(entity.getContent());
-            addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), results, "VulnerabilitySummary_" + job.getUuid() + ".xml" );
+            final byte[] results = IOUtils.toByteArray(entity.getContent());
+            addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), results, "VulnerabilitySummary_" + job.getUuid() + ".xml");
         } catch (IOException e) {
             updateState(job, State.FAILED, "Unable to get scan result", e.getMessage());
         }
@@ -159,15 +159,15 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
 
     public boolean cancel(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
 
         updateState(job, State.CANCELED);
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
-        String token = UuidUtil.stripHyphens(job.getUuid());
-        Result running = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
+        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
+        final String token = UuidUtil.stripHyphens(job.getUuid());
+        final Result running = soap.isScanRunning(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
         if (running.getData().equalsIgnoreCase("true")) {
-            Result cancel = soap.stopScan(remoteInstance.getUsername(), remoteInstance.getPassword(), token, false);
+            final Result cancel = soap.stopScan(remoteInstance.getUsername(), remoteInstance.getPassword(), token, false);
             return cancel.isSuccess();
         }
         return false;
@@ -176,10 +176,10 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
     @Override
     public boolean isAvailable(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final
         NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
         return !soap.isBusy(remoteInstance.getUsername(), remoteInstance.getPassword());
     }
 
@@ -192,14 +192,14 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
     }
 
     private String getScanName(String decodedScanConfig) {
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPath xpath = xpathFactory.newXPath();
-        InputSource source = new InputSource(new StringReader(decodedScanConfig));
+        final XPathFactory xpathFactory = XPathFactory.newInstance();
+        final XPath xpath = xpathFactory.newXPath();
+        final InputSource source = new InputSource(new StringReader(decodedScanConfig));
         String scanName = null;
         try {
             scanName = xpath.evaluate("/ScanConfig/Name", source);
         } catch (XPathExpressionException e) {
-            logger.error("Error processing scan file: " + e.getMessage());
+            LOGGER.error("Error processing scan file: " + e.getMessage());
         }
         return scanName;
     }

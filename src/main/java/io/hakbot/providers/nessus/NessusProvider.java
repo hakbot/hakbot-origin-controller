@@ -42,13 +42,13 @@ import java.util.Map;
 public class NessusProvider extends BaseProvider implements AsynchronousProvider, ConsoleIdentifier {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(NessusProvider.class);
+    private static final Logger LOGGER = Logger.getLogger(NessusProvider.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PROVIDER, NessusConstants.PLUGIN_ID);
 
     @Override
     public boolean initialize(Job job) {
-        JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "scanName", "scanPolicy", "targets")) {
             addProcessingMessage(job, "Invalid request. Expected parameters: [scanName], [scanPolicy], [targets]");
             return false;
@@ -70,7 +70,7 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
         setRemoteInstance(job, remoteInstance);
 
         // Save job properties
-        HashMap<String, Object> properties = new HashMap<>();
+        final HashMap<String, Object> properties = new HashMap<>();
         properties.put(NessusConstants.SCAN_NAME, JsonUtil.getString(payload, NessusConstants.SCAN_NAME));
         properties.put(NessusConstants.SCAN_POLICY, JsonUtil.getString(payload, NessusConstants.SCAN_POLICY));
         properties.put(NessusConstants.TARGETS, JsonUtil.getString(payload, NessusConstants.TARGETS));
@@ -81,14 +81,14 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
 
     public void process(Job job) {
         // Retrieve remote instance and job properties defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-        String scanName = getJobProperty(job, NessusConstants.SCAN_NAME);
-        String scanPolicy = getJobProperty(job, NessusConstants.SCAN_POLICY);
-        String targets = getJobProperty(job, NessusConstants.TARGETS);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final String scanName = getJobProperty(job, NessusConstants.SCAN_NAME);
+        final String scanPolicy = getJobProperty(job, NessusConstants.SCAN_POLICY);
+        final String targets = getJobProperty(job, NessusConstants.TARGETS);
         try {
-            ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            final ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
-            String scanID = scan.newScan(scanName, scanPolicy, targets);
+            final String scanID = scan.newScan(scanName, scanPolicy, targets);
             // Save the scan ID Nessus assigned to the job
             setJobProperty(job, NessusConstants.PROP_SCAN_ID, scanID);
             scan.logout();
@@ -101,12 +101,12 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
 
     public boolean isRunning(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
         try {
-            ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            final ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
-            String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
-            boolean isRunning = scan.isScanRunning(scanId);
+            final String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
+            final boolean isRunning = scan.isScanRunning(scanId);
             scan.logout();
             return isRunning;
         } catch (LoginException e) {
@@ -118,15 +118,15 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
     @Override
     public void getResult(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
         try {
-            ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            final ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
-            String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
-            File report = scan.download(Integer.parseInt(scanId), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")));
+            final String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
+            final File report = scan.download(Integer.parseInt(scanId), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")));
 
             // Convert result to byte array and save it
-            byte[] result = FileUtils.readFileToByteArray(report);
+            final byte[] result = FileUtils.readFileToByteArray(report);
             addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), result, job.getUuid() + ".nessus");
 
             // Cleanup and logout
@@ -141,17 +141,17 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
 
     public boolean cancel(Job job) {
         // Retrieve the remote instance defined during initialization
-        RemoteInstance remoteInstance = getRemoteInstance(job);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
         updateState(job, State.CANCELED);
         try {
-            ScanClientV6 scan = (ScanClientV6)ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            final ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
 
-            String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
+            final String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
 
             // todo cancel the job with the specified scanId
         } catch (LoginException e) {
-            addProcessingMessage(job,"Unable to login to Nessus");
+            addProcessingMessage(job, "Unable to login to Nessus");
             return false;
         }
         return true;

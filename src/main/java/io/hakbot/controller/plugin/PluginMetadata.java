@@ -25,8 +25,8 @@ import java.lang.reflect.InvocationTargetException;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PluginMetadata {
 
-    // Setup logger
-    private static final Logger logger = Logger.getLogger(PluginMetadata.class);
+    // Setup LOGGER
+    private static final Logger LOGGER = Logger.getLogger(PluginMetadata.class);
 
     private Plugin plugin;
 
@@ -37,10 +37,10 @@ public class PluginMetadata {
     private void init(Class clazz) {
         try {
             @SuppressWarnings("unchecked")
-            Constructor<?> constructor = clazz.getConstructor();
+            final Constructor<?> constructor = clazz.getConstructor();
             this.plugin = (Plugin) constructor.newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 

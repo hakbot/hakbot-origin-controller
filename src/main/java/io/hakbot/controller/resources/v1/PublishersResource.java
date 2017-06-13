@@ -31,7 +31,7 @@ import java.util.List;
 
 @Path("/v1/publishers")
 @Api(value = "publishers", authorizations = {
-        @Authorization(value="X-Api-Key")
+        @Authorization(value = "X-Api-Key")
 })
 public class PublishersResource {
 
@@ -44,11 +44,11 @@ public class PublishersResource {
             responseContainer = "List"
     )
     public Response getAll() {
-        List<PluginMetadata> list = new ArrayList<>();
-        ExpectedClassResolver resolver = new ExpectedClassResolver();
-        List<Class> classes = resolver.getResolvedPubishers();
+        final List<PluginMetadata> list = new ArrayList<>();
+        final ExpectedClassResolver resolver = new ExpectedClassResolver();
+        final List<Class> classes = resolver.getResolvedPubishers();
         for (Class clazz: classes) {
-            PluginMetadata meta = new PluginMetadata(clazz);
+            final PluginMetadata meta = new PluginMetadata(clazz);
             list.add(meta);
         }
         return Response.ok(list).build();

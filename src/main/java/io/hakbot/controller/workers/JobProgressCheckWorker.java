@@ -40,27 +40,27 @@ import java.lang.reflect.Constructor;
  */
 public class JobProgressCheckWorker implements Subscriber {
 
-    private static final Logger logger = Logger.getLogger(JobProgressCheckWorker.class);
+    private static final Logger LOGGER = Logger.getLogger(JobProgressCheckWorker.class);
 
     public void inform(Event e) {
         if (e instanceof JobProgressCheckEvent) {
-            JobProgressCheckEvent event = (JobProgressCheckEvent) e;
+            final JobProgressCheckEvent event = (JobProgressCheckEvent) e;
 
-            QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
+            final QueryManager qm = new QueryManager();
+            final Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Progress update for job: " + event.getJobUuid());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Progress update for job: " + event.getJobUuid());
             }
 
             try {
-                ExpectedClassResolver resolver = new ExpectedClassResolver();
-                Class clazz = resolver.resolveProvider(job);
+                final ExpectedClassResolver resolver = new ExpectedClassResolver();
+                final Class clazz = resolver.resolveProvider(job);
                 @SuppressWarnings("unchecked")
-                Constructor<?> constructor = clazz.getConstructor();
+                final Constructor<?> constructor = clazz.getConstructor();
                 // We only need to check status of asynchronous jobs
-                AsynchronousProvider provider = (AsynchronousProvider)constructor.newInstance();
+                final AsynchronousProvider provider = (AsynchronousProvider) constructor.newInstance();
                 if (!provider.isRunning(job)) {
                     // Mark as complete first, then retrieve result. It may take a while to download result, so
                     // we don't what this attempted again, thus marking it complete first.
@@ -72,7 +72,7 @@ public class JobProgressCheckWorker implements Subscriber {
                     }
                 }
             } catch (Throwable ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }

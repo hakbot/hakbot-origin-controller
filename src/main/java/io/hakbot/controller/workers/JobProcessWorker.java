@@ -41,26 +41,26 @@ import java.lang.reflect.Constructor;
  */
 public class JobProcessWorker implements Subscriber {
 
-    private static final Logger logger = Logger.getLogger(JobProcessWorker.class);
+    private static final Logger LOGGER = Logger.getLogger(JobProcessWorker.class);
 
     public void inform(Event e) {
         if (e instanceof JobProcessEvent) {
-            JobProcessEvent event = (JobProcessEvent)e;
+            final JobProcessEvent event = (JobProcessEvent)e;
 
-            QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
+            final QueryManager qm = new QueryManager();
+            final Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
-            logger.info("Job: " + event.getJobUuid() + " is being processed.");
+            LOGGER.info("Job: " + event.getJobUuid() + " is being processed.");
 
-            boolean initialized, isAvailable;
+            final boolean initialized, isAvailable;
             try {
-                ExpectedClassResolver resolver = new ExpectedClassResolver();
-                Class clazz = resolver.resolveProvider(job);
+                final ExpectedClassResolver resolver = new ExpectedClassResolver();
+                final Class clazz = resolver.resolveProvider(job);
                 @SuppressWarnings("unchecked")
-                Constructor<?> con = clazz.getConstructor();
-                Provider provider = (AsynchronousProvider.class.isAssignableFrom(clazz)) ?
-                        (AsynchronousProvider)con.newInstance() : (SynchronousProvider)con.newInstance();
+                final Constructor<?> con = clazz.getConstructor();
+                final Provider provider = (AsynchronousProvider.class.isAssignableFrom(clazz)) ?
+                        (AsynchronousProvider) con.newInstance() : (SynchronousProvider) con.newInstance();
 
                 initialized = provider.initialize(job);
                 if (initialized) {
@@ -75,11 +75,11 @@ public class JobProcessWorker implements Subscriber {
                     EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_PROGRESS));
                     if (provider instanceof AsynchronousProvider) {
                         // Asynchronously process a job. Another task will periodically poll for updates and status.
-                        ((AsynchronousProvider)provider).process(job);
+                        ((AsynchronousProvider) provider).process(job);
                     } else {
                         // Synchronous execution needs to wait for the process to complete, thus holding up a thread.
                         // The boolean result from the execution determines if the execution was successful or not.
-                        boolean success = ((SynchronousProvider)provider).process(job);
+                        final boolean success = ((SynchronousProvider) provider).process(job);
                         if (success) {
                             EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                         } else {
@@ -90,7 +90,7 @@ public class JobProcessWorker implements Subscriber {
                     EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.UNAVAILABLE));
                 }
             } catch (Throwable ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }

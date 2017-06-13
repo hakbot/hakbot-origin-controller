@@ -28,7 +28,7 @@ import java.io.IOException;
 public abstract class BasePublisher extends BasePlugin implements Publisher {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(BasePublisher.class);
+    private static final Logger LOGGER = Logger.getLogger(BasePublisher.class);
 
     private Job job;
 
@@ -52,13 +52,13 @@ public abstract class BasePublisher extends BasePlugin implements Publisher {
             if (StringUtils.isEmpty(filename)) {
                 filename = job.getUuid() + ".result";
             }
-            File result = new File(directory, filename).getAbsoluteFile();
+            final File result = new File(directory, filename).getAbsoluteFile();
             FileUtils.writeByteArrayToFile(result, artifact.getContents());
             addProcessingMessage(job, "Result written to: " + result.getPath());
             return result;
         } catch (IOException e) {
-            logger.error("Unable to write result from job: " + job.getUuid());
-            logger.error(e.getMessage());
+            LOGGER.error("Unable to write result from job: " + job.getUuid());
+            LOGGER.error(e.getMessage());
             addProcessingMessage(job, "Unable to write result to file");
             addProcessingMessage(job, e.getMessage());
         }

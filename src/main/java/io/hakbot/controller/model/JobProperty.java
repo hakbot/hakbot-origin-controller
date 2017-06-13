@@ -32,21 +32,21 @@ public class JobProperty implements Serializable {
     private static final long serialVersionUID = 1904518074832824057L;
 
     @PrimaryKey
-    @Persistent(valueStrategy= IdGeneratorStrategy.INCREMENT)
+    @Persistent(valueStrategy = IdGeneratorStrategy.INCREMENT)
     @JsonIgnore
     private long id;
 
     @Persistent
-    @Column(name="JOB_ID", allowsNull="false")
+    @Column(name = "JOB_ID", allowsNull = "false")
     @JsonIgnore
     private long jobid;
 
     @Persistent
-    @Column(name="KEY", jdbcType="VARCHAR", length=255, allowsNull="false")
+    @Column(name = "KEY", jdbcType = "VARCHAR", length = 255, allowsNull = "false")
     private String key;
 
     @Persistent
-    @Column(name="VALUE", jdbcType="VARCHAR", length=255, allowsNull="false")
+    @Column(name = "VALUE", jdbcType = "VARCHAR", length = 255, allowsNull = "false")
     private String value;
 
     public JobProperty() {

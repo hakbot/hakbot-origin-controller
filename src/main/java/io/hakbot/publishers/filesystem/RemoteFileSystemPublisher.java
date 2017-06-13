@@ -30,7 +30,7 @@ import java.util.Map;
 public class RemoteFileSystemPublisher extends BasePublisher {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(RemoteFileSystemPublisher.class);
+    private static final Logger LOGGER = Logger.getLogger(RemoteFileSystemPublisher.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PUBLISHER, "remotefs");
 
@@ -40,7 +40,7 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         remoteInstance = instanceMap.get(JsonUtil.getString(payload, "instance"));
         if (remoteInstance == null) {
             addProcessingMessage(job, "RemoteFileSystem instance cannot be found or is not defined.");
@@ -50,8 +50,8 @@ public class RemoteFileSystemPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
-        File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
+        final JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        final File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
         if (report != null) {
             return true;
         }

@@ -32,7 +32,7 @@ import java.io.IOException;
 
 public class ConsoleControllerServlet extends HttpServlet {
 
-    private static final Logger logger = Logger.getLogger(ConsoleControllerServlet.class);
+    private static final Logger LOGGER = Logger.getLogger(ConsoleControllerServlet.class);
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,8 +58,8 @@ public class ConsoleControllerServlet extends HttpServlet {
     private void doRequest(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        String pathInfo = request.getPathInfo();
-        String uuid;
+        final String pathInfo = request.getPathInfo();
+        final String uuid;
 
         // Check to make sure path info was specified
         if (StringUtils.isEmpty(pathInfo)) {
@@ -76,24 +76,24 @@ public class ConsoleControllerServlet extends HttpServlet {
             return;
         }
 
-        QueryManager qm = new QueryManager();
-        Job job = qm.getJob(uuid, new SystemAccount());
+        final QueryManager qm = new QueryManager();
+        final Job job = qm.getJob(uuid, new SystemAccount());
         qm.close();
         if (job == null) {
             response.sendError(404);
             return;
         }
 
-        ExpectedClassResolver resolver = new ExpectedClassResolver();
+        final ExpectedClassResolver resolver = new ExpectedClassResolver();
         try {
-            Class pluginClass = resolver.resolveProvider(job);
+            final Class pluginClass = resolver.resolveProvider(job);
             request.setAttribute("job", job);
-            String pluginPage = "/WEB-INF/plugins/" + pluginClass.getName() + "/index.jsp?uuid="+uuid;
+            final String pluginPage = "/WEB-INF/plugins/" + pluginClass.getName() + "/index.jsp?uuid=" + uuid;
             response.setContentType("text/html;charset=UTF-8");
             request.getRequestDispatcher(pluginPage).include(request, response);
             return;
         } catch (ClassNotFoundException | ExpectedClassResolverException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         response.sendError(404);

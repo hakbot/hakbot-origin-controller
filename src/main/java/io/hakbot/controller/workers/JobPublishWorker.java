@@ -37,30 +37,30 @@ import java.lang.reflect.Constructor;
  */
 public class JobPublishWorker implements Subscriber {
 
-    private static final Logger logger = Logger.getLogger(JobPublishWorker.class);
+    private static final Logger LOGGER = Logger.getLogger(JobPublishWorker.class);
 
     public void inform(Event e) {
         if (e instanceof JobPublishEvent) {
-            JobPublishEvent event = (JobPublishEvent)e;
+            final JobPublishEvent event = (JobPublishEvent)e;
 
-            QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
+            final QueryManager qm = new QueryManager();
+            final Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             qm.close();
 
-            logger.info("Job: " + event.getJobUuid() + " is being processed.");
+            LOGGER.info("Job: " + event.getJobUuid() + " is being processed.");
 
-            boolean initialized;
+            final boolean initialized;
             try {
-                ExpectedClassResolver resolver = new ExpectedClassResolver();
-                Class clazz = resolver.resolvePublisher(job);
+                final ExpectedClassResolver resolver = new ExpectedClassResolver();
+                final Class clazz = resolver.resolvePublisher(job);
                 @SuppressWarnings("unchecked")
-                Constructor<?> con = clazz.getConstructor();
-                Publisher publisher = (Publisher)con.newInstance();
+                final Constructor<?> con = clazz.getConstructor();
+                final Publisher publisher = (Publisher) con.newInstance();
 
                 initialized = publisher.initialize(job);
                 if (initialized) {
                     EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).message("Initialized " + publisher.getName()));
-                    boolean success = publisher.publish(job);
+                    final boolean success = publisher.publish(job);
                     if (success) {
                         EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.PUBLISHED));
                     } else {
@@ -71,7 +71,7 @@ public class JobPublishWorker implements Subscriber {
                     //return; // Cannot continue.
                 }
             } catch (Throwable ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.FAILED).message(ex.getMessage()));
             }
         }

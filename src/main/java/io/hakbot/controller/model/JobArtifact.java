@@ -64,35 +64,35 @@ public class JobArtifact implements Serializable {
     }
 
     @PrimaryKey
-    @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+    @Persistent(valueStrategy = IdGeneratorStrategy.INCREMENT)
     @JsonIgnore
     private long id;
 
     @Persistent
-    @Column(name="JOB_ID", allowsNull="false")
+    @Column(name = "JOB_ID", allowsNull = "false")
     @JsonIgnore
     private long jobid;
 
     @Persistent
-    @Unique(name="JOBARTIFACT_UUID_IDX")
-    @Column(name="UUID", jdbcType="VARCHAR", length=36, allowsNull="false")
+    @Unique(name = "JOBARTIFACT_UUID_IDX")
+    @Column(name = "UUID", jdbcType = "VARCHAR", length = 36, allowsNull = "false")
     private String uuid;
 
     @Persistent
-    @Column(name="TYPE", jdbcType="VARCHAR", length=50, allowsNull="false")
-    public String type;
+    @Column(name = "TYPE", jdbcType = "VARCHAR", length = 50, allowsNull = "false")
+    private String type;
 
     @Persistent
-    @Column(name="MIMETYPE", jdbcType="VARCHAR", length=255, allowsNull="false")
-    public String mimetype;
+    @Column(name = "MIMETYPE", jdbcType = "VARCHAR", length = 255, allowsNull = "false")
+    private String mimetype;
 
     @Persistent
-    @Column(name="FILENAME", jdbcType="VARCHAR", length=255)
-    public String filename;
+    @Column(name = "FILENAME", jdbcType = "VARCHAR", length = 255)
+    private String filename;
 
     @Persistent
-    @Column(name="CONTENTS", jdbcType="BLOB", allowsNull="false")
-    public byte[] contents;
+    @Column(name = "CONTENTS", jdbcType = "BLOB", allowsNull = "false")
+    private byte[] contents;
 
     public long getId() {
         return id;

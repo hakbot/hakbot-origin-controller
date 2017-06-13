@@ -19,7 +19,6 @@ package io.hakbot.controller.persistence;
 import alpine.Config;
 import alpine.model.ApiKey;
 import alpine.model.LdapUser;
-import alpine.model.ManagedUser;
 import alpine.model.UserPrincipal;
 import alpine.persistence.AlpineQueryManager;
 import io.hakbot.controller.model.Job;
@@ -49,39 +48,39 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(OrderDirection order, Principal principal) {
-        Query query = pm.newQuery(Job.class);
+        final Query query = pm.newQuery(Job.class);
         query.setOrdering("created " + order.name());
-        List<Job> result = (List<Job>) query.execute();
+        final List<Job> result = (List<Job>) query.execute();
         return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(State state, OrderDirection order, Principal principal) {
-        Query query = pm.newQuery(Job.class, "state == :state");
+        final Query query = pm.newQuery(Job.class, "state == :state");
         query.setOrdering("created " + order.name());
-        List<Job> result = (List<Job>)query.execute(state.getValue());
+        final List<Job> result = (List<Job>) query.execute(state.getValue());
         return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public List<Job> getJobs(String pluginClass, State state, OrderDirection order, Principal principal) {
-        Query query = pm.newQuery(Job.class, "providerClass == :pluginClass && state == :state");
+        final Query query = pm.newQuery(Job.class, "providerClass == :pluginClass && state == :state");
         query.setOrdering("created " + order.name());
-        List<Job> result = (List<Job>)query.execute(pluginClass, state.getValue());
+        final List<Job> result = (List<Job>) query.execute(pluginClass, state.getValue());
         return getPermissible(result, principal);
     }
 
     @SuppressWarnings("unchecked")
     public Job getJob(String uuid, Principal principal) {
-        Query query = pm.newQuery(Job.class, "uuid == :uuid");
-        List<Job> result = (List<Job>)query.execute(uuid);
-        List<Job> permissible = getPermissible(result, principal);
+        final Query query = pm.newQuery(Job.class, "uuid == :uuid");
+        final List<Job> result = (List<Job>) query.execute(uuid);
+        final List<Job> permissible = getPermissible(result, principal);
         return permissible.size() == 0 ? null : permissible.get(0);
     }
 
     public Job createJob(String name, String provider, String providerPayload, String publisher, String publisherPayload, ApiKey apiKey) {
         pm.currentTransaction().begin();
-        Job job = new Job();
+        final Job job = new Job();
         job.setName(name);
         job.setProvider(provider);
         job.setPublisher(publisher);
@@ -103,7 +102,7 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     public Job updateJob(Job transientJob) {
-        Job job = getJob(transientJob.getUuid(), new SystemAccount());
+        final Job job = getJob(transientJob.getUuid(), new SystemAccount());
         pm.currentTransaction().begin();
         job.setCompleted(transientJob.getCompleted());
         job.setCreated(transientJob.getCreated());
@@ -119,19 +118,19 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     public long getUnprocessedJobCount() {
-        Query query = pm.newQuery(Job.class, "state == :created || state == :unavailable || state == :inQueue || state == :inProgress");
+        final Query query = pm.newQuery(Job.class, "state == :created || state == :unavailable || state == :inQueue || state == :inProgress");
         query.setResult("count(id)");
-        return (Long)query.executeWithArray(State.CREATED.getValue(), State.UNAVAILABLE.getValue(), State.IN_QUEUE.getValue(), State.IN_PROGRESS.getValue());
+        return (Long) query.executeWithArray(State.CREATED.getValue(), State.UNAVAILABLE.getValue(), State.IN_QUEUE.getValue(), State.IN_PROGRESS.getValue());
     }
 
     @SuppressWarnings("unchecked")
     public List<JobProperty> getJobProperties(Job job) {
-        Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
-        return (List<JobProperty>)query.execute(job.getId());
+        final Query query = pm.newQuery(JobProperty.class, "jobid == :jobid");
+        return (List<JobProperty>) query.execute(job.getId());
     }
 
     public JobProperty getJobProperty(Job job, String key) {
-        List<JobProperty> properties = getJobProperties(job);
+        final List<JobProperty> properties = getJobProperties(job);
         for (JobProperty property: properties) {
             if (property.getKey().equals(key)) {
                 return property;
@@ -158,12 +157,12 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public List<JobArtifact> getJobArtifacts(Job job) {
-        Query query = pm.newQuery(JobArtifact.class, "jobid == :jobid");
-        return (List<JobArtifact>)query.execute(job.getId());
+        final Query query = pm.newQuery(JobArtifact.class, "jobid == :jobid");
+        return (List<JobArtifact>) query.execute(job.getId());
     }
 
     public JobArtifact getJobArtifact(Job job, JobArtifact.Type type) {
-        List<JobArtifact> artifacts = getJobArtifacts(job);
+        final List<JobArtifact> artifacts = getJobArtifacts(job);
         for (JobArtifact artifact: artifacts) {
             if (artifact.getType().equals(type.name())) {
                 return artifact;
@@ -199,12 +198,12 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public void deleteAllJobs(Principal principal) {
-        Query query = pm.newQuery(Job.class);
-        List<Job> result = (List<Job>) query.execute();
-        List<Job> permissible = getPermissible(result, principal);
+        final Query query = pm.newQuery(Job.class);
+        final List<Job> result = (List<Job>) query.execute();
+        final List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
+            final List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
@@ -213,12 +212,12 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public void deleteJob(String uuid, Principal principal) {
-        Query query = pm.newQuery(Job.class, "uuid == :uuid");
-        List<Job> result = (List<Job>) query.execute(uuid);
-        List<Job> permissible = getPermissible(result, principal);
+        final Query query = pm.newQuery(Job.class, "uuid == :uuid");
+        final List<Job> result = (List<Job>) query.execute(uuid);
+        final List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
+            final List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
@@ -227,12 +226,12 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     public void deleteJobs(State state, Principal principal) {
-        Query query = pm.newQuery(Job.class, "state == :state");
-        List<Job> result = (List<Job>) query.execute(state.getValue());
-        List<Job> permissible = getPermissible(result, principal);
+        final Query query = pm.newQuery(Job.class, "state == :state");
+        final List<Job> result = (List<Job>) query.execute(state.getValue());
+        final List<Job> permissible = getPermissible(result, principal);
         pm.currentTransaction().begin();
         for (Job job: permissible) {
-            List<JobProperty> properties = getJobProperties(job);
+            final List<JobProperty> properties = getJobProperties(job);
             pm.deletePersistentAll(properties);
         }
         pm.deletePersistentAll(permissible);
@@ -241,13 +240,13 @@ public class QueryManager extends AlpineQueryManager {
 
     @Override
     public List<alpine.model.LdapUser> getLdapUsers() {
-        List<LdapUser> users = new ArrayList<>();
+        final List<LdapUser> users = new ArrayList<>();
         for (LdapUser ldapUser: super.getLdapUsers()) {
-            LdapUser transientUser = new LdapUser();
+            final LdapUser transientUser = new LdapUser();
             transientUser.setId(ldapUser.getId());
             transientUser.setDN(ldapUser.getDN());
             transientUser.setUsername(ldapUser.getUsername());
-            List<alpine.model.Team> transientTeams = new ArrayList<>();
+            final List<alpine.model.Team> transientTeams = new ArrayList<>();
             for (alpine.model.Team team: ldapUser.getTeams()) {
                 if (team instanceof Team) {
                     transientTeams.add(team);
@@ -272,7 +271,7 @@ public class QueryManager extends AlpineQueryManager {
      */
     public Team createTeam(String name, boolean isHakmaster, boolean createApiKey) {
         pm.currentTransaction().begin();
-        Team team = new Team();
+        final Team team = new Team();
         team.setName(name);
         team.setHakmaster(isHakmaster);
         pm.makePersistent(team);
@@ -293,7 +292,7 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     public List<Team> getHakbotTeams() {
-        List<Team> teams = new ArrayList<>();
+        final List<Team> teams = new ArrayList<>();
         for (alpine.model.Team alpineTeam : super.getTeams()) {
             if (alpineTeam instanceof Team) {
                 teams.add(getObjectById(Team.class, alpineTeam.getId()));
@@ -311,7 +310,7 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     public Team updateTeam(Team transientTeam) {
-        Team team = getObjectByUuid(Team.class, transientTeam.getUuid());
+        final Team team = getObjectByUuid(Team.class, transientTeam.getUuid());
         pm.currentTransaction().begin();
         team.setName(transientTeam.getName());
         team.setHakmaster(transientTeam.isHakmaster());
@@ -320,7 +319,7 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     public boolean addUserToTeam(LdapUser user, Team team) {
-        List<alpine.model.Team> teams = user.getTeams();
+        final List<alpine.model.Team> teams = user.getTeams();
         boolean found = false;
         for (alpine.model.Team alpineTeam: teams) {
             Team t = getObjectById(Team.class, alpineTeam.getId());
@@ -339,7 +338,7 @@ public class QueryManager extends AlpineQueryManager {
     }
 
     private List<Job> getPermissible(List<Job> result, Principal principal) {
-        List<Job> permissible = new ArrayList<>();
+        final List<Job> permissible = new ArrayList<>();
         for (Job job: result) {
             if (hasPermission(job, principal)) {
                 permissible.add(job);
@@ -353,7 +352,7 @@ public class QueryManager extends AlpineQueryManager {
             return true;
         }
         if (principal instanceof ApiKey) {
-            return hasPermission(job, (ApiKey)principal);
+            return hasPermission(job, (ApiKey) principal);
         } else if (principal instanceof LdapUser) {
             return hasPermission(job, (LdapUser) principal);
         } else if (principal instanceof SystemAccount) {
@@ -370,14 +369,14 @@ public class QueryManager extends AlpineQueryManager {
 
     @SuppressWarnings("unchecked")
     private boolean hasPermission(Job job, LdapUser ldapUser) {
-        ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
-        ArrayList<Long> list = new ArrayList<>();
+        final ApiKey apiKey = pm.getObjectById(ApiKey.class, job.getStartedByApiKeyId());
+        final ArrayList<Long> list = new ArrayList<>();
         for (alpine.model.Team alpineTeam: apiKey.getTeams()) {
-            Team team = getObjectById(Team.class, alpineTeam.getId());
+            final Team team = getObjectById(Team.class, alpineTeam.getId());
             list.add(team.getId());
         }
         for (alpine.model.Team alpineTeam: ldapUser.getTeams()) {
-            Team team = getObjectById(Team.class, alpineTeam.getId());
+            final Team team = getObjectById(Team.class, alpineTeam.getId());
             if (team.isHakmaster()) {
                 return true;
             }
@@ -399,7 +398,7 @@ public class QueryManager extends AlpineQueryManager {
     private boolean isHakMaster(List<alpine.model.Team> teamMembership) {
         if (teamMembership != null) {
             for (alpine.model.Team alpineTeam : teamMembership) {
-                Team team = getObjectById(Team.class, alpineTeam.getId());
+                final Team team = getObjectById(Team.class, alpineTeam.getId());
                 if (team.isHakmaster()) {
                     return true;
                 }

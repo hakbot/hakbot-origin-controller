@@ -51,7 +51,7 @@ import java.util.List;
 @Api(value = "user")
 public class UserResource extends BaseResource {
 
-    private static final Logger logger = Logger.getLogger(UserResource.class);
+    private static final Logger LOGGER = Logger.getLogger(UserResource.class);
 
     @POST
     @Path("login")
@@ -67,20 +67,20 @@ public class UserResource extends BaseResource {
     })
     @AuthenticationNotRequired
     public Response validateCredentials(@FormParam("username") String username, @FormParam("password") String password) {
-        Authenticator auth = new Authenticator(username, password);
+        final Authenticator auth = new Authenticator(username, password);
         try {
-            Principal principal = auth.authenticate();
+            final Principal principal = auth.authenticate();
             if (principal != null) {
-                logger.info(SecurityMarkers.SECURITY_AUDIT, "Login succeeded (username: " + username +
+                LOGGER.info(SecurityMarkers.SECURITY_AUDIT, "Login succeeded (username: " + username +
                         " / ip address: " + super.getRemoteAddress() + " / agent: " + super.getUserAgent() + ")");
 
-                JsonWebToken jwt = new JsonWebToken();
-                String token = jwt.createToken(principal);
+                final JsonWebToken jwt = new JsonWebToken();
+                final String token = jwt.createToken(principal);
                 return Response.ok(token).build();
             }
         } catch (AuthenticationException e) {
         }
-        logger.warn(SecurityMarkers.SECURITY_AUDIT, "Unauthorized login attempt (username: " + username +
+        LOGGER.warn(SecurityMarkers.SECURITY_AUDIT, "Unauthorized login attempt (username: " + username +
                 " / ip address: " + super.getRemoteAddress() + " / agent: " + super.getUserAgent() + ")");
         return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -93,7 +93,7 @@ public class UserResource extends BaseResource {
             notes = "Determines if the user making the request is a hakmaster (aka: superuser or administrator of Origin Controller)",
             response = Boolean.class,
             authorizations = {
-                    @Authorization(value="X-Api-Key")
+                    @Authorization(value = "X-Api-Key")
             }
     )
     @ApiResponses(value = {
@@ -120,7 +120,7 @@ public class UserResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            List<LdapUser> users = qm.getLdapUsers();
+            final List<LdapUser> users = qm.getLdapUsers();
             return Response.ok(users).build();
         }
     }
@@ -137,7 +137,7 @@ public class UserResource extends BaseResource {
     })
     public Response getSelf() {
         try (QueryManager qm = new QueryManager()) {
-            LdapUser user = qm.getLdapUser(getPrincipal().getName());
+            final LdapUser user = qm.getLdapUser(getPrincipal().getName());
             return Response.ok(user).build();
         }
     }
@@ -191,7 +191,7 @@ public class UserResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            LdapUser user = qm.getLdapUser(jsonUser.getUsername());
+            final LdapUser user = qm.getLdapUser(jsonUser.getUsername());
             if (user != null) {
                 qm.delete(user);
                 return Response.status(Response.Status.NO_CONTENT).build();
@@ -226,14 +226,14 @@ public class UserResource extends BaseResource {
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(username);
-            Team team = qm.getObjectByUuid(Team.class, identifiableObject.getUuid());
+            final Team team = qm.getObjectByUuid(Team.class, identifiableObject.getUuid());
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("The user could not be found.").build();
             }
             if (team == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("The team could not be found.").build();
             }
-            boolean modified = qm.addUserToTeam(user, team);
+            final boolean modified = qm.addUserToTeam(user, team);
             user = qm.getObjectById(LdapUser.class, user.getId());
             if (modified) {
                 return Response.ok(user).build();
@@ -268,14 +268,14 @@ public class UserResource extends BaseResource {
         }
         try (QueryManager qm = new QueryManager()) {
             LdapUser user = qm.getLdapUser(username);
-            Team team = qm.getObjectByUuid(Team.class, identifiableObject.getUuid());
+            final Team team = qm.getObjectByUuid(Team.class, identifiableObject.getUuid());
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("The user could not be found.").build();
             }
             if (team == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("The team could not be found.").build();
             }
-            boolean modified = qm.removeUserFromTeam(user, team);
+            final boolean modified = qm.removeUserFromTeam(user, team);
             user = qm.getObjectById(LdapUser.class, user.getId());
             if (modified) {
                 return Response.ok(user).build();

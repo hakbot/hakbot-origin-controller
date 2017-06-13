@@ -38,11 +38,11 @@ import java.util.Map;
 
 @Path("/v1/console")
 @Api(value = "console", authorizations = {
-        @Authorization(value="X-Api-Key")
+        @Authorization(value = "X-Api-Key")
 })
 public class ConsoleResource extends BaseResource {
 
-    private static final Logger logger = Logger.getLogger(ConsoleResource.class);
+    private static final Logger LOGGER = Logger.getLogger(ConsoleResource.class);
 
     @GET
     @Path("job/{job}")
@@ -57,29 +57,29 @@ public class ConsoleResource extends BaseResource {
             @PathParam("job") String jobUuid) {
 
         // Query on the specified job and determine if principal has permissions
-        Job job;
+        final Job job;
         try (QueryManager qm = new QueryManager()) {
             job = qm.getJob(jobUuid, getPrincipal());
         }
         if (job != null) {
             // Principal has access to job
             try {
-                ExpectedClassResolver resolver = new ExpectedClassResolver();
-                Class pluginClass = resolver.resolveProvider(job);
+                final ExpectedClassResolver resolver = new ExpectedClassResolver();
+                final Class pluginClass = resolver.resolveProvider(job);
                 if (ConsoleIdentifier.class.isAssignableFrom(pluginClass)) {
-                    Map queryParams = getUriInfo().getQueryParameters();
+                    final Map queryParams = getUriInfo().getQueryParameters();
 
                     // Lookup the corresponding console class from the plugin instance
-                    ConsoleIdentifier ci = (ConsoleIdentifier) pluginClass.newInstance();
-                    Class consoleClass = ci.getConsoleClass();
+                    final ConsoleIdentifier ci = (ConsoleIdentifier) pluginClass.newInstance();
+                    final Class consoleClass = ci.getConsoleClass();
 
                     // Execute the console sending the job and query parameters (if any) to it
-                    Console console = (Console) consoleClass.newInstance();
-                    Object response = console.console(job, queryParams);
+                    final Console console = (Console) consoleClass.newInstance();
+                    final Object response = console.console(job, queryParams);
                     return Response.ok(response).build();
                 }
             } catch (ClassNotFoundException | ExpectedClassResolverException | InstantiationException | IllegalAccessException e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();

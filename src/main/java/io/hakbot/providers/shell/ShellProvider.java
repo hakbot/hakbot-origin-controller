@@ -32,12 +32,12 @@ import java.io.InputStream;
 public  class ShellProvider extends BaseProvider implements SynchronousProvider {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(ShellProvider.class);
+    private static final Logger LOGGER = Logger.getLogger(ShellProvider.class);
     private Process process;
     private String command;
 
     public boolean initialize(Job job) {
-        JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getProviderPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "command")) {
             addProcessingMessage(job, "Invalid request. Expected parameters: [command]");
             return false;
@@ -50,18 +50,18 @@ public  class ShellProvider extends BaseProvider implements SynchronousProvider 
         InputStream inputStream = null;
         InputStream errorStream = null;
         try {
-            ProcessBuilder pb = new ProcessBuilder(command.split(" "));
+            final ProcessBuilder pb = new ProcessBuilder(command.split(" "));
             process = pb.start();
-            int exitCode = process.waitFor();
+            final int exitCode = process.waitFor();
             inputStream = process.getInputStream();
             errorStream = process.getErrorStream();
-            byte[] stdout = IOUtils.toByteArray(inputStream);
-            byte[] stderr = IOUtils.toByteArray(errorStream);
-            if (logger.isDebugEnabled()) {
-                logger.debug("STDOUT:");
-                logger.debug(new String(stdout));
-                logger.debug("STDERR:");
-                logger.debug(new String(stderr));
+            final byte[] stdout = IOUtils.toByteArray(inputStream);
+            final byte[] stderr = IOUtils.toByteArray(errorStream);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("STDOUT:");
+                LOGGER.debug(new String(stdout));
+                LOGGER.debug("STDERR:");
+                LOGGER.debug(new String(stderr));
             }
 
             if (exitCode == 0) {

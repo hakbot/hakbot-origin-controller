@@ -40,7 +40,7 @@ import java.util.Map;
 public class KennaSecurityPublisher extends BasePublisher {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(KennaSecurityPublisher.class);
+    private static final Logger LOGGER = Logger.getLogger(KennaSecurityPublisher.class);
 
     private static Map<String, RemoteInstance> instanceMap = new RemoteInstanceAutoConfig().createMap(Type.PUBLISHER, "kennasecurity");
 
@@ -50,7 +50,7 @@ public class KennaSecurityPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         remoteInstance = instanceMap.get(MapUtils.getString(payload, "instance"));
         if (remoteInstance == null) {
             addProcessingMessage(job, "KennaSecurity instance cannot be found or is not defined.");
@@ -60,20 +60,20 @@ public class KennaSecurityPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
-        File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
+        final JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        final File report = getResult(artifact, new File(System.getProperty("java.io.tmpdir")));
         if (report == null) {
             return false;
         }
         boolean success = false;
         try {
-            Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
-            FileDataBodyPart filePart = new FileDataBodyPart("file", report);
-            FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-            FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
-            WebTarget target = client.target(remoteInstance.getUrl());
+            final Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
+            final FileDataBodyPart filePart = new FileDataBodyPart("file", report);
+            final FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+            final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
+            final WebTarget target = client.target(remoteInstance.getUrl());
             target.request().header("X-Risk-Token", remoteInstance.getToken());
-            Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
+            final Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
             success = response.getStatus() == 200;
             if (!success) {
                 addProcessingMessage(job, "Failed to upload result to KennaSecurity");
@@ -81,7 +81,7 @@ public class KennaSecurityPublisher extends BasePublisher {
             }
             formDataMultiPart.close();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return success;
     }

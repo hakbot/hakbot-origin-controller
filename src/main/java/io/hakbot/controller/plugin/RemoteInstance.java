@@ -26,7 +26,7 @@ public class RemoteInstance implements Serializable {
     private static final long serialVersionUID = -2989746094308584919L;
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(RemoteInstance.class);
+    private static final Logger LOGGER = Logger.getLogger(RemoteInstance.class);
 
     private String alias;
     private URL url;
@@ -92,7 +92,7 @@ public class RemoteInstance implements Serializable {
         try {
             this.url = new URL(url);
         } catch (MalformedURLException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 

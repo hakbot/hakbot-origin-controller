@@ -46,7 +46,10 @@ import java.util.TimerTask;
 public class JobManager {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(JobManager.class);
+    private static final Logger LOGGER = Logger.getLogger(JobManager.class);
+
+    // Holds an instance of JobManager
+    private static final JobManager INSTANCE = new JobManager();
 
     // Holds an in-memory queue of all UUIDs for jobs that need to be processed
     private Set<String> workQueue = Collections.synchronizedSet(new LinkedHashSet<String>());
@@ -56,9 +59,6 @@ public class JobManager {
 
     // A Principal implementation for system-wide object-level access control
     private SystemAccount systemAccount = new SystemAccount();
-
-    // Holds an instance of JobManager
-    private static final JobManager instance = new JobManager();
 
     // Defines a scheduled task that checks for new jobs and in-progress jobs
     private Timer jobSchedulerTimer = new Timer();
@@ -70,10 +70,10 @@ public class JobManager {
      * Construct a new JobManager instance and setups up queues and scheduling
      */
     private JobManager() {
-        logger.info("Initializing JobManager");
+        LOGGER.info("Initializing JobManager");
 
-        int queueCheckInterval = Config.getInstance().getPropertyAsInt(HakbotConfigKey.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
-        long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(HakbotConfigKey.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
+        final int queueCheckInterval = Config.getInstance().getPropertyAsInt(HakbotConfigKey.QUEUE_CHECK_INTERVAL) * 1000; // in Seconds
+        final long jobPruneCheckInterval = Config.getInstance().getPropertyAsLong(HakbotConfigKey.JOB_PRUNE_CHECK_INTERVAL) * 3600000; // in Hours
         this.jobPruneInterval = Config.getInstance().getPropertyAsLong(HakbotConfigKey.JOB_PRUNE_INTERVAL) * 86400000; // in Days
 
         // Creates a new JobSchedulerTask every x seconds (defined by queueCheckInterval)
@@ -88,7 +88,7 @@ public class JobManager {
      * @return a JobManager instance
      */
     public static JobManager getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -98,8 +98,8 @@ public class JobManager {
      */
     private class JobSchedulerTask extends TimerTask {
         public synchronized void run() {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Polling for in-progress jobs");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Polling for in-progress jobs");
             }
             for (Job job: getInProcessJobs()) {
                 if (workQueue.contains(job.getUuid())) {
@@ -107,13 +107,13 @@ public class JobManager {
                 }
                 EventService.getInstance().publish(new JobProgressCheckEvent(job.getUuid()));
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("Polling for new jobs");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Polling for new jobs");
             }
             for (Job job: getWaitingJobs()) {
                 if (workQueue.add(job.getUuid())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Adding job " + job.getUuid() + " to work queue");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Adding job " + job.getUuid() + " to work queue");
                     }
                     EventService.getInstance().publish(new JobProcessEvent(job.getUuid()));
                 }
@@ -121,16 +121,16 @@ public class JobManager {
         }
 
         private List<Job> getInProcessJobs() {
-            List<Job> jobs = new ArrayList<>();
-            QueryManager qm = new QueryManager();
+            final List<Job> jobs = new ArrayList<>();
+            final QueryManager qm = new QueryManager();
             jobs.addAll(qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.ASC, systemAccount));
             qm.close();
             return jobs;
         }
 
         private List<Job> getWaitingJobs() {
-            List<Job> jobs = new ArrayList<>();
-            QueryManager qm = new QueryManager();
+            final List<Job> jobs = new ArrayList<>();
+            final QueryManager qm = new QueryManager();
             jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, systemAccount));
             jobs.addAll(qm.getJobs(State.IN_QUEUE, QueryManager.OrderDirection.ASC, systemAccount));
             qm.close();
@@ -143,20 +143,20 @@ public class JobManager {
      */
     private class JobPruneTask extends TimerTask {
         public synchronized void run() {
-            logger.info("Starting Prune of Job Database");
-            Date now = new Date();
-            QueryManager qm = new QueryManager();
-            List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, systemAccount);
+            LOGGER.info("Starting Prune of Job Database");
+            final Date now = new Date();
+            final QueryManager qm = new QueryManager();
+            final List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, systemAccount);
             for (Job job : allJobs) {
                 if (!(job.getState() == State.CREATED || job.getState() == State.IN_QUEUE || job.getState() == State.IN_PROGRESS)) {
                     if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {
-                        logger.info("Pruning Job: " + job.getUuid());
+                        LOGGER.info("Pruning Job: " + job.getUuid());
                         qm.deleteJob(job.getUuid(), systemAccount);
                     }
                 }
             }
             qm.close();
-            logger.info("Completed Prune of Job Database");
+            LOGGER.info("Completed Prune of Job Database");
         }
 
         private Date getLastestTimestamp(Job job) {

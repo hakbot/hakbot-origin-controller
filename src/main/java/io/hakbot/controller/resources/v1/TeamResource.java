@@ -57,7 +57,7 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            List<Team> teams = qm.getHakbotTeams();
+            final List<Team> teams = qm.getHakbotTeams();
             return Response.ok(teams).build();
         }
     }
@@ -82,7 +82,7 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            Team team = qm.getObjectByUuid(Team.class, uuid);
+            final Team team = qm.getObjectByUuid(Team.class, uuid);
             if (team != null) {
                 return Response.ok(team).build();
             } else {
@@ -108,7 +108,7 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            Team team = qm.createTeam(jsonTeam.getName(), false, true);
+            final Team team = qm.createTeam(jsonTeam.getName(), false, true);
             return Response.status(Response.Status.CREATED).entity(team).build();
         }
     }
@@ -160,7 +160,7 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid(), Team.FetchGroup.ALL.getName());
+            final Team team = qm.getObjectByUuid(Team.class, jsonTeam.getUuid(), Team.FetchGroup.ALL.getName());
             if (team != null) {
                 qm.delete(team.getApiKeys());
                 qm.delete(team);
@@ -191,9 +191,9 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            Team team = qm.getObjectByUuid(Team.class, uuid);
+            final Team team = qm.getObjectByUuid(Team.class, uuid);
             if (team != null) {
-                ApiKey apiKey = qm.createApiKey(team);
+                final ApiKey apiKey = qm.createApiKey(team);
                 return Response.status(Response.Status.CREATED).entity(apiKey).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).entity("The UUID of the team could not be found.").build();
@@ -249,7 +249,7 @@ public class TeamResource extends BaseResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try (QueryManager qm = new QueryManager()) {
-            ApiKey apiKey = qm.getApiKey(apikey);
+            final ApiKey apiKey = qm.getApiKey(apikey);
             if (apiKey != null) {
                 qm.delete(apiKey);
                 return Response.status(Response.Status.NO_CONTENT).build();

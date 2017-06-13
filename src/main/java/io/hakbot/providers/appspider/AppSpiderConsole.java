@@ -24,20 +24,18 @@ import io.hakbot.controller.plugin.Console;
 import io.hakbot.controller.plugin.RemoteInstance;
 import io.hakbot.providers.appspider.ws.NTOService;
 import io.hakbot.providers.appspider.ws.NTOServiceSoap;
-
 import java.util.Map;
-
 
 public class AppSpiderConsole extends BasePlugin implements Console {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(AppSpiderConsole.class);
+    private static final Logger LOGGER = Logger.getLogger(AppSpiderConsole.class);
 
     public Object console(Job job, Map parameters) {
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-        NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        NTOServiceSoap soap = service.getNTOServiceSoap();
-        String token = UuidUtil.stripHyphens(job.getUuid());
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
+        final NTOServiceSoap soap = service.getNTOServiceSoap();
+        final String token = UuidUtil.stripHyphens(job.getUuid());
         return soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
     }
 

@@ -27,7 +27,7 @@ import java.io.File;
 public class FileSystemPublisher extends BasePublisher {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(FileSystemPublisher.class);
+    private static final Logger LOGGER = Logger.getLogger(FileSystemPublisher.class);
 
     private String publishPath;
 
@@ -35,7 +35,7 @@ public class FileSystemPublisher extends BasePublisher {
     public boolean initialize(Job job) {
         super.initialize(job);
 
-        JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
+        final JsonObject payload = JsonUtil.toJsonObject(getPublisherPayload(job).getContents());
         if (!JsonUtil.requiredParams(payload, "publishPath")) {
             addProcessingMessage(job, "Invalid request. Expected parameter: [publishPath]");
             return false;
@@ -48,7 +48,7 @@ public class FileSystemPublisher extends BasePublisher {
     }
 
     public boolean publish(Job job) {
-        File path = new File(publishPath).getAbsoluteFile();
+        final File path = new File(publishPath).getAbsoluteFile();
         if (!path.exists()) {
             addProcessingMessage(job, "Specified publishPath does not exist.");
             return false;
@@ -59,8 +59,8 @@ public class FileSystemPublisher extends BasePublisher {
             addProcessingMessage(job, "Cannot write to the specified publishPath.");
             return false;
         }
-        JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
-        File report = getResult(artifact, path);
+        final JobArtifact artifact = getArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+        final File report = getResult(artifact, path);
         return report != null;
     }
 

@@ -45,20 +45,20 @@ import java.util.Map;
 public class RemoteInstanceAutoConfig {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(RemoteInstanceAutoConfig.class);
+    private static final Logger LOGGER = Logger.getLogger(RemoteInstanceAutoConfig.class);
 
     public Map<String, RemoteInstance> createMap(Plugin.Type pluginType, String pluginId) {
-        logger.info("Initializing instance properties");
-        Map<String, RemoteInstance> instanceMap = new HashMap<>();
-        String type = pluginType.name().toLowerCase();
-        String[] instances = StringUtils.split(Config.getInstance().getProperty(type + "." + pluginId + ".instances"), ",");
+        LOGGER.info("Initializing instance properties");
+        final  Map<String, RemoteInstance> instanceMap = new HashMap<>();
+        final String type = pluginType.name().toLowerCase();
+        final String[] instances = StringUtils.split(Config.getInstance().getProperty(type + "." + pluginId + ".instances"), ",");
         if (instances == null) {
-            logger.info("Instances were not specified. Unable to autoconfigure.");
+            LOGGER.info("Instances were not specified. Unable to autoconfigure.");
             return instanceMap;
         }
         for (String instanceIdentifier: instances) {
             instanceIdentifier = instanceIdentifier.trim();
-            RemoteInstance instance = generateInstance(pluginType, pluginId, instanceIdentifier);
+            final RemoteInstance instance = generateInstance(pluginType, pluginId, instanceIdentifier);
             instanceMap.putIfAbsent(instance.getAlias(), instance);
         }
         return instanceMap;
@@ -69,8 +69,8 @@ public class RemoteInstanceAutoConfig {
     }
 
     private RemoteInstance generateInstance(Plugin.Type pluginType, String pluginId, String instanceIdentifier) {
-        String type = pluginType.name().toLowerCase();
-        RemoteInstance instance = new RemoteInstance();
+        final String type = pluginType.name().toLowerCase();
+        final RemoteInstance instance = new RemoteInstance();
         instance.setAlias(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".alias")));
         instance.setUsername(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".username")));
         instance.setPassword(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".password")));
@@ -79,7 +79,7 @@ public class RemoteInstanceAutoConfig {
         try {
             instance.setURL(new URL(StringUtils.trimToNull(Config.getInstance().getProperty(type + "." + pluginId + "." + instanceIdentifier + ".url"))));
         } catch (MalformedURLException e) {
-            logger.error("The URL specified for the server instance is not valid. " + e.getMessage());
+            LOGGER.error("The URL specified for the server instance is not valid. " + e.getMessage());
         }
         return instance;
     }

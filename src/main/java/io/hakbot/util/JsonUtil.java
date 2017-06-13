@@ -35,7 +35,7 @@ public class JsonUtil {
      * Creates a JsonObject (a Map implementation) from a json-formatted string
      */
     public static JsonObject toJsonObject(String jsonString) {
-        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        final JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
         return jsonReader.readObject();
     }
 
@@ -43,7 +43,7 @@ public class JsonUtil {
      * Creates a JsonObject (a Map implementation) from a json-formatted byte[] array
      */
     public static JsonObject toJsonObject(byte[] jsonBytes) {
-        JsonReader jsonReader = Json.createReader(new StringReader(new String(jsonBytes)));
+        final JsonReader jsonReader = Json.createReader(new StringReader(new String(jsonBytes)));
         return jsonReader.readObject();
     }
 
@@ -51,7 +51,7 @@ public class JsonUtil {
      * Creates a JsonArray from a json-formatted string
      */
     public static JsonArray toJsonArray(String jsonString) {
-        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        final JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
         return jsonReader.readArray();
     }
 

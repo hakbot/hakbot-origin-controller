@@ -30,13 +30,13 @@ import java.nio.charset.StandardCharsets;
 // Adapted from http://stackoverflow.com/questions/132052/servlet-for-serving-static-content
 public class FileSystemResourceServlet extends StaticResourceServlet {
 
-    private static final Logger logger = Logger.getLogger(FileSystemResourceServlet.class);
+    private static final Logger LOGGER = Logger.getLogger(FileSystemResourceServlet.class);
 
 
     @Override
     protected StaticResource getStaticResource(HttpServletRequest request) throws IllegalArgumentException {
 
-        String pathInfo = request.getPathInfo();
+        final String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.isEmpty() || "/".equals(pathInfo)) {
             throw new IllegalArgumentException();
@@ -46,21 +46,21 @@ public class FileSystemResourceServlet extends StaticResourceServlet {
             return null;
         }
 
-        ServletContext context = request.getServletContext();
-        File pluginPath = new File(context.getRealPath("/WEB-INF/plugins/")).getAbsoluteFile();
+        final ServletContext context = request.getServletContext();
+        final File pluginPath = new File(context.getRealPath("/WEB-INF/plugins/")).getAbsoluteFile();
 
         String name = "";
         try {
             name = URLDecoder.decode(pathInfo.substring(1), StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         try {
             if (!isInSubDirectory(pluginPath, new File(pluginPath + "/" + name).getCanonicalFile())) {
                 return null;
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return null;
         }
         final File file = new File(pluginPath, name);

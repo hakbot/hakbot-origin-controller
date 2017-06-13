@@ -36,52 +36,52 @@ public class Job implements Serializable {
     private static final long serialVersionUID = 4247510467373253623L;
 
     @PrimaryKey
-    @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+    @Persistent(valueStrategy = IdGeneratorStrategy.INCREMENT)
     @JsonIgnore
     private long id;
 
     @Persistent
-    @Unique(name="JOB_UUID_IDX")
-    @Column(name="UUID", jdbcType="VARCHAR", length=36, allowsNull="false")
+    @Unique(name = "JOB_UUID_IDX")
+    @Column(name = "UUID", jdbcType = "VARCHAR", length = 36, allowsNull = "false")
     private String uuid;
 
     @Persistent
-    @Column(name="NAME", jdbcType="VARCHAR", length=50, allowsNull="false")
+    @Column(name = "NAME", jdbcType = "VARCHAR", length = 50, allowsNull = "false")
     private String name;
 
     @Persistent
-    @Column(name="PROVIDER", jdbcType="VARCHAR", length=255, allowsNull="false")
+    @Column(name = "PROVIDER", jdbcType = "VARCHAR", length = 255, allowsNull = "false")
     private String provider;
 
     @Persistent
-    @Column(name="PUBLISHER", jdbcType="VARCHAR", length=255)
+    @Column(name = "PUBLISHER", jdbcType = "VARCHAR", length = 255)
     private String publisher;
 
-    @Persistent(defaultFetchGroup="true")
-    @Column(name="MESSAGE", jdbcType="CLOB")
+    @Persistent(defaultFetchGroup = "true")
+    @Column(name = "MESSAGE", jdbcType = "CLOB")
     private String message;
 
     @Persistent
-    @Column(name="CREATED", jdbcType="TIMESTAMP", allowsNull="false")
+    @Column(name = "CREATED", jdbcType = "TIMESTAMP", allowsNull = "false")
     private Date created;
 
     @Persistent
-    @Column(name="STARTED", jdbcType="TIMESTAMP")
+    @Column(name = "STARTED", jdbcType = "TIMESTAMP")
     private Date started;
 
     @Persistent
-    @Column(name="COMPLETED", jdbcType="TIMESTAMP")
+    @Column(name = "COMPLETED", jdbcType = "TIMESTAMP")
     private Date completed;
 
     @NotPersistent
     private Long duration;
 
     @Persistent
-    @Column(name="STARTED_BY_APIKEY_ID")
+    @Column(name = "STARTED_BY_APIKEY_ID")
     private long apiKeyId;
 
     @Persistent
-    @Column(name="STATE", jdbcType="VARCHAR", length=20, allowsNull="false")
+    @Column(name = "STATE", jdbcType = "VARCHAR", length = 20, allowsNull = "false")
     private String state;
 
     public long getId() {
@@ -192,7 +192,7 @@ public class Job implements Serializable {
         this.apiKeyId = apiKeyId;
     }
 
-    public State getState () {
+    public State getState() {
         return State.parse(this.state);
     }
 

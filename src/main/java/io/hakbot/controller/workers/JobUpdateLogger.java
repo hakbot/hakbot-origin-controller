@@ -41,13 +41,13 @@ import java.util.Date;
  */
 public class JobUpdateLogger implements Subscriber {
 
-    private static final Logger logger = Logger.getLogger(JobUpdateLogger.class);
+    private static final Logger LOGGER = Logger.getLogger(JobUpdateLogger.class);
 
     public void inform(Event e) {
-        if(e instanceof JobUpdateEvent) {
-            JobUpdateEvent event = (JobUpdateEvent)e;
-            QueryManager qm = new QueryManager();
-            Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
+        if (e instanceof JobUpdateEvent) {
+            final JobUpdateEvent event = (JobUpdateEvent)e;
+            final QueryManager qm = new QueryManager();
+            final Job job = qm.getJob(event.getJobUuid(), new SystemAccount());
             if (job != null) {
                 if (event.getMessages() != null) {
                     for (String message: event.getMessages()) {
@@ -59,7 +59,7 @@ public class JobUpdateLogger implements Subscriber {
                 if (event.getState() != null) {
                     // Check to see if the job already failed. If so, do not update state anymore
                     if (job.getState() != State.FAILED) {
-                        State state = event.getState();
+                        final State state = event.getState();
                         if (job.getState() != state) {
                             addMessage(job, "Job state changed to " + state.getValue());
                         }
@@ -82,14 +82,14 @@ public class JobUpdateLogger implements Subscriber {
                 if (event.getState() == State.COMPLETED && !StringUtils.isEmpty(job.getPublisher())) {
                     // First check to see if provider is sync or async. sync providers will be informed to
                     // publish here, while async provider will be informed to publish in JobProgressCheckWorker
-                    ExpectedClassResolver resolver = new ExpectedClassResolver();
+                    final ExpectedClassResolver resolver = new ExpectedClassResolver();
                     try {
-                        Class clazz = resolver.resolveProvider(job);
+                        final Class clazz = resolver.resolveProvider(job);
                         if (SynchronousProvider.class.isAssignableFrom(clazz)) {
                             EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                         }
                     } catch (ClassNotFoundException | ExpectedClassResolverException ex) {
-                        logger.error(ex.getMessage());
+                        LOGGER.error(ex.getMessage());
                     }
                 }
             }
@@ -101,12 +101,12 @@ public class JobUpdateLogger implements Subscriber {
         if (StringUtils.isEmpty(message)) {
             return;
         }
-        Date date = new Date();
+        final Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String timestamp = formatter.format(date);
-        StringBuilder sb = new StringBuilder();
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        final String timestamp = formatter.format(date);
+        final StringBuilder sb = new StringBuilder();
         if (!StringUtils.isEmpty(job.getMessage())) {
             sb.append(job.getMessage()).append("\n");
         }

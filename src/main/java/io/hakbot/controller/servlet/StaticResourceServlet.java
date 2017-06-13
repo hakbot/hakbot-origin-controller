@@ -52,7 +52,7 @@ public abstract class StaticResourceServlet extends HttpServlet {
 
     private void doRequest(HttpServletRequest request, HttpServletResponse response, boolean head) throws IOException {
         response.reset();
-        StaticResource resource;
+        final StaticResource resource;
 
         try {
             resource = getStaticResource(request);
@@ -67,8 +67,8 @@ public abstract class StaticResourceServlet extends HttpServlet {
             return;
         }
 
-        String fileName = URLEncoder.encode(resource.getFileName(), StandardCharsets.UTF_8.name());
-        boolean notModified = setCacheHeaders(request, response, fileName, resource.getLastModified());
+        final String fileName = URLEncoder.encode(resource.getFileName(), StandardCharsets.UTF_8.name());
+        final boolean notModified = setCacheHeaders(request, response, fileName, resource.getLastModified());
 
         if (notModified) {
             response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
@@ -95,7 +95,7 @@ public abstract class StaticResourceServlet extends HttpServlet {
     protected abstract StaticResource getStaticResource(HttpServletRequest request) throws IllegalArgumentException;
 
     private boolean setCacheHeaders(HttpServletRequest request, HttpServletResponse response, String fileName, long lastModified) {
-        String eTag = String.format(ETAG_HEADER, fileName, lastModified);
+        final String eTag = String.format(ETAG_HEADER, fileName, lastModified);
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
         response.setDateHeader("Expires", System.currentTimeMillis() + DEFAULT_EXPIRE_TIME_IN_MILLIS);
@@ -103,15 +103,15 @@ public abstract class StaticResourceServlet extends HttpServlet {
     }
 
     private boolean notModified(HttpServletRequest request, String eTag, long lastModified) {
-        String ifNoneMatch = request.getHeader("If-None-Match");
+        final String ifNoneMatch = request.getHeader("If-None-Match");
 
         if (ifNoneMatch != null) {
-            String[] matches = ifNoneMatch.split("\\s*,\\s*");
+            final String[] matches = ifNoneMatch.split("\\s*,\\s*");
             Arrays.sort(matches);
             return (Arrays.binarySearch(matches, eTag) > -1 || Arrays.binarySearch(matches, "*") > -1);
         }
         else {
-            long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+            final long ifModifiedSince = request.getDateHeader("If-Modified-Since");
             return (ifModifiedSince + ONE_SECOND_IN_MILLIS > lastModified); // That second is because the header is in seconds, not millis.
         }
     }
@@ -130,7 +130,7 @@ public abstract class StaticResourceServlet extends HttpServlet {
                 ReadableByteChannel inputChannel = Channels.newChannel(resource.getInputStream());
                 WritableByteChannel outputChannel = Channels.newChannel(response.getOutputStream())
         ) {
-            ByteBuffer buffer = ByteBuffer.allocateDirect(DEFAULT_STREAM_BUFFER_SIZE);
+            final ByteBuffer buffer = ByteBuffer.allocateDirect(DEFAULT_STREAM_BUFFER_SIZE);
             long size = 0;
 
             while (inputChannel.read(buffer) != -1) {

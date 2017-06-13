@@ -28,20 +28,20 @@ import java.util.List;
 public class ExpectedClassResolver {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(ExpectedClassResolver.class);
+    private static final Logger LOGGER = Logger.getLogger(ExpectedClassResolver.class);
 
-    private static final List<String> providersConfigured = new ArrayList<>();
-    private static final List<String> publishersConfigured = new ArrayList<>();
-    private static final List<Class> resolvedProviders = new ArrayList<>();
-    private static final List<Class> resolvedPublishers = new ArrayList<>();
+    private static final List<String> PROVIDERS_CONFIGURED = new ArrayList<>();
+    private static final List<String> PUBLISHERS_CONFIGURED = new ArrayList<>();
+    private static final List<Class> RESOLVED_PROVIDERS = new ArrayList<>();
+    private static final List<Class> RESOLVED_PUBLISHERS = new ArrayList<>();
     static {
         String[] classes = Config.getInstance().getProperty(HakbotConfigKey.PROVIDERS_ENABLED).split(",");
         for (String clazz : classes) {
-            providersConfigured.add(clazz.trim());
+            PROVIDERS_CONFIGURED.add(clazz.trim());
         }
         classes = Config.getInstance().getProperty(HakbotConfigKey.PUBLISHERS_ENABLED).split(",");
         for (String clazz : classes) {
-            publishersConfigured.add(clazz.trim());
+            PUBLISHERS_CONFIGURED.add(clazz.trim());
         }
     }
 
@@ -52,11 +52,11 @@ public class ExpectedClassResolver {
      */
     private Class resolveClass(Plugin.Type type, String pluginClass) throws ClassNotFoundException, ExpectedClassResolverException {
         if (type.equals(Plugin.Type.PROVIDER)) {
-            if (providersConfigured.contains(pluginClass)) {
+            if (PROVIDERS_CONFIGURED.contains(pluginClass)) {
                 return Class.forName(pluginClass, false, this.getClass().getClassLoader());
             }
         } else {
-            if (publishersConfigured.contains(pluginClass)) {
+            if (PUBLISHERS_CONFIGURED.contains(pluginClass)) {
                 return Class.forName(pluginClass, false, this.getClass().getClassLoader());
             }
         }
@@ -85,10 +85,10 @@ public class ExpectedClassResolver {
         if (resolveList.size() == 0) {
             for (String className: classNames) {
                 try {
-                    Class clazz = Class.forName(className, false, this.getClass().getClassLoader());
+                    final Class clazz = Class.forName(className, false, this.getClass().getClassLoader());
                     resolveList.add(clazz);
                 } catch (ClassNotFoundException e) {
-                    logger.error("Cannot resolve " + className);
+                    LOGGER.error("Cannot resolve " + className);
                 }
             }
         }
@@ -96,17 +96,17 @@ public class ExpectedClassResolver {
     }
 
     public List<Class> getResolvedProviders() {
-        return autoResolve(resolvedProviders, providersConfigured);
+        return autoResolve(RESOLVED_PROVIDERS, PROVIDERS_CONFIGURED);
     }
 
     public List<Class> getResolvedPubishers() {
-        return autoResolve(resolvedPublishers, publishersConfigured);
+        return autoResolve(RESOLVED_PUBLISHERS, PUBLISHERS_CONFIGURED);
     }
 
     public boolean isClassAllowed(String pluginClass) {
         if (StringUtils.isEmpty(pluginClass)) {
             return true;
         }
-        return (providersConfigured.contains(pluginClass) || publishersConfigured.contains(pluginClass));
+        return (PROVIDERS_CONFIGURED.contains(pluginClass) || PUBLISHERS_CONFIGURED.contains(pluginClass));
     }
 }

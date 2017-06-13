@@ -26,7 +26,7 @@ abstract class BaseResource extends AlpineResource {
 
     protected boolean isHakmaster() {
         boolean isHakMaster = false;
-        Principal principal = getPrincipal();
+        final Principal principal = getPrincipal();
         if (principal == null) {
             // authentication was already required (if enabled)
             isHakMaster = true;
@@ -36,7 +36,7 @@ abstract class BaseResource extends AlpineResource {
             }
         } else if (principal instanceof UserPrincipal){
             try (QueryManager qm = new QueryManager()) {
-                isHakMaster = qm.isHakMaster((UserPrincipal)principal);
+                isHakMaster = qm.isHakMaster((UserPrincipal) principal);
             }
         }
         return isHakMaster;

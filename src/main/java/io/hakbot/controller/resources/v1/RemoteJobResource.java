@@ -34,7 +34,7 @@ import java.util.List;
 
 @Path("/v1/orbit")
 @Api(value = "orbit", authorizations = {
-        @Authorization(value="X-Api-Key")
+        @Authorization(value = "X-Api-Key")
 })
 public class RemoteJobResource extends BaseResource {
 
@@ -50,13 +50,13 @@ public class RemoteJobResource extends BaseResource {
             @ApiParam(value = "The name of the class", required = true)
             @PathParam("class") String classname) {
 
-        ExpectedClassResolver resolver = new ExpectedClassResolver();
+        final ExpectedClassResolver resolver = new ExpectedClassResolver();
         if (!resolver.isClassAllowed(classname)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         try (QueryManager qm = new QueryManager()) {
-            List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, getPrincipal());
+            final List<Job> jobs = qm.getJobs(classname, State.CREATED, QueryManager.OrderDirection.DESC, getPrincipal());
             if (jobs.size() > 0) {
                 return Response.ok(jobs.get(0)).build();
             } else {

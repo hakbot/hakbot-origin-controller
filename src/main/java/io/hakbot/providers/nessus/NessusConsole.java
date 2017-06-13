@@ -30,19 +30,19 @@ import java.util.Map;
 public class NessusConsole extends BasePlugin implements Console {
 
     // Setup logging
-    private static final Logger logger = Logger.getLogger(NessusConsole.class);
+    private static final Logger LOGGER = Logger.getLogger(NessusConsole.class);
 
     public Object console(Job job, Map parameters) {
-        RemoteInstance remoteInstance = getRemoteInstance(job);
-        String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
+        final RemoteInstance remoteInstance = getRemoteInstance(job);
+        final String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
         try {
-            ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
+            final ScanClientV6 scan = (ScanClientV6) ClientFactory.createScanClient(remoteInstance.getUrl(), 6, !remoteInstance.isValidateCertificates());
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
-            JsonObject details = scan.getScanDetails(scanId);
+            final JsonObject details = scan.getScanDetails(scanId);
             scan.logout();
             return details.toString();
         } catch (LoginException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return null;
     }

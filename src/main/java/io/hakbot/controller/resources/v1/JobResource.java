@@ -46,7 +46,7 @@ import java.util.List;
 
 @Path("/v1/job")
 @Api(value = "job", authorizations = {
-        @Authorization(value="X-Api-Key")
+        @Authorization(value = "X-Api-Key")
 })
 public class JobResource extends BaseResource {
 
@@ -62,7 +62,7 @@ public class JobResource extends BaseResource {
     )
     public Response getAllJobs() {
         try (QueryManager qm = new QueryManager()) {
-            List<Job> jobs = qm.getJobs(QueryManager.OrderDirection.DESC, getPrincipal());
+            final List<Job> jobs = qm.getJobs(QueryManager.OrderDirection.DESC, getPrincipal());
             return Response.ok(jobs).build();
         }
     }
@@ -78,7 +78,7 @@ public class JobResource extends BaseResource {
     public Response getJobByUuid(
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
-        Job job;
+        final Job job;
         try (QueryManager qm = new QueryManager()) {
             job = qm.getJob(uuid, getPrincipal());
         }
@@ -101,7 +101,7 @@ public class JobResource extends BaseResource {
             @ApiParam(value = "The UUID of the job", required = true)
             @PathParam("uuid") String uuid) {
         try (QueryManager qm = new QueryManager()) {
-            String message = qm.getJob(uuid, getPrincipal()).getMessage();
+            final String message = qm.getJob(uuid, getPrincipal()).getMessage();
             return Response.ok(message).build();
         }
     }
@@ -119,15 +119,15 @@ public class JobResource extends BaseResource {
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
             @DefaultValue("0") @QueryParam("q") int q) {
         try (QueryManager qm = new QueryManager()) {
-            Job job = qm.getJob(uuid, getPrincipal());
+            final Job job = qm.getJob(uuid, getPrincipal());
             if (job == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD);
+            final JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_PAYLOAD);
             if (artifact == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            byte[] contents = artifact.getContents();
+            final byte[] contents = artifact.getContents();
             if (q == 0) {
                 return Response.ok(contents, MediaType.TEXT_PLAIN).build();
             } else if (q == 1) {
@@ -152,15 +152,15 @@ public class JobResource extends BaseResource {
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1" )
             @DefaultValue("0") @QueryParam("q") int q) {
         try (QueryManager qm = new QueryManager()) {
-            Job job = qm.getJob(uuid, getPrincipal());
+            final Job job = qm.getJob(uuid, getPrincipal());
             if (job == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD);
+            final JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PUBLISHER_PAYLOAD);
             if (artifact == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            byte[] contents = artifact.getContents();
+            final byte[] contents = artifact.getContents();
             if (q == 0) {
                 return Response.ok(contents, MediaType.TEXT_PLAIN).build();
             } else if (q == 1) {
@@ -185,15 +185,15 @@ public class JobResource extends BaseResource {
             @ApiParam(value = "Modifies response behavior", defaultValue = "0", allowableValues = "0,1,2" )
             @DefaultValue("0") @QueryParam("q") int q) {
         try (QueryManager qm = new QueryManager()) {
-            Job job = qm.getJob(uuid, getPrincipal());
+            final Job job = qm.getJob(uuid, getPrincipal());
             if (job == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
+            final JobArtifact artifact = qm.getJobArtifact(job, JobArtifact.Type.PROVIDER_RESULT);
             if (artifact == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            byte[] contents = artifact.getContents();
+            final byte[] contents = artifact.getContents();
             if (q == 0) {
                 return Response.ok(contents, MediaType.TEXT_PLAIN).build();
             } else if (q == 1) {
@@ -225,21 +225,21 @@ public class JobResource extends BaseResource {
             }
 
             // Retrieve the optional principal for the API key that initiated this request
-            Principal principal = getPrincipal();
+            final Principal principal = getPrincipal();
             ApiKey apiKey = null;
             if (principal != null) {
                 apiKey = (ApiKey) principal;
             }
 
-            String name = jobRequest.getName();
-            String providerClass = jobRequest.getProvider().getClassname();
-            String providerPayload = JsonUtil.jsonStringFromObject(jobRequest.getProvider().getPayload());
-            String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher()
+            final String name = jobRequest.getName();
+            final String providerClass = jobRequest.getProvider().getClassname();
+            final String providerPayload = JsonUtil.jsonStringFromObject(jobRequest.getProvider().getPayload());
+            final String publisherClass = (jobRequest.getPublisher() != null) ? jobRequest.getPublisher()
                     .getClassname() : null;
-            String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher()
+            final String publisherPayload = (jobRequest.getPublisher() != null) ? JsonUtil.jsonStringFromObject(jobRequest.getPublisher()
                     .getPayload()) : null;
 
-            Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
+            final Job job = qm.createJob(name, providerClass, providerPayload, publisherClass, publisherPayload, apiKey);
             // At this point, the job has a state of CREATED, which is what we want our response to be.
             EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.IN_QUEUE));
             return Response.ok(job).build();
