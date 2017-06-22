@@ -31,6 +31,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <plugin.retirejs.breakOnFailure>false</plugin.retirejs.breakOnFailure>
+    </properties>
+
     <!-- Resolve Alpine snapshot releases -->
     <repositories>
         <repository>
