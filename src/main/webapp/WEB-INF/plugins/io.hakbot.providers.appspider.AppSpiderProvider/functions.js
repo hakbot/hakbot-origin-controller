@@ -117,27 +117,31 @@ $appspider = function() {
         status.elapsedTime = toHtml(data.Elapsed);
 
         events.length = 0; // Empties array by setting length to 0. Keeps references to object in-tact.
-        for(var i = 0; i < data.EventList.EVENT.length; i++) {
-            var objE = data.EventList.EVENT[i];
-            var event = {};
-            event.timestamp = objE.Time;
-            event.dateTime = timeConverter(objE.Time);
-            event.event = toHtml(objE.Event);
-            event.details = toHtml(objE.Details);
-            event.error = toHtml(objE.Error);
-            event.errorCode = toHtml(objE.ErrorCode);
-            events.push(event);
+        if (data.EventList.EVENT) {
+            for (var i = 0; i < data.EventList.EVENT.length; i++) {
+                var objE = data.EventList.EVENT[i];
+                var event = {};
+                event.timestamp = objE.Time;
+                event.dateTime = timeConverter(objE.Time);
+                event.event = toHtml(objE.Event);
+                event.details = toHtml(objE.Details);
+                event.error = toHtml(objE.Error);
+                event.errorCode = toHtml(objE.ErrorCode);
+                events.push(event);
+            }
         }
 
         modules.length = 0; // Empties array by setting length to 0. Keeps references to object in-tact.
-        for(var j = 0; j < data.ModuleStatusList.MODULESTATUS.length; j++) {
-            var objM = data.ModuleStatusList.MODULESTATUS[j];
-            var module = {};
-            module.name = toHtml(objM.ModuleName);
-            module.passiveAnalysis = toHtml(objM.PassiveAnalysis);
-            module.attempted = toHtml(objM.Attempted);
-            module.vulnerable = toHtml(objM.Vulnerable);
-            modules.push(module);
+        if (data.ModuleStatusList.MODULESTATUS) {
+            for (var j = 0; j < data.ModuleStatusList.MODULESTATUS.length; j++) {
+                var objM = data.ModuleStatusList.MODULESTATUS[j];
+                var module = {};
+                module.name = toHtml(objM.ModuleName);
+                module.passiveAnalysis = toHtml(objM.PassiveAnalysis);
+                module.attempted = toHtml(objM.Attempted);
+                module.vulnerable = toHtml(objM.Vulnerable);
+                modules.push(module);
+            }
         }
         
         // Sort events by timestamp
