@@ -122,18 +122,18 @@ public class JobManager {
 
         private List<Job> getInProcessJobs() {
             final List<Job> jobs = new ArrayList<>();
-            final QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.ASC, systemAccount));
-            qm.close();
+            try (QueryManager qm = new QueryManager()) {
+                jobs.addAll(qm.getJobs(State.IN_PROGRESS, QueryManager.OrderDirection.ASC, systemAccount));
+            }
             return jobs;
         }
 
         private List<Job> getWaitingJobs() {
             final List<Job> jobs = new ArrayList<>();
-            final QueryManager qm = new QueryManager();
-            jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, systemAccount));
-            jobs.addAll(qm.getJobs(State.IN_QUEUE, QueryManager.OrderDirection.ASC, systemAccount));
-            qm.close();
+            try (QueryManager qm = new QueryManager()) {
+                jobs.addAll(qm.getJobs(State.UNAVAILABLE, QueryManager.OrderDirection.ASC, systemAccount));
+                jobs.addAll(qm.getJobs(State.IN_QUEUE, QueryManager.OrderDirection.ASC, systemAccount));
+            }
             return jobs;
         }
     }
@@ -145,17 +145,17 @@ public class JobManager {
         public synchronized void run() {
             LOGGER.info("Starting Prune of Job Database");
             final Date now = new Date();
-            final QueryManager qm = new QueryManager();
-            final List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, systemAccount);
-            for (Job job : allJobs) {
-                if (!(job.getState() == State.CREATED || job.getState() == State.IN_QUEUE || job.getState() == State.IN_PROGRESS)) {
-                    if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {
-                        LOGGER.info("Pruning Job: " + job.getUuid());
-                        qm.deleteJob(job.getUuid(), systemAccount);
+            try (QueryManager qm = new QueryManager()) {
+                final List<Job> allJobs = qm.getJobs(QueryManager.OrderDirection.DESC, systemAccount);
+                for (Job job : allJobs) {
+                    if (!(job.getState() == State.CREATED || job.getState() == State.IN_QUEUE || job.getState() == State.IN_PROGRESS)) {
+                        if (now.getTime() - (jobPruneInterval) >= getLastestTimestamp(job).getTime()) {
+                            LOGGER.info("Pruning Job: " + job.getUuid());
+                            qm.deleteJob(job.getUuid(), systemAccount);
+                        }
                     }
                 }
             }
-            qm.close();
             LOGGER.info("Completed Prune of Job Database");
         }
 

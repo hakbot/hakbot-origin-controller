@@ -55,13 +55,13 @@ public abstract class BasePlugin {
      * Returns the value for the specified job property key
      */
     protected String getJobProperty(Job job, String key) {
-        final QueryManager qm = new QueryManager();
-        final JobProperty prop = qm.getJobProperty(job, key);
-        qm.close();
-        if (prop == null || prop.getValue() == null || StringUtils.isBlank(prop.getValue())) {
-            return null;
-        } else {
-            return prop.getValue();
+        try (QueryManager qm = new QueryManager()) {
+            final JobProperty prop = qm.getJobProperty(job, key);
+            if (prop == null || prop.getValue() == null || StringUtils.isBlank(prop.getValue())) {
+                return null;
+            } else {
+                return prop.getValue();
+            }
         }
     }
 
@@ -69,10 +69,10 @@ public abstract class BasePlugin {
      * Returns all the job properties for the specified job
      */
     protected List<JobProperty> getJobProperties(Job job) {
-        final QueryManager qm = new QueryManager();
-        final List<JobProperty> props = qm.getJobProperties(job);
-        qm.close();
-        return props;
+        try (QueryManager qm = new QueryManager()) {
+            final List<JobProperty> props = qm.getJobProperties(job);
+            return props;
+        }
     }
 
     /**
@@ -83,9 +83,9 @@ public abstract class BasePlugin {
         if (key == null || value == null) {
             return;
         }
-        final QueryManager qm = new QueryManager();
-        qm.setJobProperty(job, key, value);
-        qm.close();
+        try (QueryManager qm = new QueryManager()) {
+            qm.setJobProperty(job, key, value);
+        }
     }
 
     /**
@@ -93,28 +93,28 @@ public abstract class BasePlugin {
      * values, but does not save them, thus failing gracefully.
      */
     protected void setJobProperties(Job job, Map<String, Object> properties) {
-        final QueryManager qm = new QueryManager();
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            if (entry.getKey() != null && entry.getValue() != null) {
-                qm.setJobProperty(job, entry.getKey(), entry.getValue());
+        try (QueryManager qm = new QueryManager()) {
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                if (entry.getKey() != null && entry.getValue() != null) {
+                    qm.setJobProperty(job, entry.getKey(), entry.getValue());
+                }
             }
         }
-        qm.close();
     }
 
     protected JobArtifact addArtifact(Job job, JobArtifact.Type type, String mimeType, byte[] contents, String filename) {
-        final QueryManager qm = new QueryManager();
-        final JobArtifact artifact = qm.setJobArtifact(job, type, mimeType, contents, null, filename);
-        qm.close();
-        return artifact;
+        try (QueryManager qm = new QueryManager()) {
+            final JobArtifact artifact = qm.setJobArtifact(job, type, mimeType, contents, null, filename);
+            return artifact;
+        }
     }
 
     protected JobArtifact getArtifact(Job job, JobArtifact.Type type) {
-        final  QueryManager qm = new QueryManager();
-        final JobArtifact artifact = qm.getJobArtifact(job, type);
-        final byte[] contents = artifact.getContents(); // Force this blob to be loaded when qm is still open
-        qm.close();
-        return artifact;
+        try (QueryManager qm = new QueryManager()) {
+            final JobArtifact artifact = qm.getJobArtifact(job, type);
+            final byte[] contents = artifact.getContents(); // Force this blob to be loaded when qm is still open
+            return artifact;
+        }
     }
 
     protected RemoteInstance getRemoteInstance(Job job) {
@@ -125,9 +125,9 @@ public abstract class BasePlugin {
 
     protected void setRemoteInstance(Job job, RemoteInstance remoteInstance) {
         final byte[] content = SerializationUtils.serialize(remoteInstance);
-        final QueryManager qm = new QueryManager();
-        qm.setJobArtifact(job, JobArtifact.Type.REMOTE_INSTANCE, JobArtifact.MimeType.OBJECT.value(), content, null, null);
-        qm.close();
+        try (QueryManager qm = new QueryManager()) {
+            qm.setJobArtifact(job, JobArtifact.Type.REMOTE_INSTANCE, JobArtifact.MimeType.OBJECT.value(), content, null, null);
+        }
     }
 
     protected JobArtifact getProviderPayload(Job job) {
