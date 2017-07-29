@@ -57,17 +57,21 @@ public class JobProgressCheckWorker implements Subscriber {
             try {
                 final ExpectedClassResolver resolver = new ExpectedClassResolver();
                 final Class clazz = resolver.resolveProvider(job);
+                LOGGER.debug("Job: " + job.getUuid() + " / Class: " + clazz);
                 @SuppressWarnings("unchecked")
                 final Constructor<?> constructor = clazz.getConstructor();
                 // We only need to check status of asynchronous jobs
                 final AsynchronousProvider provider = (AsynchronousProvider) constructor.newInstance();
+                LOGGER.debug("Job: " + job.getUuid() + " / Provider: " + provider.getName());
                 if (!provider.isRunning(job)) {
                     // Mark as complete first, then retrieve result. It may take a while to download result, so
                     // we don't what this attempted again, thus marking it complete first.
+                    LOGGER.debug("Job: " + job.getUuid() + " / Publishing new JobUpdateEvent - Setting state to completed");
                     EventService.getInstance().publish(new JobUpdateEvent(job.getUuid()).state(State.COMPLETED));
                     provider.getResult(job);
                     // Now that the result has been downloaded check if a publisher was defined and if so, send event.
                     if (!StringUtils.isEmpty(job.getPublisher())) {
+                        LOGGER.debug("Job: " + job.getUuid() + " / Publishing new JobPublishingEvent");
                         EventService.getInstance().publish(new JobPublishEvent(job.getUuid()));
                     }
                 }
