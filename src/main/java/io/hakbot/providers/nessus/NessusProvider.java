@@ -124,14 +124,16 @@ public class NessusProvider extends BaseProvider implements AsynchronousProvider
             scan.login(remoteInstance.getUsername(), remoteInstance.getPassword());
             final String scanId = getJobProperty(job, NessusConstants.PROP_SCAN_ID);
             final File report = scan.download(Integer.parseInt(scanId), ExportFormat.NESSUS, Paths.get(System.getProperty("java.io.tmpdir")));
-
-            // Convert result to byte array and save it
-            final byte[] result = FileUtils.readFileToByteArray(report);
-            addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), result, job.getUuid() + ".nessus");
-
-            // Cleanup and logout
-            report.delete();
-            scan.logout();
+            if (report.exists()) {
+                // Convert result to byte array and save it
+                final byte[] result = FileUtils.readFileToByteArray(report);
+                addArtifact(job, JobArtifact.Type.PROVIDER_RESULT, JobArtifact.MimeType.XML.value(), result, job.getUuid() + ".nessus");
+                // Cleanup and logout
+                report.delete();
+                scan.logout();
+            } else {
+                updateState(job, State.FAILED, "Unable to download or save Nessus report");
+            }
         } catch (LoginException e) {
             updateState(job, State.FAILED, "Unable to login to Nessus");
         } catch (IOException e) {
