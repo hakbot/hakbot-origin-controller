@@ -110,6 +110,7 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
 
 	public File download(int scanId, ExportV6 export, Path outputPath) throws IOException {
 		WebTarget target = this.target.path("scans").path(Integer.toString(scanId)).path("export").path(export.getFile()).path("download");
+		try { Thread.sleep(5000); } catch (InterruptedException e) {}
 		Response response = getRequest(target, Response.class, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		String fileName = extractFileName(response);
 		InputStream inputStream = (InputStream) response.getEntity();
