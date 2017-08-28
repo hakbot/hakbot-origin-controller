@@ -119,22 +119,8 @@ public class AppSpiderProvider extends BaseProvider implements AsynchronousProvi
         final RemoteInstance remoteInstance = getRemoteInstance(job);
         final String token = getJobProperty(job, "token");
 
-        final NTOService service = new NTOService(remoteInstance.getURL(), AppSpiderConstants.SERVICE_NAME);
-        final NTOServiceSoap soap = service.getNTOServiceSoap();
-        // Get the scan date and create the 'format' of the date that will be used in the URL
-        final SCANSTATUS2 scanStatus2 = soap.getStatus2(remoteInstance.getUsername(), remoteInstance.getPassword(), token);
-        final XMLGregorianCalendar startTime = scanStatus2.getStartTime();
-        final String dirDate =
-                startTime.getYear() + "_" +
-                        String.format("%02d", startTime.getMonth()) + "_" +
-                        String.format("%02d", startTime.getDay()) + "_" +
-                        String.format("%02d", startTime.getHour()) + "_" +
-                        String.format("%02d", startTime.getMinute());
-
-        final String scanName = getJobProperty(job, "scanName");
-
-        // Using the scan date, and scan config, create the URL where the report will be accessible from
-        final String reportUrl = remoteInstance.getUrl().substring(0, remoteInstance.getUrl().lastIndexOf("/")) + "/Reports/" + scanName + "/" + dirDate + "/VulnerabilitiesSummary.xml";
+        // Create the URL where the report will be accessible from
+        final String reportUrl = remoteInstance.getUrl().substring(0, remoteInstance.getUrl().lastIndexOf("/")) + "/Reports/" + token + "/VulnerabilitiesSummary.xml";
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Job UUID: " + job.getUuid() + " - Downloading report from: " + reportUrl);
         }
