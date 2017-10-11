@@ -79,7 +79,8 @@ public class ThreadFixPublisher extends BasePublisher {
             final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
             final WebTarget target = client.target(remoteInstance.getUrl() + "/applications/" + appId + "/upload?apiKey=" + remoteInstance.getApiKey());
             final Response response = target.request().post(Entity.entity(multipart, multipart.getMediaType()));
-            success = response.getStatus() == 200;
+            // Depending on the ThreadFix API used, it may send a 200 or a 202 on success.
+            success = (response.getStatus() == 200 || response.getStatus() == 202);
             if (!success) {
                 addProcessingMessage(job, "Failed to upload result to ThreadFix");
                 addProcessingMessage(job, response.getStatusInfo().getReasonPhrase());
