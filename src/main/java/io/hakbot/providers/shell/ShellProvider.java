@@ -47,14 +47,13 @@ public  class ShellProvider extends BaseProvider implements SynchronousProvider 
     }
 
     public boolean process(Job job) {
-        InputStream inputStream = null;
-        InputStream errorStream = null;
-        try {
+        try (
+                InputStream inputStream = process.getInputStream();
+                InputStream errorStream = process.getErrorStream()) {
+
             final ProcessBuilder pb = new ProcessBuilder(command.split(" "));
             process = pb.start();
             final int exitCode = process.waitFor();
-            inputStream = process.getInputStream();
-            errorStream = process.getErrorStream();
             final byte[] stdout = IOUtils.toByteArray(inputStream);
             final byte[] stderr = IOUtils.toByteArray(errorStream);
             if (LOGGER.isDebugEnabled()) {
@@ -81,9 +80,6 @@ public  class ShellProvider extends BaseProvider implements SynchronousProvider 
         } catch (JobException e) {
             addProcessingMessage(job, "Job terminated abnormally. Exit code: " + e.getExitCode());
             addProcessingMessage(job, e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(errorStream);
         }
         return false;
     }
