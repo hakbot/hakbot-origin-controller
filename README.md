@@ -127,7 +127,7 @@ The easiest way to get Hakbot Origin Controller setup is to automatically create
 
 ```shell
 mvn clean package -P embedded-jetty
-java -jar origin-controller.war
+java -jar target/origin-controller.war
 ```
 
  
