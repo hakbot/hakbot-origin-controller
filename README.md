@@ -111,6 +111,7 @@ publish to CDNs or asset management applications.
 
 Compiling
 -------------------
+
 To create a standalone executable application that is ready to launch (recommended for most users):
 
 ```shell
