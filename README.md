@@ -148,7 +148,7 @@ docker run -p 8080:8080 -t hakbot
 Compiling
 -------------------
 
-To create a standalone executable application that is ready to launch (recommended for most users):
+To create an executable WAR that is ready to launch (recommended for most users):
 
 ```shell
 mvn clean package -P embedded-jetty
