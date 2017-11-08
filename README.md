@@ -123,8 +123,7 @@ supports the following two deployment options:
 Deploying Standalone
 -------------------
 
-The easiest way to get Hakbot Origin Controller setup is to automatically create and deploy a standalone
-executable application. 
+The easiest way to get Hakbot Origin Controller setup is to automatically create and deploy an executable WAR.
 
 ```shell
 mvn clean package -P embedded-jetty
