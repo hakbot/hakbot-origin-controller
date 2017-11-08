@@ -109,20 +109,15 @@ video encoding where a jobs provider may specify source video and encoding param
 publish to CDNs or asset management applications.
 
 
-Compiling
+
+Distributions
 -------------------
 
-To create a standalone executable application that is ready to launch (recommended for most users):
+Ready-to-deploy distributions will be available beginning with 1.0.0-beta-1. Hakbot Origin Controller
+supports the following two deployment options:
 
-```shell
-mvn clean package -P embedded-jetty
-```
-
-To create a WAR that must be manually deployed to a modern Servlet container (i.e. Tomcat 8.5+):
-
-```shell
-mvn clean package
-```
+* Executable WAR
+* Docker container
 
 
 Deploying Standalone
@@ -149,6 +144,22 @@ docker build -f src/main/docker/Dockerfile -t hakbot .
 docker run -p 8080:8080 -t hakbot
 ```
  
+ 
+Compiling
+-------------------
+
+To create a standalone executable application that is ready to launch (recommended for most users):
+
+```shell
+mvn clean package -P embedded-jetty
+```
+
+To create a WAR that must be manually deployed to a modern Servlet container (i.e. Tomcat 8.5+):
+
+```shell
+mvn clean package
+```
+
 
 Configuration
 -------------------
