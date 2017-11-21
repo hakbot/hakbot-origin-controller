@@ -117,18 +117,31 @@ Ready-to-deploy distributions will be available beginning with 1.0.0-beta-1. Hak
 supports the following two deployment options:
 
 * Executable WAR
+* Conventional WAR
 * Docker container
 
 
-Deploying Standalone
+Deploying the Executable WAR
 -------------------
 
 The easiest way to get Hakbot Origin Controller setup is to automatically create and deploy an executable WAR.
 
 ```shell
 mvn clean package -P embedded-jetty
-java -jar target/origin-controller.war
+java -jar target/origin-controller-embedded.war
 ```
+
+
+Deploying the Conventional WAR
+-------------------
+
+This is the most difficult to deploy option as it requires an already installed and configured Servlet 
+container such as Apache Tomcat 8.5 and higher, however, it offers the most flexible deployment options.
+
+```shell
+mvn clean package
+```
+Follow the Servlet containers instructions for deploying `origin-controller.war`.
 
  
 Deploying With Docker
