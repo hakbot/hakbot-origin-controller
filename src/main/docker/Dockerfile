@@ -15,7 +15,7 @@ RUN adduser -h ${DATA_DIR} -s bash -D ${USER}
 USER ${USER}
 
 # Copy the compiled WAR to the application directory created above
-COPY ./target/origin-controller.war ${APP_DIR}
+COPY ./target/origin-controller-embedded.war ${APP_DIR}
 
 VOLUME ${DATA_DIR}
 
@@ -23,4 +23,4 @@ EXPOSE 8080
 
 # Launch Hakbot Origin Controller
 WORKDIR ${APP_DIR}
-CMD java -jar origin-controller.war
+CMD java -jar origin-controller-embedded.war
