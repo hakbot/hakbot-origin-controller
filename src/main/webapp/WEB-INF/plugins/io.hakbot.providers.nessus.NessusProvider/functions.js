@@ -186,16 +186,16 @@ $nessus = function() {
         if (finding.severity == 0) {
             finding.severityOrder = 5;
             finding.severityLabel = '<span class="label label-default label-md severity-info">Info</span>';    
-        } else if (finding.severity == 1) {
+        } else if (finding.severity == 4) {
             finding.severityOrder = 1;
             finding.severityLabel = '<span class="label label-default label-md severity-critical">Critical</span>';
-        } else if (finding.severity == 2) {
+        } else if (finding.severity == 3) {
             finding.severityOrder = 2;
             finding.severityLabel = '<span class="label label-default label-md severity-high">High</span>';
-        } else if (finding.severity == 3) {
+        } else if (finding.severity == 2) {
             finding.severityOrder = 3;
             finding.severityLabel = '<span class="label label-default label-md severity-medium">Medium</span>';
-        } else if (finding.severity == 4) {
+        } else if (finding.severity == 1) {
             finding.severityOrder = 4;
             finding.severityLabel = '<span class="label label-default label-md severity-low">Low</span>';
         }
